@@ -140,19 +140,19 @@
 /* Add Title Font */
 @font-face {
   font-family: "Montserrat";
-  src: url("Montserrat-Regular.ttf") format("truetype");
+  src: url("./Montserrat-Regular.ttf") format("truetype");
   font-weight: normal;
 }
 
 @font-face {
   font-family: "Montserrat";
-  src: url("Montserrat-SemiBold.ttf") format("truetype");
+  src: url("./Montserrat-SemiBold.ttf") format("truetype");
   font-weight: 600;
 }
 
 @font-face {
   font-family: "Montserrat";
-  src: url("Montserrat-Bold.ttf") format("truetype");
+  src: url("./Montserrat-Bold.ttf") format("truetype");
   font-weight: bold;
 }
 
@@ -160,26 +160,31 @@
 .md-typeset h1 {
   color: var(--md-default-fg-color);
   font-family: "Montserrat",Roboto;
+  font-weight: 600;
 }
 
 .md-typeset h2 {
   color: var(--md-default-fg-color);
   font-family: "Montserrat",Roboto;
+  font-weight: 600;
 }
 
 .md-typeset h3 {
   color: var(--md-default-fg-color);
   font-family: "Montserrat",Roboto;
+  font-weight: 600;
 }
 
 .md-typeset h4 {
   color: var(--md-default-fg-color);
   font-family: "Montserrat",Roboto;
+  font-weight: 600;
 }
 
 .md-typeset h5 {
   color: var(--md-default-fg-color);
   font-family: "Montserrat",Roboto;
+  font-weight: 600;
 }
 
 /*
