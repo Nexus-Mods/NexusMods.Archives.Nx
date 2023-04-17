@@ -33,21 +33,24 @@ markdown_extensions:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
+theme:
+  name: material
+  palette:
+    scheme: nexus-slate
+  features:
+    - navigation.instant
+   
 extra_css:
   - Custom/Stylesheets/extra.css
 
 plugins:
   - search
-
-theme:
-  name: material
-  palette:
-    primary: red
-    accent: red
-    scheme: slate
-  features:
-    - navigation.instant
     
 nav:
   - Home: index.md
+  - Format Specification: 
+      - Overview: Specification/Overview.md
+      - Header: Specification/File-Header.md
+      - Table of Contents (TOC): Specification/Table-Of-Contents.md
+      - Algorithm Implementation: Specification/Implementation-Details.md
   - Contributing To Wiki: Contributing-Locally.md
