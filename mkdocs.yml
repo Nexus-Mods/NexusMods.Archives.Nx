@@ -1,0 +1,53 @@
+site_name: Nexus NX Archive Library
+site_url: https://nexus-mods.github.io/NexusMods.Archives.Nx/
+
+repo_name: Nexus-Mods/NexusMods.Archives.Nx
+repo_url: https://github.com/Nexus-Mods/NexusMods.Archives.Nx
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Nexus-Mods
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/TheSewer56
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tasklist
+  - def_list
+  - meta
+  - md_in_html
+  - attr_list
+  - footnotes
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra_css:
+  - Custom/Stylesheets/extra.css
+
+plugins:
+  - search
+
+theme:
+  name: material
+  palette:
+    primary: red
+    accent: red
+    scheme: slate
+  features:
+    - navigation.instant
+    
+nav:
+  - Home: index.md
+  - Contributing To Wiki: Contributing-Locally.md
