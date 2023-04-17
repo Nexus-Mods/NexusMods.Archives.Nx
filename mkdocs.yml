@@ -11,6 +11,9 @@ extra:
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/TheSewer56
 
+extra_css:
+  - Custom/Stylesheets/extra.css
+
 markdown_extensions:
   - admonition
   - tables
@@ -40,12 +43,9 @@ theme:
   features:
     - navigation.instant
    
-extra_css:
-  - Custom/Stylesheets/extra.css
-
 plugins:
   - search
-    
+
 nav:
   - Home: index.md
   - Format Specification: 
