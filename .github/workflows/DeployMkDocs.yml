@@ -22,6 +22,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout Branch
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       # Deploy MkDocs
       - name: Deploy MkDocs

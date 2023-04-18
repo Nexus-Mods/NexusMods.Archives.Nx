@@ -12,7 +12,10 @@ extra:
       link: https://twitter.com/TheSewer56
 
 extra_css:
-  - Custom/Stylesheets/extra.css
+  - Nexus/Stylesheets/extra.css
+
+plugins:
+  - search
 
 markdown_extensions:
   - admonition
@@ -42,9 +45,6 @@ theme:
     scheme: nexus-slate
   features:
     - navigation.instant
-   
-plugins:
-  - search
 
 nav:
   - Home: index.md

@@ -12,7 +12,8 @@ It has the following properties:
 - Stores File Hashes Within.  
 - TOC in-front.  
 
-We use SOLID compression to bundle up small files together, while keeping the large files as separate compressed blobs.
+We use SOLID compression to bundle up small files together, while keeping the large files as separate compressed blobs.  
+All files are entirely contained within a slice of a given block.  
 
 ```mermaid
 flowchart TD
@@ -25,8 +26,8 @@ flowchart TD
     end
 
     subgraph Block 0
-        ModConfig.json -.-> Thumbnail.png
-        Thumbnail.png -.-> more["... More Files"]        
+        ModConfig.json -.-> Updates.json
+        Updates.json -.-> more["... more .json files"]        
     end
 ```
 

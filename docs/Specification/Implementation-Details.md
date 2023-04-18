@@ -29,7 +29,9 @@ Most compression algorithms accept `Span<byte>`; and in cases where we might nee
 
 ## Parallel Compression
 
-First we must decide how to group files into blocks.
+!!! info
+
+    Compression process involves grouping the files into blocks, then compressing the blocks in parallel.
 
 To do this, we will perform the following steps:  
 
@@ -39,24 +41,34 @@ To do this, we will perform the following steps:
 - The groups are then re-combined in order of `total size of group data` ascending.  
 - Groups are assigned to threads, e.g. For 8 groups, 4 threads you assign thread(s) `1,2,3,4` + `1,2,3,4`. This handles load balancing.  
 
-Note: Grouping files by extension (equivalent to 7zip `qs` parameter) improves compression ratio, as data between different
-files of same type is likely to be similar (e.g. two text files).  
+!!! note
+  
+    Grouping files by extension (equivalent to 7zip `qs` parameter) improves compression ratio, as data between different
+    files of same type is likely to be similar (e.g. two text files).  
 
 ## Choosing Compression Implementation
 
-- For recompressing downloaded files from the web; prefer faster compression approaches.  
+!!! tip
+
+    There is an important tradeoff between size and speed to be made, 
+    especially for more real-time cases like [Nexus Mods App](https://github.com/Nexus-Mods/NexusMods.App) where
+    downloaded mods are recompressed on download. 
+
+    The appropriate approach depends on your input data and use case; below are some general tips.
+
+- For repacking downloaded files from the web; prefer faster compression approaches.  
     - Use `zstd -11` or `zstd -16` (depending on CPU, estimate power by thread count).  
     - Can't have the user wait too long...  
     - We only use highest levels e.g. `zstd -22` when 'publishing' (uploading) to web.  
 
 - Files which we know are not compressible are assigned `copy` as compression strategy in their blocks.  
-    - We should have some sort of mechanism to feed this info from outside the library.  
+    - We will provide a mechanism to feed this info from outside the library.  
 
 - Extraordinarily large files should be handled with LZ4.  
     - To avoid case of lots of small files, and one huge file.  
     - Files 1GB and beyond. Needs benchmarking.  
 
-Prefer ZStd for large files.
+- Prefer ZStd for large files.
 
 ## Repacking/Appending Files
 

@@ -3,6 +3,10 @@
 */
 
 :root {
+
+  /* For reuse later */
+  --md-primary-fg-color-rgb: 217, 143, 64;
+  
   /* Primary color shades */
   --md-primary-fg-color:        #D98F40;
   --md-primary-fg-color--light: #E0A362;
@@ -137,6 +141,49 @@
   color: var(--md-default-fg-color--light);
 }
 
+/* Custom 'nexus' admonition */
+:root {
+  --md-admonition-icon--nexus: url('../../Images/Nexus-Icon-40.png');
+  --md-admonition-icon--nexusheart: url('../../Images/Nexus-Heart-40.png');
+}
+.md-typeset .admonition.nexus,
+.md-typeset details.nexus {
+  border-color: var(--md-primary-fg-color);
+}
+.md-typeset .nexus > .admonition-title,
+.md-typeset .nexus > summary {
+  background-color: rgba(var(--md-primary-fg-color-rgb), 0.1); 
+}
+.md-typeset .nexus > .admonition-title::before,
+.md-typeset .nexus > summary::before {
+  background-color: unset;
+  -webkit-mask-image: unset;
+  background-image: var(--md-admonition-icon--nexus);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Custom 'orange heart' admonition */
+.md-typeset .admonition.nexusheart,
+.md-typeset details.nexusheart {
+  border-color: var(--md-primary-fg-color);
+}
+.md-typeset .nexusheart > .admonition-title,
+.md-typeset .nexusheart > summary {
+  background-color: rgba(var(--md-primary-fg-color-rgb), 0.1);
+}
+.md-typeset .nexusheart > .admonition-title::before,
+.md-typeset .nexusheart > summary::before {
+  background-color: unset;
+  -webkit-mask-image: unset;
+  background-image: var(--md-admonition-icon--nexusheart);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
 /* Add Title Font */
 @font-face {
   font-family: "Montserrat";
@@ -185,97 +232,4 @@
   color: var(--md-default-fg-color);
   font-family: "Montserrat",Roboto;
   font-weight: 600;
-}
-
-/*
-  Emoji
-*/
-
-:root {
-  --pillar-font-size: 1.1rem;
-}
-
-.pillarcard .twemoji {
-  display: inline-flex;
-  fill: currentColor;
-  font-size: var(--pillar-font-size);
-}
-
-.pillarcard .pillartitle {
-  font-size: var(--pillar-font-size);
-}
-
-.pillartitle {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-.pillarcard .pillarseparator {
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-
-/* 
-  Pillarcard:
-    Provides cards display support.  
-*/
-
-.pillarwrapper {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: stretch;
-}
- 
-.pillarwrapper > div {
-
-  padding: 10px 10px 10px 10px;
-  height: auto;
-  overflow: hidden;
-  transition: ease-in-out 200ms;
-  box-shadow: 0px 5px 5px rgba(255, 255, 255, 0.08);
-  border-collapse: collapse;
-
-  /* Horizontal Stacking */
-  flex-grow: 1;
-  flex-basis: 300px; /* min width */
-
-  /* Border Style */
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 5px;
-
-  /* Add some spacing to our pillars */
-  margin: 5px;
-  cursor: default; /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */ 
-}
- 
-.pillarwrapper > div:hover {
-  box-shadow: 0px 5px 10px rgba(30, 30, 30, 0.85);
-}
- 
-.pillarcard {
-  padding-bottom:0px;
-  opacity: 0.9;
-
-  /* Border */
-  border: rgba(255, 255, 255, 0.705);
-}   
-
-.pillarcard:hover {
-  opacity: 1.0;
-
-  /* Border */
-  border: #EF5552;
-  border-style: solid;
-  border-width: 1px;
-}   
-
-.pillarcard img {
-  opacity: 0.8;
-  transition: ease-in-out 200ms;  
-}
-
-.pillarcard:hover img {
-  opacity: 1.0;
 }
