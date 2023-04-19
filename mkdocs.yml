@@ -48,7 +48,8 @@ theme:
 
 nav:
   - Home: index.md
-  - Format Specification: 
+  - Contributing to Library: Contributing.md
+  - Format Specification:
       - Overview: Specification/Overview.md
       - Header: Specification/File-Header.md
       - Table of Contents (TOC): Specification/Table-Of-Contents.md

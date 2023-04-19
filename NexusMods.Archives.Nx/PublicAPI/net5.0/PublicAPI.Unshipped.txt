@@ -1,0 +1,37 @@
+﻿const NexusMods.Archives.Nx.TOC.StringPool.DefaultCompressionLevel = 16 -> int
+const NexusMods.Archives.Nx.TOC.StringPool.MaxUncompressedSize = 268435456 -> int
+NexusMods.Archives.Nx.Enums.SolidPreference
+NexusMods.Archives.Nx.Enums.SolidPreference.Default = 0 -> NexusMods.Archives.Nx.Enums.SolidPreference
+NexusMods.Archives.Nx.Enums.SolidPreference.NoSolid = 1 -> NexusMods.Archives.Nx.Enums.SolidPreference
+NexusMods.Archives.Nx.Structs.PackerFile
+NexusMods.Archives.Nx.Structs.PackerFile.FileSize.get -> long
+NexusMods.Archives.Nx.Structs.PackerFile.FileSize.init -> void
+NexusMods.Archives.Nx.Structs.PackerFile.PackerFile() -> void
+NexusMods.Archives.Nx.Structs.PackerFile.RelativePath.get -> string!
+NexusMods.Archives.Nx.Structs.PackerFile.RelativePath.init -> void
+NexusMods.Archives.Nx.Structs.PackerFile.SolidType.get -> NexusMods.Archives.Nx.Enums.SolidPreference
+NexusMods.Archives.Nx.Structs.PackerFile.SolidType.set -> void
+NexusMods.Archives.Nx.TOC.StringPool
+NexusMods.Archives.Nx.TOC.StringPool.StringPool() -> void
+NexusMods.Archives.Nx.Traits.IHasFilePath
+NexusMods.Archives.Nx.Traits.IHasFilePath.RelativePath.get -> string!
+NexusMods.Archives.Nx.Utilities.ArrayRental
+NexusMods.Archives.Nx.Utilities.ArrayRental.Array.get -> byte[]!
+NexusMods.Archives.Nx.Utilities.ArrayRental.ArrayRental() -> void
+NexusMods.Archives.Nx.Utilities.ArrayRental.ArrayRental(int numBytes) -> void
+NexusMods.Archives.Nx.Utilities.ArrayRental.Dispose() -> void
+NexusMods.Archives.Nx.Utilities.ArrayRental.Span.get -> System.Span<byte>
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.ArrayRentalSlice() -> void
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.ArrayRentalSlice(NexusMods.Archives.Nx.Utilities.ArrayRental rental, int length) -> void
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Dispose() -> void
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Length.get -> int
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Rental.get -> NexusMods.Archives.Nx.Utilities.ArrayRental
+NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Span.get -> System.Span<byte>
+NexusMods.Archives.Nx.Utilities.FileFinder
+NexusMods.Archives.Nx.Utilities.FileFinder.FileFinder() -> void
+NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
+NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.EnumerationOptions! options) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
+NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException
+NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException.InsufficientStringPoolSizeException(string? message) -> void
+static NexusMods.Archives.Nx.TOC.StringPool.Pack<T>(System.Span<T> items) -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice

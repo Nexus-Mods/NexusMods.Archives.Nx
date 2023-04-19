@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx", "NexusMods.Archives.Nx\NexusMods.Archives.Nx.csproj", "{DF22E9C8-FFCC-44CA-AF2C-359139C4ED7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.Benchmarks", "NexusMods.Archives.Nx.Benchmarks\NexusMods.Archives.Nx.Benchmarks.csproj", "{DA70DA75-E32A-4AE1-B3C2-CACA60B49144}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.Tests", "NexusMods.Archives.Nx.Tests\NexusMods.Archives.Nx.Tests.csproj", "{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".solutionItems", ".solutionItems", "{A4D00A0A-40BD-420B-81BB-B110B198E14F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		mkdocs.yml = mkdocs.yml
+		README.md = README.md
+		Directory.Build.props = Directory.Build.props
+		NuGet.Build.props = NuGet.Build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.DependencyInjection", "NexusMods.Archives.Nx.DependencyInjection\NexusMods.Archives.Nx.DependencyInjection.csproj", "{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF22E9C8-FFCC-44CA-AF2C-359139C4ED7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF22E9C8-FFCC-44CA-AF2C-359139C4ED7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF22E9C8-FFCC-44CA-AF2C-359139C4ED7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF22E9C8-FFCC-44CA-AF2C-359139C4ED7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA70DA75-E32A-4AE1-B3C2-CACA60B49144}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA70DA75-E32A-4AE1-B3C2-CACA60B49144}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA70DA75-E32A-4AE1-B3C2-CACA60B49144}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA70DA75-E32A-4AE1-B3C2-CACA60B49144}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal

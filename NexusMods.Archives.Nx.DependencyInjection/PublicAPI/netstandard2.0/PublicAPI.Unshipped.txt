@@ -1,0 +1,2 @@
+﻿NexusMods.Archives.Nx.DependencyInjection.Services
+static NexusMods.Archives.Nx.DependencyInjection.Services.AddNxArchiver(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services) -> Microsoft.Extensions.DependencyInjection.IServiceCollection!
