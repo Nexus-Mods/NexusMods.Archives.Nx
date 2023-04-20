@@ -22,5 +22,5 @@ public class UnpackingStringPool
     }
     
     [Benchmark]
-    public string[] Unpack() => StringPool.Unpack(Pool);
+    public string[] Unpack() => StringPool.Unpack(Pool, N);
 }

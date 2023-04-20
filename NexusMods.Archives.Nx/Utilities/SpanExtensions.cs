@@ -14,9 +14,6 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// </summary>
 internal static class SpanExtensions
 {
-    private const int AvxRegisterLength = 32;
-    private const int SseRegisterLength = 16;
-
     /// <summary>
     ///     Casts a span to another type without bounds checks.
     /// </summary>
@@ -218,8 +215,9 @@ internal static class SpanExtensions
     /// </summary>
     /// <param name="data">The data to search within.</param>
     /// <param name="value">Value to listen to.</param>
+    /// <param name="offsetCountHint">Hint for likely amount of offsets.</param>
     /// <returns>A list of all offsets of a given value within the span.</returns>
-    public static unsafe List<int> FindAllOffsetsOfByte(this Span<byte> data, byte value)
+    public static unsafe List<int> FindAllOffsetsOfByte(this Span<byte> data, byte value, int offsetCountHint = 0)
     {
         // Note: A generic implementation wouldn't look too different here; just would need another fallback in case
         // sizeof(T) is bigger than nint.
@@ -227,7 +225,7 @@ internal static class SpanExtensions
         // TODO: Unrolled CPU version for non-AMD64 platforms.
         // Note: I wrote this in SSE/AVX directly because System.Numerics.Vectors does not have equivalent of MoveMask
         //       which means getting offset of matched value is slow.
-        var offsets = new List<int>();
+        var offsets = new List<int>(offsetCountHint);
         fixed (byte* dataPtr = data)
         {
 #if NETCOREAPP3_1_OR_GREATER
@@ -268,11 +266,13 @@ internal static class SpanExtensions
 #if NETCOREAPP3_1_OR_GREATER
     internal static unsafe void FindAllOffsetsOfByteAvx2(byte* data, int length, byte value, List<int> results)
     {
+        const int avxRegisterLength = 32;
+        
         // Byte to search for.
         var byteVec = Vector256.Create(value);
         var dataPtr = data;
-        var dataMaxPtr = dataPtr + (length - AvxRegisterLength);
-        var simdJump = AvxRegisterLength - 1;
+        var dataMaxPtr = dataPtr + (length - avxRegisterLength);
+        var simdJump = avxRegisterLength - 1;
 
         while (dataPtr < dataMaxPtr)
         {
@@ -300,11 +300,13 @@ internal static class SpanExtensions
 
     internal static unsafe void FindAllOffsetsOfByteSse2(byte* data, int length, byte value, List<int> results)
     {
+        const int sseRegisterLength = 16;
+        
         // Byte to search for.
         var byteVec = Vector128.Create(value);
         var dataPtr = data;
-        var dataMaxPtr = dataPtr + (length - SseRegisterLength);
-        var simdJump = SseRegisterLength - 1;
+        var dataMaxPtr = dataPtr + (length - sseRegisterLength);
+        var simdJump = sseRegisterLength - 1;
 
         while (dataPtr < dataMaxPtr)
         {
