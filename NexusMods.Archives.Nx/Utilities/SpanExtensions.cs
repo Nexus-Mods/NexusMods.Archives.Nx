@@ -2,6 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NETCOREAPP2_1_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -10,6 +14,9 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// </summary>
 internal static class SpanExtensions
 {
+    private const int AvxRegisterLength = 32;
+    private const int SseRegisterLength = 16;
+
     /// <summary>
     ///     Casts a span to another type without bounds checks.
     /// </summary>
@@ -205,4 +212,122 @@ internal static class SpanExtensions
 
         return buffer;
     }
+
+    /// <summary>
+    ///     Finds all offsets of a given value within the specified data.
+    /// </summary>
+    /// <param name="data">The data to search within.</param>
+    /// <param name="value">Value to listen to.</param>
+    /// <returns>A list of all offsets of a given value within the span.</returns>
+    public static unsafe List<int> FindAllOffsetsOfByte(this Span<byte> data, byte value)
+    {
+        // Note: A generic implementation wouldn't look too different here; just would need another fallback in case
+        // sizeof(T) is bigger than nint.
+
+        // TODO: Unrolled CPU version for non-AMD64 platforms.
+        // Note: I wrote this in SSE/AVX directly because System.Numerics.Vectors does not have equivalent of MoveMask
+        //       which means getting offset of matched value is slow.
+        var offsets = new List<int>();
+        fixed (byte* dataPtr = data)
+        {
+#if NETCOREAPP3_1_OR_GREATER
+            if (Avx2.IsSupported)
+            {
+                FindAllOffsetsOfByteAvx2(dataPtr, data.Length, value, offsets);
+                return offsets;
+            }
+
+            if (Sse2.IsSupported) // all AMD64 CPUs
+            {
+                FindAllOffsetsOfByteSse2(dataPtr, data.Length, value, offsets);
+                return offsets;
+            }
+#endif
+
+            // Otherwise probably not a x64 CPU.
+            FindAllOffsetsOfByteFallback(dataPtr, data.Length, value, 0, offsets);
+            return offsets;
+        }
+    }
+
+    internal static unsafe void FindAllOffsetsOfByteFallback(byte* data, int length, byte value, int addToResults,
+        List<int> results)
+    {
+        var dataPtr = data;
+        var dataMaxPtr = dataPtr + length;
+        while (dataPtr < dataMaxPtr)
+        {
+            var item = *dataPtr;
+            if (item == value)
+                results.Add((int)(dataPtr - data) + addToResults);
+
+            dataPtr++;
+        }
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    internal static unsafe void FindAllOffsetsOfByteAvx2(byte* data, int length, byte value, List<int> results)
+    {
+        // Byte to search for.
+        var byteVec = Vector256.Create(value);
+        var dataPtr = data;
+        var dataMaxPtr = dataPtr + (length - AvxRegisterLength);
+        var simdJump = AvxRegisterLength - 1;
+
+        while (dataPtr < dataMaxPtr)
+        {
+            var rhs = Avx.LoadVector256(dataPtr);
+            var equal = Avx2.CompareEqual(byteVec, rhs);
+            var findFirstByte = Avx2.MoveMask(equal);
+
+            // All 0s, so none of them had desired value.
+            if (findFirstByte == 0)
+            {
+                dataPtr += simdJump;
+                continue;
+            }
+
+            // Shift up until first byte found.
+            dataPtr += BitOperations.TrailingZeroCount((uint)findFirstByte);
+            results.Add((int)(dataPtr - data));
+            dataPtr++; // go to next element
+        }
+
+        // Check last few bytes using byte by byte comparison.
+        var position = (int)(dataPtr - data);
+        FindAllOffsetsOfByteFallback(data + position, length - position, value, position, results);
+    }
+
+    internal static unsafe void FindAllOffsetsOfByteSse2(byte* data, int length, byte value, List<int> results)
+    {
+        // Byte to search for.
+        var byteVec = Vector128.Create(value);
+        var dataPtr = data;
+        var dataMaxPtr = dataPtr + (length - SseRegisterLength);
+        var simdJump = SseRegisterLength - 1;
+
+        while (dataPtr < dataMaxPtr)
+        {
+            var rhs = Sse2.LoadVector128(dataPtr);
+            var equal = Sse2.CompareEqual(byteVec, rhs);
+            var findFirstByte = Sse2.MoveMask(equal);
+
+            // All 0s, so none of them had desired value.
+            if (findFirstByte == 0)
+            {
+                dataPtr += simdJump;
+                continue;
+            }
+
+            // Shift up until first byte found.
+            dataPtr += BitOperations.TrailingZeroCount((uint)findFirstByte);
+            results.Add((int)(dataPtr - data));
+            dataPtr++; // go to next element
+        }
+
+        // Check last few bytes using byte by byte comparison.
+        var position = (int)(dataPtr - data);
+        FindAllOffsetsOfByteFallback(data + position, length - position, value, position, results);
+    }
+#endif
 }

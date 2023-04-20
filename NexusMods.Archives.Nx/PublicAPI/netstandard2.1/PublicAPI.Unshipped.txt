@@ -1,5 +1,6 @@
 ﻿const NexusMods.Archives.Nx.TOC.StringPool.DefaultCompressionLevel = 16 -> int
 const NexusMods.Archives.Nx.TOC.StringPool.MaxUncompressedSize = 268435456 -> int
+const NexusMods.Archives.Nx.TOC.StringPool.Separator = '/' -> char
 NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Enums.SolidPreference.Default = 0 -> NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Enums.SolidPreference.NoSolid = 1 -> NexusMods.Archives.Nx.Enums.SolidPreference
@@ -34,4 +35,7 @@ NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath) -> Sy
 NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.EnumerationOptions! options) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException
 NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException.InsufficientStringPoolSizeException(string? message) -> void
+NexusMods.Archives.Nx.Utilities.StringExtensions
 static NexusMods.Archives.Nx.TOC.StringPool.Pack<T>(System.Span<T> items) -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice
+static NexusMods.Archives.Nx.TOC.StringPool.Unpack(System.Span<byte> poolSpan) -> string![]!
+static NexusMods.Archives.Nx.Utilities.StringExtensions.NormalizeSeparatorInPlace(this string! path) -> string!

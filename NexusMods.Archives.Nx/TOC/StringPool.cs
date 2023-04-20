@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using System.Text;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-using static SharpZstd.Interop.Zstd;
 
 namespace NexusMods.Archives.Nx.TOC;
 
@@ -17,7 +15,7 @@ public struct StringPool
     public const char Separator = '/';
 
     /// <summary>
-    ///     Default compression level. [Currently non-customizable]
+    ///     Default compression level for table of contents. [Currently non-customizable]
     /// </summary>
     public const int DefaultCompressionLevel = 16;
 
@@ -31,8 +29,8 @@ public struct StringPool
     /// </summary>
     /// <param name="items">The items to be packed.</param>
     /// <typeparam name="T">Some type which has file names.</typeparam>
-    /// <returns>Packed bytes.</returns>
-    /// <exception cref="InsufficientStringPoolSizeException"></exception>
+    /// <returns>Packed bytes. Make sure to dispose them!</returns>
+    /// <exception cref="InsufficientStringPoolSizeException">Size of string pool, exceeds maximum allowed.</exception>
     public static unsafe ArrayRentalSlice Pack<T>(Span<T> items) where T : IHasFilePath
     {
         // Sort-in-place.
@@ -92,19 +90,39 @@ public struct StringPool
             }
         }
 
-        return Compress(poolBuf.PinnedArray.AsSpan());
+        var numBytes = poolBuf.AvailableSize - numLeft;
+        return Compression.CompressZStd(poolBuf.PinnedArray.AsSpan(0, numBytes));
     }
 
-    private static unsafe ArrayRentalSlice Compress(Span<byte> input)
+    /// <summary>
+    ///     Unpacks strings from a given pool.
+    /// </summary>
+    /// <param name="poolSpan">The compressed stringpool.</param>
+    /// <returns>The strings in the pool.</returns>
+    /// <remarks>
+    ///     The number of expected strings in the pool is obtained from
+    /// </remarks>
+    public static unsafe string[] Unpack(Span<byte> poolSpan)
     {
-        var result = new ArrayRental((int)ZSTD_compressBound((nuint)input.Length));
-        fixed (byte* inputPtr = input)
-        fixed (byte* resultPtr = result.Span)
+        // Okay time to deconstruct the pool.
+        using var decompressed = Compression.DecompressZStd(poolSpan);
+        var decompressedSpan = decompressed.Span;
+        var offsets = decompressedSpan.FindAllOffsetsOfByte(0);
+        var items = Polyfills.AllocateUninitializedArray<string>(offsets.Count);
+
+        var currentOffset = 0;
+        fixed (byte* spanPtr = decompressedSpan)
         {
-            var numCompressed = (int)ZSTD_compress(resultPtr, (nuint)result.Array.Length, inputPtr, (nuint)input.Length,
-                DefaultCompressionLevel);
-            return new ArrayRentalSlice(result, numCompressed);
+            for (var x = 0; x < items.Length; x++)
+            {
+                var offset = offsets[x];
+                var length = offset - currentOffset;
+                items[x] = Encoding.UTF8.GetString(spanPtr + currentOffset, length);
+                currentOffset = offset + 1;
+            }
         }
+        
+        return items;
     }
 }
 

@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.5"/>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\NexusMods.Archives.Nx\NexusMods.Archives.Nx.csproj"/>
+        <ProjectReference Include="..\NexusMods.Archives.Nx\NexusMods.Archives.Nx.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Config\"/>
+        <Folder Include="Config\" />
     </ItemGroup>
 
 </Project>
