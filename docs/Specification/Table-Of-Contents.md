@@ -1,15 +1,14 @@
 ﻿# Table of Contents (TOC)
 
-- `u32`: FileCount
-- `u16`: BlockCount
-- `u16`: Reserved/Padding
+- `u32`: FileCount [[limited to 1 million due to FilePathIndex](./File-Header.md#versionvariant)]
+- `u18`: BlockCount
+- `u14`: Reserved/Padding
 - `FileEntry[FileCount]`
     - `u64`: FileHash (xxHash64)
-    - `u32/u64`: CompressedSize
     - `u32/u64`: DecompressedSize
-    - `u26`: DecompressedBlockOffset (note: Tied to max block size)
-    - `u22`: FilePathIndex (in StringPool)
-    - `u16`: BlockIndex
+    - `u26`: DecompressedBlockOffset [[limits max block size](./File-Header.md#block-size)]
+    - `u20`: FilePathIndex (in [StringPool](#string-pool)) [[limits max file count](./File-Header.md#versionvariant)]
+    - `u18`: FirstBlockIndex
 - Blocks[BlockCount]
     - `u32/u64` CompressedBlockSize
 - BlockCompressions
@@ -19,7 +18,24 @@
 
 ## File Entries
 
-Use known fixed size and are 4 byte aligned to improve parsing speed; size 24-32 bytes per item depending on variant.
+Use known fixed size and are 4 byte aligned to improve parsing speed; size 20-24 bytes per item depending on variant.
+
+### Implicit Property: Is SOLID
+
+!!! tip
+
+    Reserved value `DecompressedBlockOffset == 2^26` means 'file is not SOLID'.  
+
+This is why we [take away 1 from Block Size in header](./File-Header.md#block-size).  
+This allows us to insert non-SOLID files (even under block size) into single blocks.  
+
+### Implicit Property: Chunk Count
+
+!!! tip
+
+    Files exceeding [Chunk Size](./File-Header.md#large-file-chunk-size) span multiple blocks.
+
+Number of blocks used to store the file is calculated as `DecompressedSize` / [Chunk Size](./File-Header.md#large-file-chunk-size).
 
 ## Blocks
 

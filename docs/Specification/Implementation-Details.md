@@ -2,7 +2,8 @@
 
 !!! info
 
-    This page contains guidance for people implementing their own libraries for working with `.nx` files. 
+    This page contains guidance for people implementing their own libraries for working with `.nx` files.  
+    It is not a step by step guide.  
 
 ## Use Memory Maps
 

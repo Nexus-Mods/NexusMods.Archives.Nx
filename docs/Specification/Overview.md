@@ -10,6 +10,7 @@ It has the following properties:
 - Files above Block Size are non-SOLID Compressed.  
 - Variable Block Size.  
 - Stores File Hashes Within.  
+- Huge Files Split into Chunks for Faster (De)compression.  
 - TOC in-front.  
 
 We use SOLID compression to bundle up small files together, while keeping the large files as separate compressed blobs.  
