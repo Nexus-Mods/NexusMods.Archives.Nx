@@ -38,9 +38,9 @@ To do this, we will perform the following steps:
 
 - Files are sorted by size. (optimize for blocks)  
 - Files are then grouped by extension. (optimize for ratio)  
-- These groups are chunked into blocks. Files whose size exceeds `BlockSize / 2` are allocated their own block.  
+- These groups are chunked into blocks. Files whose size exceeds `BlockSize / 2` starting with first file that doesn't fit into block are allocated their own block.  
 - The groups are then re-combined in order of `total size of group data` ascending.  
-- Groups are assigned to threads, e.g. For 8 groups, 4 threads you assign thread(s) `1,2,3,4` + `1,2,3,4`. This handles load balancing.  
+- We assign the groups to individual threads using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.  
 
 !!! note
   
