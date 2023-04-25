@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NexusMods.Archives.Nx.Utilities;
 
-namespace NexusMods.Archives.Nx.Tests.Tests;
+namespace NexusMods.Archives.Nx.Tests.Tests.Utilities;
 
 /// <summary>
 ///     Tests for finding offsets.
@@ -15,6 +15,9 @@ public class FindOffsetsTests
         Fallback
     }
 
+    /// <summary>
+    ///     Determines if offsets for StringPool can be correctly found using various optimized approaches.
+    /// </summary>
     [Theory]
 #if NETCOREAPP3_1_OR_GREATER
     [InlineData(65, new[] { 1, 4, 8 }, FindOffsetMethod.Avx2)] // above register

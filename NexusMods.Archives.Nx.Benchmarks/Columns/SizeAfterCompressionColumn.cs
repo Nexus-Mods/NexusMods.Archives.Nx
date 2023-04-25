@@ -24,20 +24,12 @@ public class SizeAfterCompressionColumn : IColumn
 
     public bool IsNumeric => true;
 
-    public bool IsAvailable(Summary summary)
-    {
-        return true;
-    }
+    public bool IsAvailable(Summary summary) => true;
 
-    public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase)
-    {
-        return false;
-    }
+    public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) => false;
 
-    public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
-    {
-        return GetValue(summary, benchmarkCase, SummaryStyle.Default);
-    }
+    public string GetValue(Summary summary, BenchmarkCase benchmarkCase) =>
+        GetValue(summary, benchmarkCase, SummaryStyle.Default);
 
     public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style)
     {
@@ -51,13 +43,8 @@ public class SizeAfterCompressionColumn : IColumn
         return File.Exists(filename) ? File.ReadAllText(filename) : "no file";
     }
 
-    public static string GetFileName(string benchName, int count)
-    {
-        return string.Format(SizeAfterCompressionFileNameFormat, benchName, count).ToLower();
-    }
+    public static string GetFileName(string benchName, int count) =>
+        string.Format(SizeAfterCompressionFileNameFormat, benchName, count).ToLower();
 
-    public override string ToString()
-    {
-        return ColumnName;
-    }
+    public override string ToString() => ColumnName;
 }

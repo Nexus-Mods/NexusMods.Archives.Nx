@@ -41,7 +41,7 @@ internal static class Compression
             {
                 var decompressed = (int)ZSTD_decompress(resultPtr, (UIntPtr)resultSpan.Length, compressedPtr,
                     (UIntPtr)input.Length);
-                
+
                 return new ArrayRentalSlice(result, decompressed);
             }
         }

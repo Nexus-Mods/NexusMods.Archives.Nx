@@ -35,7 +35,7 @@ Parsed as `(32768 << blockSize) - 1`.
 
 i.e. BlockSize = 11 is `67108863` (i.e. `64MiB - 1` or `2^26 - 1`).  
 
-We remove -1 from the valuye for 2 reasons:  
+We remove -1 from the value for 2 reasons:  
 
 - Avoid collisions with [Chunk Size](#large-file-chunk-size).  
 - Value of `2^26` is reserved to mean: [This file is non-SOLID](./Table-Of-Contents.md#implicit-property-is-solid).

@@ -125,12 +125,10 @@ internal static class SpanExtensions
     ///     This can be the original <paramref name="data" /> buffer if required.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Span<char> Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer)
-    {
+    public static Span<char> Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer) =>
         // char is not supported by Vector; but ushort is.
-        return Replace(data.CastFast<char, ushort>(), oldValue, newValue, buffer.CastFast<char, ushort>())
+        Replace(data.CastFast<char, ushort>(), oldValue, newValue, buffer.CastFast<char, ushort>())
             .CastFast<ushort, char>();
-    }
 
     /// <summary>
     ///     Replaces the occurrences of one value with another in a span.
@@ -267,7 +265,7 @@ internal static class SpanExtensions
     internal static unsafe void FindAllOffsetsOfByteAvx2(byte* data, int length, byte value, List<int> results)
     {
         const int avxRegisterLength = 32;
-        
+
         // Byte to search for.
         var byteVec = Vector256.Create(value);
         var dataPtr = data;
@@ -301,7 +299,7 @@ internal static class SpanExtensions
     internal static unsafe void FindAllOffsetsOfByteSse2(byte* data, int length, byte value, List<int> results)
     {
         const int sseRegisterLength = 16;
-        
+
         // Byte to search for.
         var byteVec = Vector128.Create(value);
         var dataPtr = data;

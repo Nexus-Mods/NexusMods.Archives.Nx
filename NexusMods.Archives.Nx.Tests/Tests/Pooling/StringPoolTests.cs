@@ -1,8 +1,8 @@
 using FluentAssertions;
+using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Archives.Nx.TOC;
 
-namespace NexusMods.Archives.Nx.Tests.Tests;
+namespace NexusMods.Archives.Nx.Tests.Tests.Pooling;
 
 public class StringPoolTests
 {
@@ -23,7 +23,7 @@ public class StringPoolTests
 
         using var createPool = StringPool.Pack(items.AsSpan());
         var strings = Polyfills.ToHashSet(StringPool.Unpack(createPool.Span));
-        
+
         foreach (var item in items)
             strings.Should().Contain(item.RelativePath);
     }

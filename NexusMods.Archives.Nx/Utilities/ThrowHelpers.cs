@@ -1,4 +1,4 @@
-using NexusMods.Archives.Nx.TOC;
+using NexusMods.Archives.Nx.Headers;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -7,17 +7,12 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// </summary>
 internal class ThrowHelpers
 {
-    public static void ThrowInsufficientStringPoolSizeException()
-    {
-        throw new InsufficientStringPoolSizeException(
-            $"Size of string pool, exceeds maximum allowable ({StringPool.MaxUncompressedSize}).");
-    }
+    public static void ThrowInsufficientStringPoolSizeException() => throw new InsufficientStringPoolSizeException(
+        $"Size of string pool, exceeds maximum allowable ({StringPool.MaxUncompressedSize}).");
 
-    public static void ThrowInsufficientStringPoolSizeException(nint poolSize)
-    {
+    public static void ThrowInsufficientStringPoolSizeException(nint poolSize) =>
         throw new InsufficientStringPoolSizeException(
             $"Size of string pool: {poolSize}, exceeds maximum allowable ({StringPool.MaxUncompressedSize}).");
-    }
 }
 
 /// <summary>

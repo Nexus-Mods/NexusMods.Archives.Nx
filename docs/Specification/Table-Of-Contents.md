@@ -13,6 +13,7 @@
     - `u32/u64` CompressedBlockSize
 - BlockCompressions
     - `u2` Compression
+- [Align(u8)](#blockcompressions)
 - StringPool (see below)
     - `RawCompressedData...`
 
@@ -43,6 +44,8 @@ Each entry contains raw size of the block; this avoids us having to have an offs
 
 ## BlockCompressions
 
+!!! note "This section is padded to next byte. a.k.a. `Align(u8)"
+
 Size: `2 bits` (0-3)
 
 - `0`: Copy
@@ -50,7 +53,6 @@ Size: `2 bits` (0-3)
 - `2`: LZ4
 - `3`: Reserved
 
-This section is padded to next multiple of 4.
 If we ever need to add more formats; we still got reserved space for flags in header; and a flag could extend this to 4 bits (16 values).
 
 ## String Pool

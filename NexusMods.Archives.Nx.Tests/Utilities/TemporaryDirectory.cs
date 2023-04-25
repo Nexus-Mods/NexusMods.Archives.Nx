@@ -33,10 +33,7 @@ public class TemporaryDirectory : IDisposable
     }
 
     /// <inheritdoc />
-    ~TemporaryDirectory()
-    {
-        Dispose();
-    }
+    ~TemporaryDirectory() => Dispose();
 
     /// <summary>
     ///     Makes a unique, empty folder inside a specified folder.

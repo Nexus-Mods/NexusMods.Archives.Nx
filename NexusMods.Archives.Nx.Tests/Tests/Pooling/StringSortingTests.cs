@@ -1,8 +1,8 @@
 using FluentAssertions;
+using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Archives.Nx.TOC;
 
-namespace NexusMods.Archives.Nx.Tests.Tests;
+namespace NexusMods.Archives.Nx.Tests.Tests.Pooling;
 
 public class StringSortingTests
 {

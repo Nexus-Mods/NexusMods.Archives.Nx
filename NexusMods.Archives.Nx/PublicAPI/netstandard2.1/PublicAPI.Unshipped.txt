@@ -1,10 +1,111 @@
-﻿const NexusMods.Archives.Nx.TOC.StringPool.DefaultCompressionLevel = 16 -> int
+﻿const NexusMods.Archives.Nx.Headers.StringPool.DefaultCompressionLevel = 16 -> int
+const NexusMods.Archives.Nx.Headers.StringPool.MaxUncompressedSize = 268435456 -> int
+const NexusMods.Archives.Nx.Headers.StringPool.Separator = '/' -> char
+const NexusMods.Archives.Nx.TOC.StringPool.DefaultCompressionLevel = 16 -> int
 const NexusMods.Archives.Nx.TOC.StringPool.MaxUncompressedSize = 268435456 -> int
 const NexusMods.Archives.Nx.TOC.StringPool.Separator = '/' -> char
+NexusMods.Archives.Nx.ChunkedFileBlock<T>
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.ChunkedFileBlock(T File, long StartOffset, int ChunkSize) -> void
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.ChunkSize.get -> int
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.ChunkSize.init -> void
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.File.get -> T
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.File.init -> void
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.StartOffset.get -> long
+NexusMods.Archives.Nx.ChunkedFileBlock<T>.StartOffset.init -> void
+NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Enums.CompressionPreference.Copy = 0 -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Enums.CompressionPreference.Lz4 = 2 -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Enums.CompressionPreference.NoPreference = 255 -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Enums.CompressionPreference.ZStandard = 1 -> NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Enums.SolidPreference.Default = 0 -> NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Enums.SolidPreference.NoSolid = 1 -> NexusMods.Archives.Nx.Enums.SolidPreference
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.Directory.get -> string!
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.Directory.init -> void
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.FromDirectoryDataProvider() -> void
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.GetFileData(long start, uint length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.RelativePath.get -> string!
+NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.RelativePath.init -> void
+NexusMods.Archives.Nx.FileProviders.MemoryMappedFileData
+NexusMods.Archives.Nx.FileProviders.MemoryMappedFileData.Data.get -> byte*
+NexusMods.Archives.Nx.FileProviders.MemoryMappedFileData.DataLength.get -> nuint
+NexusMods.Archives.Nx.FileProviders.MemoryMappedFileData.Dispose() -> void
+NexusMods.Archives.Nx.FileProviders.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, uint length) -> void
+NexusMods.Archives.Nx.FileProviders.MemoryMappedFileData.~MemoryMappedFileData() -> void
+NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
+NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion.V0 = 0 -> NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
+NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion.V1 = 1 -> NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
+NexusMods.Archives.Nx.Headers.Managed.FileEntry
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.DecompressedBlockOffset -> int
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.DecompressedSize -> long
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.FileEntry() -> void
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.FilePathIndex -> int
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.FirstBlockIndex -> int
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.Hash -> long
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.BlockSize -> int
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.CalculateTableSize(NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> void
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Dispose() -> void
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.LargeFileChunkSize -> int
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.PoolData -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Size -> int
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.TableOfContents() -> void
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.~TableOfContents() -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSize.get -> byte
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSize.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.ChunkSize.get -> byte
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.ChunkSize.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.IsValidMagicHeader() -> bool
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.Magic -> uint
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.NativeFileHeader() -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.ReverseEndianIfNeeded() -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.SetMagic() -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.TocPageCount.get -> ushort
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.TocPageCount.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.Version.get -> byte
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.Version.set -> void
+NexusMods.Archives.Nx.Headers.StringPool
+NexusMods.Archives.Nx.Headers.StringPool.StringPool() -> void
+NexusMods.Archives.Nx.Headers.Structs.BlockSize
+NexusMods.Archives.Nx.Headers.Structs.BlockSize.BlockSize() -> void
+NexusMods.Archives.Nx.Headers.Structs.BlockSize.BlockSize(long compressedSize) -> void
+NexusMods.Archives.Nx.Headers.Structs.BlockSize.CompressedSize -> long
+NexusMods.Archives.Nx.Interfaces.IFileData
+NexusMods.Archives.Nx.Interfaces.IFileData.Data.get -> byte*
+NexusMods.Archives.Nx.Interfaces.IFileData.DataLength.get -> nuint
+NexusMods.Archives.Nx.Interfaces.IFileDataProvider
+NexusMods.Archives.Nx.Interfaces.IFileDataProvider.GetFileData(long start, uint length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
+NexusMods.Archives.Nx.NxPacker
+NexusMods.Archives.Nx.NxPacker.NxPacker() -> void
+NexusMods.Archives.Nx.NxPacker.PackAsync(NexusMods.Archives.Nx.Structs.PackerFile![]! files, NexusMods.Archives.Nx.Structs.PackerSettings! settings) -> System.Threading.Tasks.Task!
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.ChunkedFileBlock(T File, long StartOffset, int ChunkSize, NexusMods.Archives.Nx.Enums.CompressionPreference Compression) -> void
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.ChunkSize.get -> int
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.ChunkSize.init -> void
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.Compression.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.Compression.init -> void
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.File.get -> T
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.File.init -> void
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.GetAllItems() -> System.Collections.Generic.IEnumerable<T>!
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.StartOffset.get -> long
+NexusMods.Archives.Nx.Structs.Blocks.ChunkedFileBlock<T>.StartOffset.init -> void
+NexusMods.Archives.Nx.Structs.Blocks.IBlock<T>
+NexusMods.Archives.Nx.Structs.Blocks.IBlock<T>.Compression.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Structs.Blocks.IBlock<T>.GetAllItems() -> System.Collections.Generic.IEnumerable<T>!
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>.Compression.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>.Compression.init -> void
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>.GetAllItems() -> System.Collections.Generic.IEnumerable<T>!
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>.Items.get -> System.Collections.Generic.List<T>!
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>.Items.init -> void
+NexusMods.Archives.Nx.Structs.Blocks.SolidBlock<T>.SolidBlock(System.Collections.Generic.List<T>! Items, NexusMods.Archives.Nx.Enums.CompressionPreference Compression) -> void
 NexusMods.Archives.Nx.Structs.PackerFile
+NexusMods.Archives.Nx.Structs.PackerFile.CompressionPreference.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Structs.PackerFile.CompressionPreference.set -> void
+NexusMods.Archives.Nx.Structs.PackerFile.FileDataProvider.get -> NexusMods.Archives.Nx.Interfaces.IFileDataProvider!
+NexusMods.Archives.Nx.Structs.PackerFile.FileDataProvider.init -> void
 NexusMods.Archives.Nx.Structs.PackerFile.FileSize.get -> long
 NexusMods.Archives.Nx.Structs.PackerFile.FileSize.init -> void
 NexusMods.Archives.Nx.Structs.PackerFile.PackerFile() -> void
@@ -12,10 +113,57 @@ NexusMods.Archives.Nx.Structs.PackerFile.RelativePath.get -> string!
 NexusMods.Archives.Nx.Structs.PackerFile.RelativePath.init -> void
 NexusMods.Archives.Nx.Structs.PackerFile.SolidType.get -> NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Structs.PackerFile.SolidType.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings
+NexusMods.Archives.Nx.Structs.PackerSettings.BlockSize.get -> int
+NexusMods.Archives.Nx.Structs.PackerSettings.BlockSize.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.ChunkedFileAlgorithm.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Structs.PackerSettings.ChunkedFileAlgorithm.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.ChunkSize.get -> int
+NexusMods.Archives.Nx.Structs.PackerSettings.ChunkSize.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.Lz4Level.get -> int
+NexusMods.Archives.Nx.Structs.PackerSettings.Lz4Level.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.MaxNumThreads.get -> int
+NexusMods.Archives.Nx.Structs.PackerSettings.MaxNumThreads.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.OutputPath.get -> string!
+NexusMods.Archives.Nx.Structs.PackerSettings.OutputPath.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.PackerSettings() -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.Progress.get -> System.IProgress<double>?
+NexusMods.Archives.Nx.Structs.PackerSettings.Progress.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.SolidBlockAlgorithm.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Structs.PackerSettings.SolidBlockAlgorithm.set -> void
+NexusMods.Archives.Nx.Structs.PackerSettings.ZStandardLevel.get -> int
+NexusMods.Archives.Nx.Structs.PackerSettings.ZStandardLevel.set -> void
+NexusMods.Archives.Nx.TOC.Block
+NexusMods.Archives.Nx.TOC.Block.Block() -> void
+NexusMods.Archives.Nx.TOC.Block.CompressedSize -> long
+NexusMods.Archives.Nx.TOC.Enums.ArchiveVersion
+NexusMods.Archives.Nx.TOC.Enums.ArchiveVersion.V0 = 0 -> NexusMods.Archives.Nx.TOC.Enums.ArchiveVersion
+NexusMods.Archives.Nx.TOC.Enums.ArchiveVersion.V1 = 1 -> NexusMods.Archives.Nx.TOC.Enums.ArchiveVersion
+NexusMods.Archives.Nx.TOC.FileEntry
+NexusMods.Archives.Nx.TOC.FileEntry.DecompressedSize -> long
+NexusMods.Archives.Nx.TOC.FileEntry.FileEntry() -> void
+NexusMods.Archives.Nx.TOC.FileEntry.Hash -> long
 NexusMods.Archives.Nx.TOC.StringPool
 NexusMods.Archives.Nx.TOC.StringPool.StringPool() -> void
-NexusMods.Archives.Nx.Traits.IHasFilePath
-NexusMods.Archives.Nx.Traits.IHasFilePath.RelativePath.get -> string!
+NexusMods.Archives.Nx.TOC.TableOfContents
+NexusMods.Archives.Nx.TOC.TableOfContents.BlockSize -> int
+NexusMods.Archives.Nx.TOC.TableOfContents.Dispose() -> void
+NexusMods.Archives.Nx.TOC.TableOfContents.LargeFileChunkSize -> int
+NexusMods.Archives.Nx.TOC.TableOfContents.PoolData -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice
+NexusMods.Archives.Nx.TOC.TableOfContents.Size -> int
+NexusMods.Archives.Nx.TOC.TableOfContents.TableOfContents() -> void
+NexusMods.Archives.Nx.TOC.TableOfContents.Version -> int
+NexusMods.Archives.Nx.TOC.TableOfContents.~TableOfContents() -> void
+NexusMods.Archives.Nx.Traits.ICanProvideFileData
+NexusMods.Archives.Nx.Traits.ICanProvideFileData.FileDataProvider.get -> NexusMods.Archives.Nx.Interfaces.IFileDataProvider!
+NexusMods.Archives.Nx.Traits.IHasCompressionPreference
+NexusMods.Archives.Nx.Traits.IHasCompressionPreference.CompressionPreference.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
+NexusMods.Archives.Nx.Traits.IHasFileSize
+NexusMods.Archives.Nx.Traits.IHasFileSize.FileSize.get -> long
+NexusMods.Archives.Nx.Traits.IHasRelativePath
+NexusMods.Archives.Nx.Traits.IHasRelativePath.RelativePath.get -> string!
+NexusMods.Archives.Nx.Traits.IHasSolidType
+NexusMods.Archives.Nx.Traits.IHasSolidType.SolidType.get -> NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Utilities.ArrayRental
 NexusMods.Archives.Nx.Utilities.ArrayRental.Array.get -> byte[]!
 NexusMods.Archives.Nx.Utilities.ArrayRental.ArrayRental() -> void
@@ -36,6 +184,15 @@ NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, Syste
 NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException
 NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException.InsufficientStringPoolSizeException(string? message) -> void
 NexusMods.Archives.Nx.Utilities.StringExtensions
+readonly NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.FeatureFlags -> byte
+required NexusMods.Archives.Nx.Headers.Managed.TableOfContents.BlockCompressions -> NexusMods.Archives.Nx.Enums.CompressionPreference[]!
+required NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Blocks -> NexusMods.Archives.Nx.Headers.Structs.BlockSize[]!
+required NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Entries -> NexusMods.Archives.Nx.Headers.Managed.FileEntry[]!
+required NexusMods.Archives.Nx.TOC.TableOfContents.BlockCompressions -> NexusMods.Archives.Nx.Enums.CompressionPreference[]!
+required NexusMods.Archives.Nx.TOC.TableOfContents.Blocks -> NexusMods.Archives.Nx.TOC.Block[]!
+required NexusMods.Archives.Nx.TOC.TableOfContents.Entries -> NexusMods.Archives.Nx.TOC.FileEntry![]!
+static NexusMods.Archives.Nx.Headers.StringPool.Pack<T>(System.Span<T> items) -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice
+static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan, int fileCountHint = 0) -> string![]!
 static NexusMods.Archives.Nx.TOC.StringPool.Pack<T>(System.Span<T> items) -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice
 static NexusMods.Archives.Nx.TOC.StringPool.Unpack(System.Span<byte> poolSpan, int fileCountHint = 0) -> string![]!
 static NexusMods.Archives.Nx.Utilities.StringExtensions.NormalizeSeparatorInPlace(this string! path) -> string!

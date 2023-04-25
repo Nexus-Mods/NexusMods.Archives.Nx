@@ -1,4 +1,5 @@
 using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Traits;
 
 namespace NexusMods.Archives.Nx.Structs;
@@ -6,20 +7,25 @@ namespace NexusMods.Archives.Nx.Structs;
 /// <summary>
 ///     An individual file input into the packer.
 /// </summary>
-public class PackerFile : IHasFilePath
+public class PackerFile : IHasRelativePath, IHasFileSize, IHasSolidType, IHasCompressionPreference, ICanProvideFileData
 {
-    /// <summary>
-    ///     Size of the file in bytes.
-    /// </summary>
+    /// <inheritdoc />
+    public required IFileDataProvider FileDataProvider { get; init; }
+
+    /// <inheritdoc />
+    public string RelativePath { get; init; } = string.Empty;
+
+    /// <inheritdoc />
     public long FileSize { get; init; }
 
-    /// <summary>
-    ///     Preference in terms of whether this item should be SOLID or not.
-    /// </summary>
-    public SolidPreference SolidType { get; set; } = SolidPreference.Default;
+    // Do not change default value for CompressionPreference without updating PackerFileForBlockTesting's value.
 
     /// <summary>
-    ///     Relative path of the file from within the archive.
+    ///     Preferred algorithm to compress the item with.<br />
+    ///     Note: This setting is only honoured if <see cref="SolidPreference.NoSolid" /> is set in <see cref="SolidType" />.
     /// </summary>
-    public string RelativePath { get; init; } = string.Empty;
+    public CompressionPreference CompressionPreference { get; set; } = CompressionPreference.NoPreference;
+
+    /// <inheritdoc />
+    public SolidPreference SolidType { get; set; } = SolidPreference.Default;
 }

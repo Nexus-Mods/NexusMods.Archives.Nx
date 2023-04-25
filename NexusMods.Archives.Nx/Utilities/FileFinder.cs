@@ -1,3 +1,4 @@
+using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Structs;
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.IO.Enumeration;
@@ -12,7 +13,7 @@ public class FileFinder
 {
 #if NETSTANDARD2_0
     /// <summary>
-    /// Retrieves all packable files from within a given directory.
+    ///     Retrieves all packable files from within a given directory.
     /// </summary>
     /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
     /// <param name="searchOption">
@@ -20,7 +21,7 @@ public class FileFinder
     ///     should include all subdirectories or only the current directory.
     /// </param>
     public List<PackerFile> GetFiles(string directoryPath, SearchOption searchOption =
- SearchOption.AllDirectories)
+        SearchOption.AllDirectories)
     {
         // TODO: This fallback for NS2.0 is slow.
         var results = new List<PackerFile>();
@@ -28,13 +29,19 @@ public class FileFinder
         directoryPath = Path.GetFullPath(directoryPath);
         foreach (var result in Directory.GetFiles(directoryPath, "*", searchOption))
         {
-            results.Add(new PackerFile()
+            var relativePath = result.Substring(substringLength).NormalizeSeparatorInPlace();
+            results.Add(new PackerFile
             {
-                RelativePath = result.Substring(substringLength).NormalizeSeparatorInPlace(),
-                FileSize = new FileInfo(result).Length
+                RelativePath = relativePath,
+                FileSize = new FileInfo(result).Length,
+                FileDataProvider = new FromDirectoryDataProvider
+                {
+                    Directory = directoryPath,
+                    RelativePath = relativePath
+                }
             });
         }
-        
+
         return results;
     }
 #endif
@@ -45,13 +52,10 @@ public class FileFinder
     ///     Retrieves all packable files from within a given directory.
     /// </summary>
     /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
-    public List<PackerFile> GetFiles(string directoryPath)
+    public List<PackerFile> GetFiles(string directoryPath) => GetFiles(directoryPath, new EnumerationOptions
     {
-        return GetFiles(directoryPath, new EnumerationOptions
-        {
-            RecurseSubdirectories = true
-        });
-    }
+        RecurseSubdirectories = true
+    });
 
     /// <summary>
     ///     Retrieves all packable files from within a given directory.
@@ -76,24 +80,30 @@ public class FileFinder
 
     private class PackerFileEnumerator : FileSystemEnumerator<PackerFile>
     {
+        private readonly string _baseDirectory;
         private readonly int _substringLength;
 
         public PackerFileEnumerator(string directory, EnumerationOptions? options = null) : base(directory, options)
         {
+            _baseDirectory = directory;
             _substringLength = directory.Length + 1;
         }
 
-        protected override bool ShouldIncludeEntry(ref FileSystemEntry entry)
-        {
-            return base.ShouldIncludeEntry(ref entry) && !entry.IsDirectory;
-        }
+        protected override bool ShouldIncludeEntry(ref FileSystemEntry entry) =>
+            base.ShouldIncludeEntry(ref entry) && !entry.IsDirectory;
 
         protected override PackerFile TransformEntry(ref FileSystemEntry entry)
         {
+            var relativePath = entry.ToFullPath()[_substringLength..].NormalizeSeparatorInPlace();
             return new PackerFile
             {
-                RelativePath = entry.ToFullPath()[_substringLength..].NormalizeSeparatorInPlace(),
-                FileSize = entry.Length
+                RelativePath = relativePath,
+                FileSize = entry.Length,
+                FileDataProvider = new FromDirectoryDataProvider()
+                {
+                    Directory = _baseDirectory,
+                    RelativePath = relativePath
+                }
             };
         }
     }

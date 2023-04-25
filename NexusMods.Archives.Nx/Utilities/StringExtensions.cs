@@ -3,7 +3,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Extension methods for strings.
 /// </summary>
-public static class StringExtensions
+internal static class StringExtensions
 {
     /// <summary>
     ///     Normalizes the separator from '\' to '/' in-place.

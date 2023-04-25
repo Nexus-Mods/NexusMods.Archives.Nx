@@ -1,7 +1,7 @@
 ﻿namespace NexusMods.Archives.Nx.Tests.Utilities;
 
 /// <summary>
-/// Backwards compatibility wrappers for older runtimes.
+///     Backwards compatibility wrappers for older runtimes.
 /// </summary>
 public static class Polyfills
 {
@@ -18,6 +18,5 @@ public static class Polyfills
         // ReSharper disable once InvokeAsExtensionMethod
         return Enumerable.ToHashSet(enumerable);
 #endif
-        
     }
 }

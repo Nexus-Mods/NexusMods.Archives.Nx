@@ -21,14 +21,8 @@ public struct ArrayRental : IDisposable
     ///     Rents a provided number of bytes.
     /// </summary>
     /// <param name="numBytes">Minimum number of bytes to rent.</param>
-    public ArrayRental(int numBytes)
-    {
-        Array = ArrayPool<byte>.Shared.Rent(numBytes);
-    }
+    public ArrayRental(int numBytes) => Array = ArrayPool<byte>.Shared.Rent(numBytes);
 
     /// <inheritdoc />
-    public void Dispose()
-    {
-        ArrayPool<byte>.Shared.Return(Array);
-    }
+    public void Dispose() => ArrayPool<byte>.Shared.Return(Array);
 }

@@ -2,7 +2,7 @@ using System.Text;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
-namespace NexusMods.Archives.Nx.TOC;
+namespace NexusMods.Archives.Nx.Headers;
 
 /// <summary>
 ///     Provides an abstraction over the string pool used in the application.
@@ -27,11 +27,14 @@ public struct StringPool
     /// <summary>
     ///     Packs a stringpool given the file paths provided.
     /// </summary>
-    /// <param name="items">The items to be packed.</param>
+    /// <param name="items">
+    ///     The items to be packed.
+    ///     These will be sorted in-place according to their packing order.
+    /// </param>
     /// <typeparam name="T">Some type which has file names.</typeparam>
     /// <returns>Packed bytes. Make sure to dispose them!</returns>
     /// <exception cref="InsufficientStringPoolSizeException">Size of string pool, exceeds maximum allowed.</exception>
-    public static unsafe ArrayRentalSlice Pack<T>(Span<T> items) where T : IHasFilePath
+    public static unsafe ArrayRentalSlice Pack<T>(Span<T> items) where T : IHasRelativePath
     {
         // Sort-in-place.
         items.SortLexicographically();
@@ -129,7 +132,7 @@ public struct StringPool
 
 internal static class StringPoolExtensions
 {
-    public static void SortLexicographically<T>(this Span<T> items) where T : IHasFilePath
+    public static void SortLexicographically<T>(this Span<T> items) where T : IHasRelativePath
     {
 #if NET5_0_OR_GREATER
         items.Sort((a, b) => string.Compare(a.RelativePath, b.RelativePath, StringComparison.Ordinal));

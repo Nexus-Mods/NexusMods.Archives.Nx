@@ -32,8 +32,5 @@ public struct ArrayRentalSlice : IDisposable
     }
 
     /// <inheritdoc />
-    public void Dispose()
-    {
-        Rental.Dispose();
-    }
+    public void Dispose() => Rental.Dispose();
 }

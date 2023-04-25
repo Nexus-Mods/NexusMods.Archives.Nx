@@ -44,10 +44,10 @@ if a small file is all that is needed.
 The overall file is structured in this order:  
 
 ```
-| Header | TOC | Block 1 | Block 2 | ... | Block N |
+| Header + TOC | Block 1 | Block 2 | ... | Block N |
 ```
 
-All sections [including block data] are 4096 aligned to match physical sector size of modern drives and page granularity.  
+All sections (indicated by `|`) are 4096 aligned to match physical sector size of modern drives and page granularity.  
 
 Field sizes used below are similar to Rust notation; with some custom types e.g. 
 

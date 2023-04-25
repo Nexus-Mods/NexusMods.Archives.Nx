@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using NexusMods.Archives.Nx.Benchmarks.Utilities;
-using NexusMods.Archives.Nx.TOC;
+using NexusMods.Archives.Nx.Headers;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
@@ -14,10 +14,7 @@ public class PathSorting
     [Params(1000, 2000, 4000)] public int N { get; set; }
 
     [GlobalSetup]
-    public void Setup()
-    {
-        Strings = StringWrapper.FromStringArray(Assets.GetYakuzaFileList()[..N].ToArray());
-    }
+    public void Setup() => Strings = StringWrapper.FromStringArray(Assets.GetYakuzaFileList()[..N].ToArray());
 
     // Benchmarks
     [Benchmark]

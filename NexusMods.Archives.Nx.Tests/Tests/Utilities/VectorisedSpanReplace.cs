@@ -1,6 +1,6 @@
 using NexusMods.Archives.Nx.Utilities;
 
-namespace NexusMods.Archives.Nx.Tests.Tests;
+namespace NexusMods.Archives.Nx.Tests.Tests.Utilities;
 
 /// <summary>
 ///     Test logic for our vectorised change case.
@@ -15,10 +15,8 @@ public class VectorisedReplaceCharacter
     [InlineData(@"\\", @"/\")]
     [InlineData(@"\\\", @"/\/")]
     [InlineData(@"\\\\", @"/\/\")]
-    public static void ReplaceSlash_Short_InPlace(string expected, string input)
-    {
+    public static void ReplaceSlash_Short_InPlace(string expected, string input) =>
         AssertStringReplaceInPlace(expected, input, '/', '\\');
-    }
 
     /// <summary>
     ///     Tests strings smaller than any vector variable would store.
@@ -28,10 +26,8 @@ public class VectorisedReplaceCharacter
     [InlineData(@"\\", @"/\")]
     [InlineData(@"\\\", @"/\/")]
     [InlineData(@"\\\\", @"/\/\")]
-    public static void ReplaceSlash_Short_InAnotherBuffer(string expected, string input)
-    {
+    public static void ReplaceSlash_Short_InAnotherBuffer(string expected, string input) =>
         AssertStringReplaceInAnotherBuffer(expected, input, '/', '\\');
-    }
 
     private static unsafe void AssertStringReplaceInPlace(string expected, string input, char oldChar, char newChar)
     {
