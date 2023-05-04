@@ -10,13 +10,13 @@ public class PackerPoolTests
     {
         using var pool = new PackerArrayPool(4, 4096);
         using var rental = pool.Rent(1024);
-        
+
         rental.Array.Should().NotBeNull();
         rental.Length.Should().Be(1024);
         rental.Owner.Should().Be(pool);
         rental.ArrayIndex.Should().Be(-1); // Shared Pool
     }
-    
+
     [Fact]
     public void Rent_ViaArrayPool_WhenBelowThreshold()
     {
@@ -24,14 +24,14 @@ public class PackerPoolTests
         using var rental = pool.Rent(524288);
         rental.ArrayIndex.Should().Be(-1); // Shared Pool
     }
-    
+
     [Fact]
     public void BlockSize_UnderThreshold_ArraysNotAllocated()
     {
         using var pool = new PackerArrayPool(4, 524288);
         pool.HasArrays.Should().BeFalse();
     }
-    
+
     [Fact]
     public void Rent_ViaArrays_WhenAboveThreshold()
     {
@@ -41,7 +41,7 @@ public class PackerPoolTests
     }
 
     /// <summary>
-    /// This only holds true in a single-threaded scenario, but interesting nonetheless.
+    ///     This only holds true in a single-threaded scenario, but interesting nonetheless.
     /// </summary>
     [Fact]
     public void Rent_Returns_SameArray_OnDisposal()

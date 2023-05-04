@@ -19,7 +19,7 @@ public unsafe class RentedArrayFileData : IFileData
     private GCHandle _handle;
 
     /// <summary>
-    /// Creates file data backed by an array.
+    ///     Creates file data backed by an array.
     /// </summary>
     /// <param name="data">The data backed up by the array.</param>
     public RentedArrayFileData(ArrayRentalSlice data)

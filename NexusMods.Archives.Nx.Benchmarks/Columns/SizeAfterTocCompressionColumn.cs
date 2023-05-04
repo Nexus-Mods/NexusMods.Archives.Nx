@@ -29,8 +29,7 @@ public class SizeAfterTocCompressionColumn : IColumn
 
     public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase) => false;
 
-    public string GetValue(Summary summary, BenchmarkCase benchmarkCase) =>
-        GetValue(summary, benchmarkCase, SummaryStyle.Default);
+    public string GetValue(Summary summary, BenchmarkCase benchmarkCase) => GetValue(summary, benchmarkCase, SummaryStyle.Default);
 
     public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style)
     {

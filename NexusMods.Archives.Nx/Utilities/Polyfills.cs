@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+#if NET7_0_OR_GREATER
 using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 
 namespace NexusMods.Archives.Nx.Utilities;
@@ -21,7 +23,7 @@ internal class Polyfills
         return new T[size];
 #endif
     }
-    
+
     /// <summary>
     ///     Allocates an array in the pinned object heap (if possible).
     /// </summary>
@@ -37,17 +39,17 @@ internal class Polyfills
     }
 
     /// <summary>
-    /// Rounds up the number to next power of 2. Does not overflow.
+    ///     Rounds up the number to next power of 2. Does not overflow.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int RoundUpToPowerOf2NoOverflow(int value)
     {
         if (value == int.MaxValue)
             return value;
-        
+
 #if NET7_0_OR_GREATER
         return (int)BitOperations.RoundUpToPowerOf2((uint)value);
-#else 
+#else
         // Based on https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
         --value;
         value |= value >> 1;
@@ -58,9 +60,9 @@ internal class Polyfills
         return value + 1;
 #endif
     }
-    
+
     /// <summary>
-    /// Clamps the value between a lower and upper bound.
+    ///     Clamps the value between a lower and upper bound.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Clamp(int value, int min, int max)
@@ -75,36 +77,46 @@ internal class Polyfills
     }
 
     /// <summary>
-    /// Reads at least a minimum number of bytes from the current stream and advances the position within the stream by the number of bytes read.
+    ///     Reads at least a minimum number of bytes from the current stream and advances the position within the stream by the
+    ///     number of bytes read.
     /// </summary>
     /// <param name="stream">Stream to read from.</param>
-    /// <param name="buffer">A region of memory. When this method returns, the contents of this region are replaced by the bytes read from the current stream.</param>
+    /// <param name="buffer">
+    ///     A region of memory. When this method returns, the contents of this region are replaced by the
+    ///     bytes read from the current stream.
+    /// </param>
     /// <param name="minimumBytes">The minimum number of bytes to read into the buffer.</param>
     /// <param name="throwOnEndOfStream">
-    /// <see langword="true"/> to throw an exception if the end of the stream is reached before reading <paramref name="minimumBytes"/> of bytes;
-    /// <see langword="false"/> to return less than <paramref name="minimumBytes"/> when the end of the stream is reached.
-    /// The default is <see langword="true"/>.
+    ///     <see langword="true" /> to throw an exception if the end of the stream is reached before reading
+    ///     <paramref name="minimumBytes" /> of bytes;
+    ///     <see langword="false" /> to return less than <paramref name="minimumBytes" /> when the end of the stream is
+    ///     reached.
+    ///     The default is <see langword="true" />.
     /// </param>
     /// <returns>
-    /// The total number of bytes read into the buffer. This is guaranteed to be greater than or equal to <paramref name="minimumBytes"/>
-    /// when <paramref name="throwOnEndOfStream"/> is <see langword="true"/>. This will be less than <paramref name="minimumBytes"/> when the
-    /// end of the stream is reached and <paramref name="throwOnEndOfStream"/> is <see langword="false"/>. This can be less than the number
-    /// of bytes allocated in the buffer if that many bytes are not currently available.
+    ///     The total number of bytes read into the buffer. This is guaranteed to be greater than or equal to
+    ///     <paramref name="minimumBytes" />
+    ///     when <paramref name="throwOnEndOfStream" /> is <see langword="true" />. This will be less than
+    ///     <paramref name="minimumBytes" /> when the
+    ///     end of the stream is reached and <paramref name="throwOnEndOfStream" /> is <see langword="false" />. This can be
+    ///     less than the number
+    ///     of bytes allocated in the buffer if that many bytes are not currently available.
     /// </returns>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="minimumBytes"/> is negative, or is greater than the length of <paramref name="buffer"/>.
+    ///     <paramref name="minimumBytes" /> is negative, or is greater than the length of <paramref name="buffer" />.
     /// </exception>
     /// <exception cref="EndOfStreamException">
-    /// <paramref name="minimumBytes"/> bytes of data.
+    ///     <paramref name="minimumBytes" /> bytes of data.
     /// </exception>
     /// <remarks>
-    /// When <paramref name="minimumBytes"/> is 0 (zero), this read operation will be completed without waiting for available data in the stream.
+    ///     When <paramref name="minimumBytes" /> is 0 (zero), this read operation will be completed without waiting for
+    ///     available data in the stream.
     /// </remarks>
     public static int ReadAtLeast(Stream stream, byte[] buffer, int minimumBytes, bool throwOnEndOfStream = true)
     {
-        #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
         return stream.ReadAtLeast(buffer, minimumBytes, throwOnEndOfStream);
-        #else
+#else
         Debug.Assert(minimumBytes <= buffer.Length);
         var totalRead = 0;
         while (totalRead < minimumBytes)
@@ -112,7 +124,7 @@ internal class Polyfills
             var read = stream.Read(buffer, totalRead, minimumBytes - totalRead);
             if (read == 0)
             {
-                if (throwOnEndOfStream) 
+                if (throwOnEndOfStream)
                     ThrowHelpers.ThrowEndOfFileException();
 
                 return totalRead;
@@ -122,6 +134,6 @@ internal class Polyfills
         }
 
         return totalRead;
-        #endif
+#endif
     }
 }

@@ -30,5 +30,5 @@ public class PackerFileForBenchmarking : IHasFileSize, IHasSolidType, IHasCompre
         RelativePath = relativePath;
     }
 
-    public IFileDataProvider FileDataProvider { get; }
+    public IFileDataProvider FileDataProvider { get; } = null!;
 }

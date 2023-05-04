@@ -16,7 +16,7 @@ public class AutoNonRandomDataAttribute : AutoDataAttribute
         fixture.Customizations.Add(new DefaultConstructorSpecimenBuilder());
         return fixture;
     }
-    
+
     public class DefaultConstructorSpecimenBuilder : ISpecimenBuilder
     {
         public object Create(object request, ISpecimenContext context)
@@ -27,9 +27,6 @@ public class AutoNonRandomDataAttribute : AutoDataAttribute
             return new NoSpecimen();
         }
 
-        private static bool HasDefaultConstructor(Type type)
-        {
-            return type.GetConstructor(Type.EmptyTypes) != null;
-        }
+        private static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Tests.Utilities;
 

@@ -2,10 +2,11 @@
 using NexusMods.Archives.Nx.Benchmarks.Columns;
 using NexusMods.Archives.Nx.Benchmarks.Utilities;
 using NexusMods.Archives.Nx.Headers;
-using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using static NexusMods.Archives.Nx.Benchmarks.Columns.SizeAfterTocCompressionColumn;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace NexusMods.Archives.Nx.Benchmarks.Benchmarks;
@@ -15,21 +16,19 @@ namespace NexusMods.Archives.Nx.Benchmarks.Benchmarks;
 public class ParsingTableOfContents
 {
     // Do not rename. Column depends on this name.
-    [Params(1000, 2000, 4000)] 
-    public int N { get; set; }
-    
-    [Params(32766, 524287, 1048575)]
-    public int SolidBlockSize { get; set; }
-    
-    [Params(1024*1024*32, 1024*1024*64, 1024*1024*128)]
+    [Params(1000, 2000, 4000)] public int N { get; set; }
+
+    [Params(32766, 524287, 1048575)] public int SolidBlockSize { get; set; }
+
+    [Params(1024 * 1024 * 32, 1024 * 1024 * 64, 1024 * 1024 * 128)]
     public int ChunkSize { get; set; }
-    
-    internal TableOfContentsBuilder<PackerFileForBenchmarking> Builder { get; set; }
-    internal byte[] PrebuiltData { get; set; }
-    internal PackerFileForBenchmarking[] Files { get; set; }
-    internal List<IBlock<PackerFileForBenchmarking>> Blocks { get; set; }
-    public Dictionary<string, List<PackerFileForBenchmarking>> Groups { get; set; }
-    
+
+    internal TableOfContentsBuilder<PackerFileForBenchmarking> Builder { get; set; } = null!;
+    internal byte[] PrebuiltData { get; set; } = null!;
+    internal PackerFileForBenchmarking[] Files { get; set; } = null!;
+    internal List<IBlock<PackerFileForBenchmarking>> Blocks { get; set; } = null!;
+    public Dictionary<string, List<PackerFileForBenchmarking>> Groups { get; set; } = null!;
+
     [GlobalSetup]
     public void Setup()
     {
@@ -37,7 +36,7 @@ public class ParsingTableOfContents
         Files = entries.Take(N).Select(x => new PackerFileForBenchmarking(x.RelativePath, x.FileSize)).ToArray();
         CreateToc();
     }
-    
+
     // Size Reporting 
     [GlobalCleanup(Target = nameof(CreateTable))]
     public void Cleanup_CreateTable()
@@ -47,13 +46,13 @@ public class ParsingTableOfContents
     }
 
     [Benchmark]
-    public unsafe int CreateTable() => CreateToc();
-    
+    public int CreateTable() => CreateToc();
+
     //[Benchmark]
-    public unsafe void InitTableData() => InitTocData();
-    
+    public void InitTableData() => InitTocData();
+
     //[Benchmark]
-    public unsafe void InitTable()
+    public void InitTable()
     {
         using var toc = InitToc();
     }
@@ -66,23 +65,20 @@ public class ParsingTableOfContents
             return TableOfContents.Deserialize(dataPtr, PrebuiltData.Length, Builder.Version);
         }
     }
-    
-    private TableOfContentsBuilder<PackerFileForBenchmarking> InitToc()
-    {
-        return new TableOfContentsBuilder<PackerFileForBenchmarking>(Blocks, Files);
-    }
-    
+
+    private TableOfContentsBuilder<PackerFileForBenchmarking> InitToc() => new(Blocks, Files);
+
     private void InitTocData()
     {
         // Generate blocks.
         Groups = NxPacker.MakeGroups(Files);
         Blocks = NxPacker.MakeBlocks(Groups, SolidBlockSize, ChunkSize);
     }
-    
+
     private unsafe int CreateToc()
     {
         Builder?.Dispose();
-        
+
         // Generate blocks.
         Groups = NxPacker.MakeGroups(Files);
         Blocks = NxPacker.MakeBlocks(Groups, SolidBlockSize, ChunkSize);

@@ -28,7 +28,7 @@ internal static class Compression
             return new ArrayRentalSlice(result, numCompressed);
         }
     }
-    
+
     /// <summary>
     ///     Decompresses the given data using LZ4.
     /// </summary>
@@ -48,9 +48,9 @@ internal static class Compression
             }
         }
     }
-    
+
     /// <summary>
-    /// Determines maximum memory needed to alloc to compress data with any method.
+    ///     Determines maximum memory needed to alloc to compress data with any method.
     /// </summary>
     /// <param name="sourceLength">Number of bytes at source.</param>
     public static int MaxAllocForCompressSize(int sourceLength)
@@ -59,13 +59,13 @@ internal static class Compression
         var zstd = AllocForCompressSize(CompressionPreference.ZStandard, sourceLength);
         return Math.Max(lz4, zstd);
     }
-    
+
     /// <summary>
-    /// Determines memory needed to alloc to compress data with a specified method.
+    ///     Determines memory needed to alloc to compress data with a specified method.
     /// </summary>
     /// <param name="method">Method we compress with.</param>
     /// <param name="sourceLength">Number of bytes at source.</param>
-    public static int AllocForCompressSize(CompressionPreference method, int sourceLength) 
+    public static int AllocForCompressSize(CompressionPreference method, int sourceLength)
     {
         switch (method)
         {
@@ -82,7 +82,7 @@ internal static class Compression
     }
 
     /// <summary>
-    /// Compresses data with a specific method.
+    ///     Compresses data with a specific method.
     /// </summary>
     /// <param name="method">Method we compress with.</param>
     /// <param name="level">Level at which we are compressing.</param>
@@ -91,7 +91,8 @@ internal static class Compression
     /// <param name="destination">Pointer to destination.</param>
     /// <param name="destinationLength">Length of bytes at destination.</param>
     /// <param name="defaultedToCopy">If this is true, data was uncompressable and default compression was used instead.</param>
-    public static unsafe int Compress(CompressionPreference method, int level, byte* source, int sourceLength, byte* destination, int destinationLength, out bool defaultedToCopy)
+    public static unsafe int Compress(CompressionPreference method, int level, byte* source, int sourceLength, byte* destination,
+        int destinationLength, out bool defaultedToCopy)
     {
         defaultedToCopy = false;
         switch (method)
@@ -113,7 +114,7 @@ internal static class Compression
                 var bytes = LZ4Codec.Encode(source, sourceLength, destination, destinationLength, (LZ4Level)level);
                 if (bytes > sourceLength)
                     goto case CompressionPreference.Copy;
-                
+
                 return bytes;
             }
 

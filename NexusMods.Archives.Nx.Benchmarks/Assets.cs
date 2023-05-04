@@ -20,7 +20,7 @@ public class Assets
         var compressed = File.ReadAllBytes("Assets/FileLists/YakuzaKiwami.zst");
         return AsLines(DecompressZStd(compressed)).ToArray();
     }
-    
+
     /// <summary>
     ///     All entries from Yakuza Kiwami game folder (~4000 files).
     /// </summary>

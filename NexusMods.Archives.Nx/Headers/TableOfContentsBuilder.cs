@@ -53,7 +53,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// <summary>
     ///     This table of contents contains blocks which can create chunks.
     /// </summary>
-    public bool CanCreateChunks = false;
+    public bool CanCreateChunks;
 
     /// <summary>
     ///     Initializes a Table of Contents from given set of items.
@@ -90,7 +90,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
             if (block.CanCreateChunks())
                 CanCreateChunks = true;
         }
-        
+
         // Note: We could fast-exit here but it is assumed 4GB+ files are exception, not the norm
         // thus it's faster to not check again after setting largestFileSize
         // File above 4GB, use Version 1 archive.
@@ -124,7 +124,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     public int CalculateTableSize() => Toc.CalculateTableSize(Version);
 
     #region For internal use
-    
+
     /// <summary>
     ///     Retrieves a file entry, while incrementing its index atomically.
     /// </summary>
@@ -147,11 +147,8 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// <summary>
     ///     Increments the current block index, while returning the previous one atomically.
     /// </summary>
-    public int GetAndIncrementBlockIndexAtomic()
-    {
-        return Interlocked.Increment(ref CurrentBlock) - 1;
-    }
-    
+    public int GetAndIncrementBlockIndexAtomic() => Interlocked.Increment(ref CurrentBlock) - 1;
+
     #endregion For internal use
 
     /// <summary>

@@ -116,7 +116,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     }
 
     /// <summary>
-    /// Initializes the header with given data.
+    ///     Initializes the header with given data.
     /// </summary>
     /// <remarks>
     ///     For initializing data in native memory. Will reverse endian.
@@ -131,7 +131,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
         header->FeatureFlags = 0;
         header->ReverseEndianIfNeeded();
     }
-    
+
     /// <summary>
     ///     Reverses the endian of the data (on a big endian machine, if required).
     /// </summary>

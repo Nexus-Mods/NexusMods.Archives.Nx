@@ -330,7 +330,7 @@ internal static class SpanExtensions
         FindAllOffsetsOfByteFallback(data + position, length - position, value, position, results);
     }
 #endif
-    
+
     /// <summary>
     ///     Returns a reference to an element at a specified index without performing a bounds check.
     /// </summary>

@@ -15,8 +15,7 @@ public class VectorisedReplaceCharacter
     [InlineData(@"\\", @"/\")]
     [InlineData(@"\\\", @"/\/")]
     [InlineData(@"\\\\", @"/\/\")]
-    public static void ReplaceSlash_Short_InPlace(string expected, string input) =>
-        AssertStringReplaceInPlace(expected, input, '/', '\\');
+    public static void ReplaceSlash_Short_InPlace(string expected, string input) => AssertStringReplaceInPlace(expected, input, '/', '\\');
 
     /// <summary>
     ///     Tests strings smaller than any vector variable would store.

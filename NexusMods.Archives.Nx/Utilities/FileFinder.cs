@@ -89,8 +89,7 @@ public class FileFinder
             _substringLength = directory.Length + 1;
         }
 
-        protected override bool ShouldIncludeEntry(ref FileSystemEntry entry) =>
-            base.ShouldIncludeEntry(ref entry) && !entry.IsDirectory;
+        protected override bool ShouldIncludeEntry(ref FileSystemEntry entry) => base.ShouldIncludeEntry(ref entry) && !entry.IsDirectory;
 
         protected override PackerFile TransformEntry(ref FileSystemEntry entry)
         {

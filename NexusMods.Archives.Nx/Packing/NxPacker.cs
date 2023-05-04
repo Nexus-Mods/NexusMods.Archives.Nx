@@ -6,7 +6,7 @@ using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
-namespace NexusMods.Archives.Nx;
+namespace NexusMods.Archives.Nx.Packing;
 
 /// <summary>
 ///     Utility for creating `.nx` archives.
@@ -26,20 +26,20 @@ public static class NxPacker
         var groups = MakeGroups(files);
         var blocks = MakeBlocks(groups, settings.BlockSize, settings.ChunkSize, settings.SolidBlockAlgorithm, settings.ChunkedFileAlgorithm);
         using var toc = new TableOfContentsBuilder<PackerFile>(blocks, files);
-        
+
         // Let's go!
         var stream = settings.Output;
         var headerData = Polyfills.AllocatePinnedArray<byte>(toc.CalculateTableSize() + sizeof(NativeFileHeader));
         stream.SetLength(((long)headerData.Length).RoundUp4096());
         stream.Position = stream.Length;
-        
+
         fixed (byte* headerDataPtr = headerData)
         {
             // Pack the Blocks
             // Note: Blocks must be packed 'in-order' for chunked files; because their blocks need to be sequential.
             var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
             var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null);
-            var context = new BlockContext()
+            var context = new BlockContext
             {
                 Settings = settings,
                 TocBuilder = toc,
@@ -49,7 +49,7 @@ public static class NxPacker
             for (var x = 0; x < blocks.Count; x++)
             {
                 var block = blocks[x];
-                Task.Factory.StartNew(PackBlock, new BlockData()
+                Task.Factory.StartNew(PackBlock, new BlockData
                 {
                     Block = block,
                     BlockIndex = x,
@@ -59,10 +59,10 @@ public static class NxPacker
 
             // Waits for all jobs to complete.
             sched.Dispose();
-            
+
             // Truncate stream.
             stream.SetLength(stream.Position);
-            
+
             // Write headers.
             stream.Seek(0, SeekOrigin.Begin);
             NativeFileHeader.Init((NativeFileHeader*)headerDataPtr, toc.Version, settings.BlockSize, settings.ChunkSize, headerData.Length);
@@ -84,18 +84,18 @@ public static class NxPacker
         public required TableOfContentsBuilder<PackerFile> TocBuilder;
         public required PackerArrayPools PackerPool;
     }
-    
+
     private static void PackBlock(object? obj)
     {
         var data = (BlockData)obj!;
         var context = data.Context;
         var settings = context.Settings;
         var tocBuilder = context.TocBuilder;
-        
+
         // Compress that block!
         data.Block.ProcessBlock(tocBuilder, settings, data.BlockIndex, context.PackerPool);
     }
-    
+
     // Note: Items inside each dictionary must preserve ascending order.
     internal static Dictionary<string, List<T>> MakeGroups<T>(T[] files) where T : IHasRelativePath
     {
@@ -180,15 +180,15 @@ public static class NxPacker
     {
         var sizeLeft = item.FileSize;
         long currentOffset = 0;
-        
+
         if (chunkedBlockAlgorithm == CompressionPreference.NoPreference)
             chunkedBlockAlgorithm = CompressionPreference.ZStandard;
-        
+
         var numIterations = sizeLeft / chunkSize;
         var remainingSize = sizeLeft % chunkSize;
         var numChunks = remainingSize > 0 ? numIterations + 1 : numIterations;
-        
-        var state = new ChunkedBlockState<T>()
+
+        var state = new ChunkedBlockState<T>
         {
             Compression = chunkedBlockAlgorithm,
             NumChunks = (int)numChunks,

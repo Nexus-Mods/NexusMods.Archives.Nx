@@ -1,5 +1,7 @@
 ﻿using System.IO.Hashing;
+#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
+#endif
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
@@ -12,16 +14,17 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// </summary>
 /// <param name="Items">Items tied to the given block.</param>
 /// <param name="Compression">Compression method to use.</param>
-internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) : IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
+internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) : IBlock<T>
+    where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <inheritdoc />
     public ulong LargestItemSize()
     {
         long largestSize = 0;
-      
+
         // Skips IEnumerator.
 #if NET5_0_OR_GREATER
-foreach (var item in CollectionsMarshal.AsSpan(Items))
+        foreach (var item in CollectionsMarshal.AsSpan(Items))
 #else
         foreach (var item in Items)
 #endif
@@ -57,7 +60,7 @@ foreach (var item in CollectionsMarshal.AsSpan(Items))
             {
                 var item = Items[x];
 #endif
-      
+
                 // Write file info
                 using var data = item.FileDataProvider.GetFileData(0, (uint)item.FileSize);
                 ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
@@ -66,10 +69,11 @@ foreach (var item in CollectionsMarshal.AsSpan(Items))
                 file.DecompressedSize = data.DataLength;
                 file.DecompressedBlockOffset = decompressedBlockOffset;
                 file.Hash = XxHash64.HashToUInt64(new Span<byte>(data.Data, (int)data.DataLength));
-            
+
                 // Copy to SOLID block
-                Buffer.MemoryCopy(data.Data, decompressedPtr + decompressedBlockOffset, (ulong)decompressedAlloc.Array.Length - (ulong)decompressedBlockOffset, data.DataLength);
-                
+                Buffer.MemoryCopy(data.Data, decompressedPtr + decompressedBlockOffset,
+                    (ulong)decompressedAlloc.Array.Length - (ulong)decompressedBlockOffset, data.DataLength);
+
                 // Next file time!
                 decompressedBlockOffset += (int)data.DataLength;
             }
@@ -78,8 +82,9 @@ foreach (var item in CollectionsMarshal.AsSpan(Items))
             fixed (byte* compressedPtr = compressedSpan)
             {
                 ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
-                blockSize.CompressedSize = Utilities.Compression.Compress(Compression, settings.GetCompressionLevel(Compression), decompressedPtr, decompressedBlockOffset, compressedPtr, compressedAlloc.Array.Length, out var asCopy);
-            
+                blockSize.CompressedSize = Utilities.Compression.Compress(Compression, settings.GetCompressionLevel(Compression), decompressedPtr,
+                    decompressedBlockOffset, compressedPtr, compressedAlloc.Array.Length, out var asCopy);
+
                 ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
                 blockCompression = asCopy ? CompressionPreference.Copy : Compression;
 

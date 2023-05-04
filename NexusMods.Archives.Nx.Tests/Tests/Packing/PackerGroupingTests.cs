@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Traits;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;

@@ -15,7 +15,8 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// <param name="ChunkSize">Size of the file segment.</param>
 /// <param name="State">Stores the shared state of all chunks.</param>
 internal record ChunkedFileBlock<T>
-    (long StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockState<T> State) : IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
+    (long StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockState<T> State) : IBlock<T>
+    where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <inheritdoc />
     public ulong LargestItemSize() => (ulong)State.File.FileSize;
@@ -32,42 +33,44 @@ internal record ChunkedFileBlock<T>
         {
             // Compress the block
             using var data = State.File.FileDataProvider.GetFileData(StartOffset, (uint)ChunkSize);
-            var compressed = BlockHelpers.Compress(Compression, settings.GetCompressionLevel(Compression), data, allocationPtr, allocSpan.Length, out var asCopy);
-            State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex, new Span<byte>(data.Data, (int)data.DataLength), asCopy);
+            var compressed = BlockHelpers.Compress(Compression, settings.GetCompressionLevel(Compression), data, allocationPtr, allocSpan.Length,
+                out var asCopy);
+            State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex, new Span<byte>(data.Data, (int)data.DataLength),
+                asCopy);
         }
     }
-    
+
     /// <inheritdoc />
     public CompressionPreference Compression => State.Compression;
 }
 
 /// <summary>
-/// This item stores the shared state of all chunks.
+///     This item stores the shared state of all chunks.
 /// </summary>
 internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <summary>
-    /// Compression used by all chunks of this file.
+    ///     Compression used by all chunks of this file.
     /// </summary>
     public CompressionPreference Compression;
 
     /// <summary>
-    /// Number of total chunks in this chunked block.
+    ///     Number of total chunks in this chunked block.
     /// </summary>
     public int NumChunks = 0;
-    
+
     /// <summary>
-    /// Instance of the Microsoft xxHash64 hasher.
+    ///     Instance of the Microsoft xxHash64 hasher.
     /// </summary>
     public XxHash64 Hash = new();
 
     /// <summary>
-    /// File associated with this chunked block.
+    ///     File associated with this chunked block.
     /// </summary>
     public T File { get; init; } = default!;
 
     /// <summary>
-    /// Sets the specific index as processed and updates internal state.
+    ///     Sets the specific index as processed and updates internal state.
     /// </summary>
     /// <param name="chunkIndex">The index to set.</param>
     /// <param name="compData">The compressed data for block.</param>
@@ -85,37 +88,35 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
 
         // Write out actual block.
         BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compData, compressedSize);
-        
+
         // Update Block Details
         var toc = tocBuilder.Toc;
         ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
         blockSize.CompressedSize = compressedSize;
-        
+
         ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
         blockCompression = asCopy ? CompressionPreference.Copy : Compression;
-        
+
         // Update file details once all chunks are done..
-        if (chunkIndex != (NumChunks - 1)) 
+        if (chunkIndex != NumChunks - 1)
             return;
-        
+
         ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
         file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[File.RelativePath];
-        file.FirstBlockIndex = (blockIndex + 1) - NumChunks; // All chunks (blocks) are sequentially queued/written.
+        file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.
         file.DecompressedSize = (ulong)File.FileSize;
         file.DecompressedBlockOffset = 0;
         file.Hash = GetFinalHash();
     }
 
     /// <summary>
-    /// Updates the current hash.
+    ///     Updates the current hash.
     /// </summary>
     /// <param name="data">The data to be hashed.</param>
     public void UpdateHash(Span<byte> data) => Hash.Append(data);
 
     /// <summary>
-    /// Receive the final hash.
+    ///     Receive the final hash.
     /// </summary>
     public ulong GetFinalHash() => Hash.GetCurrentHashAsUInt64();
-
-
 }

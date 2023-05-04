@@ -4,6 +4,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Tests.Attributes;
 using NexusMods.Archives.Nx.Tests.Utilities;
 
@@ -55,7 +56,7 @@ public class TableOfContentsSerializationTests
         {
             var bytesWritten = tableOfContents.Build(dataPtr);
             bytesWritten.Should().Be(data.Length); // We calculated correct size.
-            
+
             // Deserialize
             var newTable = TableOfContents.Deserialize(dataPtr, data.Length, tableOfContents.Version);
             newTable.Should().Be(tableOfContents.Toc);

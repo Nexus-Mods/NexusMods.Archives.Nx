@@ -8,8 +8,7 @@ public struct HasFileSizeWrapper : IHasFileSize, IEquatable<HasFileSizeWrapper>
 
     public HasFileSizeWrapper(long fileSize) => FileSize = fileSize;
 
-    public static HasFileSizeWrapper[] FromSizeArray(long[] arr) =>
-        arr.Select(x => new HasFileSizeWrapper(x)).ToArray();
+    public static HasFileSizeWrapper[] FromSizeArray(long[] arr) => arr.Select(x => new HasFileSizeWrapper(x)).ToArray();
 
     public override string ToString() => FileSize.ToString();
 

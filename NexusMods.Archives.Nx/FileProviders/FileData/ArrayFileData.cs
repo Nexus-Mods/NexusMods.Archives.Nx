@@ -17,7 +17,7 @@ public unsafe class ArrayFileData : IFileData
     private GCHandle _handle;
 
     /// <summary>
-    /// Creates file data backed by an array.
+    ///     Creates file data backed by an array.
     /// </summary>
     /// <param name="data">The data backed up by the array.</param>
     /// <param name="start">Start offset.</param>
@@ -25,7 +25,7 @@ public unsafe class ArrayFileData : IFileData
     public ArrayFileData(byte[] data, long start, uint length)
     {
         _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-        Data = ((byte*)_handle.AddrOfPinnedObject()) + start;
+        Data = (byte*)_handle.AddrOfPinnedObject() + start;
         DataLength = (UIntPtr)length;
     }
 

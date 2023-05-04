@@ -5,22 +5,22 @@ using System.Runtime.CompilerServices;
 namespace NexusMods.Archives.Nx.Utilities;
 
 /// <summary>
-/// A tuple of array pools for the packer.
+///     A tuple of array pools for the packer.
 /// </summary>
 internal struct PackerArrayPools : IDisposable
 {
     /// <summary>
-    /// Designated pool for blocks.
+    ///     Designated pool for blocks.
     /// </summary>
     public PackerArrayPool BlockPool { get; }
 
     /// <summary>
-    /// Designated pool for chunks.
+    ///     Designated pool for chunks.
     /// </summary>
     public PackerArrayPool ChunkPool { get; } = null!;
-    
+
     /// <summary>
-    /// Initializes the tuple of pools.
+    ///     Initializes the tuple of pools.
     /// </summary>
     /// <param name="concurrentWorkers">Number of max concurrent rentals.</param>
     /// <param name="blockSize">Block size used by the pool.</param>
@@ -41,25 +41,25 @@ internal struct PackerArrayPools : IDisposable
 }
 
 /// <summary>
-/// Implementation of Array Pooling for the packing operations.
-/// Uses shared <see cref="ArrayPool{T}"/> for smaller allocations, and custom one for bigger ones.
+///     Implementation of Array Pooling for the packing operations.
+///     Uses shared <see cref="ArrayPool{T}" /> for smaller allocations, and custom one for bigger ones.
 /// </summary>
 internal class PackerArrayPool : IDisposable
 {
     /// <summary>
-    /// Maximum size that can be rented from the shared pool.
+    ///     Maximum size that can be rented from the shared pool.
     /// </summary>
     public const int SharedPoolMaxSize = 1048576;
 
     /// <summary>
-    /// Checks if internal arrays have been allocated.
+    ///     Checks if internal arrays have been allocated.
     /// </summary>
     public bool HasArrays => _arrays != null;
-    
-    private int[]? _arraysTaken;
+
+    private readonly int[]? _arraysTaken;
     private byte[][]? _arrays;
 
-    /// <summary/>
+    /// <summary />
     /// <param name="concurrentWorkers">Number of max concurrent rentals.</param>
     /// <param name="blockSize">Block/chunk size used by the pool.</param>
     public PackerArrayPool(int concurrentWorkers, int blockSize)
@@ -68,7 +68,7 @@ internal class PackerArrayPool : IDisposable
         var maxSize = Compression.MaxAllocForCompressSize(blockSize);
         if (maxSize < SharedPoolMaxSize)
             return;
-        
+
         _arrays = new byte[concurrentWorkers][];
         _arraysTaken = new int[concurrentWorkers];
         for (var x = 0; x < concurrentWorkers; x++)
@@ -78,7 +78,7 @@ internal class PackerArrayPool : IDisposable
     public PackerPoolRental Rent(int numBytes)
     {
         var data = RentInternal(numBytes, out var index);
-        return new PackerPoolRental()
+        return new PackerPoolRental
         {
             Array = data,
             Owner = this,
@@ -86,14 +86,14 @@ internal class PackerArrayPool : IDisposable
             ArrayIndex = index
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte[] RentInternal(int numBytes, out int arrayIndex)
     {
         arrayIndex = -1;
-        if (numBytes <= SharedPoolMaxSize) 
+        if (numBytes <= SharedPoolMaxSize)
             return ArrayPool<byte>.Shared.Rent(numBytes);
-        
+
         Debug.Assert(_arrays != null);
         Debug.Assert(_arrays![0].Length >= numBytes);
 
@@ -108,11 +108,11 @@ internal class PackerArrayPool : IDisposable
                 return _arrays![arrayIndex];
             }
         }
-        
+
         ThrowHelpers.ThrowPackerPoolOutOfItems();
         return default!;
     }
-    
+
     public void Return(PackerPoolRental packerPoolRental)
     {
         if (packerPoolRental.Length <= SharedPoolMaxSize)
@@ -120,7 +120,7 @@ internal class PackerArrayPool : IDisposable
             ArrayPool<byte>.Shared.Return(packerPoolRental.Array);
             return;
         }
-        
+
         // Use CompareExchange to make operation atomic, and thus thread safe.
         Interlocked.CompareExchange(ref _arraysTaken![packerPoolRental.ArrayIndex], 0, 1);
     }
@@ -135,23 +135,23 @@ internal struct PackerPoolRental : IDisposable
     ///     The underlying array for this rental.
     /// </summary>
     public required byte[] Array { get; init; }
-    
+
     /// <summary>
     ///     The packer pool which created this rental.
     /// </summary>
     public required PackerArrayPool Owner { get; init; }
 
     /// <summary>
-    /// Length of the rented data.
+    ///     Length of the rented data.
     /// </summary>
     public int Length { get; init; }
 
     /// <summary>
-    /// Index of array in the owner pool.
-    /// This can be -1 if the array was rented from the shared pool.
+    ///     Index of array in the owner pool.
+    ///     This can be -1 if the array was rented from the shared pool.
     /// </summary>
     public int ArrayIndex { get; init; }
-    
+
     /// <summary>
     ///     Returns the span for given rented array.
     /// </summary>

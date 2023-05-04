@@ -19,22 +19,22 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
     public ulong LargestItemSize();
 
     /// <summary>
-    /// True if this kind of block can create/compress chunks.
+    ///     True if this kind of block can create/compress chunks.
     /// </summary>
     public bool CanCreateChunks();
 
     /// <summary>
-    /// Processes this block during the packing operation with the specified settings.
+    ///     Processes this block during the packing operation with the specified settings.
     /// </summary>
     /// <param name="tocBuilder">Used for updating the table of contents..</param>
     /// <param name="settings">Settings used for the buffer.</param>
     /// <param name="blockIndex">Index of the block being processed.</param>
     /// <param name="pools">Used for renting blocks and chunks.</param>
     /// <returns>
-    ///     Compressed block data. Whether this should be disposed depends on implementation of <see cref="IBlock{T}"/>.
+    ///     Compressed block data. Whether this should be disposed depends on implementation of <see cref="IBlock{T}" />.
     /// </returns>
     public void ProcessBlock(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, PackerArrayPools pools);
-    
+
     /// <summary>
     ///     Compression method used to pack the block.
     /// </summary>
@@ -42,14 +42,13 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
 }
 
 /// <summary>
-/// Reused code between different <see cref="IBlock{T}"/> Implementations.
+///     Reused code between different <see cref="IBlock{T}" /> Implementations.
 /// </summary>
 internal static class BlockHelpers
 {
-    internal static unsafe int Compress(CompressionPreference compression, int compressionLevel, IFileData data, byte* destinationPtr, int destinationLength, out bool asCopy)
-    {
-        return Compression.Compress(compression, compressionLevel, data.Data, (int)data.DataLength, destinationPtr, destinationLength, out asCopy);
-    }
+    internal static unsafe int Compress(CompressionPreference compression, int compressionLevel, IFileData data, byte* destinationPtr,
+        int destinationLength, out bool asCopy) => Compression.Compress(compression, compressionLevel, data.Data, (int)data.DataLength,
+        destinationPtr, destinationLength, out asCopy);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteToOutputLocked<T>(TableOfContentsBuilder<T> builder, int blockIndex, Stream output, PackerPoolRental compressedBlock,
@@ -62,10 +61,10 @@ internal static class BlockHelpers
 #if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
 #else
-            spinWait.SpinOnce();            
+            spinWait.SpinOnce();
 #endif
         }
-        
+
         // Copy to output stream and pad.
         output.Write(compressedBlock.Array, 0, numBytes);
         output.SetLength(output.Length.RoundUp4096());

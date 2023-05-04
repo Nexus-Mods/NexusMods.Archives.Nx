@@ -121,7 +121,7 @@ public class NativeHeaderPackingTests
     public void BlockSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();
-        
+
         // Test Raw Setter
         header.BlockSize = (byte)rawValue;
         header.BlockSizeBytes.Should().Be(numBytes);
@@ -130,7 +130,7 @@ public class NativeHeaderPackingTests
         header.BlockSizeBytes = numBytes;
         header.BlockSizeBytes.Should().Be(numBytes);
     }
-    
+
     [Theory]
     [InlineData(0, 4194304)]
     [InlineData(1, 8388608)]
@@ -138,7 +138,7 @@ public class NativeHeaderPackingTests
     public void ChunkSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();
-        
+
         // Test Raw Setter
         header.ChunkSize = (byte)rawValue;
         header.ChunkSizeBytes.Should().Be(numBytes);
@@ -147,7 +147,7 @@ public class NativeHeaderPackingTests
         header.ChunkSizeBytes = numBytes;
         header.ChunkSizeBytes.Should().Be(numBytes);
     }
-    
+
     [Theory]
     [InlineData(1, 4096)]
     [InlineData(2, 8192)]
@@ -157,7 +157,7 @@ public class NativeHeaderPackingTests
     public void TocPageBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();
-        
+
         // Test Raw Setter
         header.HeaderPageCount = (ushort)rawValue;
         header.HeaderPageBytes.Should().Be(numBytes);

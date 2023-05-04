@@ -14,8 +14,8 @@ public class PackerSettings
     public IProgress<double>? Progress { get; set; }
 
     /// <summary>
-    ///     The stream to which data is output to.  
-    ///     This stream must support seeking.  
+    ///     The stream to which data is output to.
+    ///     This stream must support seeking.
     /// </summary>
     /// <remarks>
     ///     This assumes the stream starts at offset 0.
@@ -63,20 +63,20 @@ public class PackerSettings
     public CompressionPreference ChunkedFileAlgorithm { get; set; } = CompressionPreference.ZStandard;
 
     /// <summary>
-    /// Sanitizes settings to acceptable values if they are out of range or undefined.
+    ///     Sanitizes settings to acceptable values if they are out of range or undefined.
     /// </summary>
     public void Sanitize()
     {
         if (SolidBlockAlgorithm == CompressionPreference.NoPreference || !CompressionPreferenceExtensions.IsDefined(SolidBlockAlgorithm))
             SolidBlockAlgorithm = CompressionPreference.Lz4;
-        
+
         if (ChunkedFileAlgorithm == CompressionPreference.NoPreference || !CompressionPreferenceExtensions.IsDefined(ChunkedFileAlgorithm))
             ChunkedFileAlgorithm = CompressionPreference.ZStandard;
-        
+
         // Note: BlockSize is minus one, see spec.
         if (BlockSize < 0) // prevent underflow on min value
             BlockSize = 0;
-        
+
         BlockSize = Polyfills.RoundUpToPowerOf2NoOverflow(BlockSize) - 1;
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
 
@@ -88,17 +88,14 @@ public class PackerSettings
     }
 
     /// <summary>
-    /// Retrieves the compression level for the specified algorithm.
+    ///     Retrieves the compression level for the specified algorithm.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">Compression algorithm used is unsupported.</exception>
-    public int GetCompressionLevel(CompressionPreference preference)
+    public int GetCompressionLevel(CompressionPreference preference) => preference switch
     {
-        return preference switch
-        {
-            CompressionPreference.Copy => 0,
-            CompressionPreference.ZStandard => ZStandardLevel,
-            CompressionPreference.Lz4 => Lz4Level,
-            _ => throw new ArgumentOutOfRangeException(nameof(preference), preference, null)
-        };
-    }
+        CompressionPreference.Copy => 0,
+        CompressionPreference.ZStandard => ZStandardLevel,
+        CompressionPreference.Lz4 => Lz4Level,
+        _ => throw new ArgumentOutOfRangeException(nameof(preference), preference, null)
+    };
 }
