@@ -1,4 +1,6 @@
 using AutoFixture;
+using AutoFixture.Dsl;
+using AutoFixture.Kernel;
 using AutoFixture.Xunit2;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Headers.Native;
@@ -8,7 +10,7 @@ namespace NexusMods.Archives.Nx.Tests.Attributes;
 
 /// <summary>
 ///     Custom <see cref="AutoDataAttribute" /> with support for
-///     creating a dummy <see cref="NativeFileHeader"/> for testing.
+///     creating a dummies for native/serialized ToC sections.
 /// </summary>
 [PublicAPI]
 public class AutoNativeHeadersAttribute : AutoDataAttribute
@@ -33,15 +35,20 @@ public class AutoNativeHeadersAttribute : AutoDataAttribute
 
             return result;
         });
-        
-        ret.Customize<OffsetPathIndexTuple>(composer =>
-        {
-            var result = composer.FromFactory(() => new OffsetPathIndexTuple());
-            if (!randomizeHeader)
-                result = result.OmitAutoProperties();
 
-            return result;
-        });
+        ret.Customize<OffsetPathIndexTuple>(composer => WithRandomizeHeader(randomizeHeader, composer));
+        ret.Customize<NativeFileEntryV0>(composer => WithRandomizeHeader(randomizeHeader, composer));
+        ret.Customize<NativeFileEntryV1>(composer => WithRandomizeHeader(randomizeHeader, composer));
         return ret;
     }) { }
+
+    private static ISpecimenBuilder WithRandomizeHeader<T>(bool randomizeHeader, ICustomizationComposer<T> composer)
+        where T : new()
+    {
+        var result = composer.FromFactory(() => new T());
+        if (!randomizeHeader)
+            result = result.OmitAutoProperties();
+
+        return result;
+    }
 }

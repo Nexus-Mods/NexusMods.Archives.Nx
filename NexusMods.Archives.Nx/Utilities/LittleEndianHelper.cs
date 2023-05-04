@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace NexusMods.Archives.Nx.Utilities;
@@ -6,6 +7,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Utility class for reading/writing pointers in Little Endian.
 /// </summary>
+[ExcludeFromCodeCoverage] // Trivial
 internal static unsafe class LittleEndianHelper
 {
     // Performance Note: BitConverter.IsLittleEndian is intrinsic (and therefore constant).  
@@ -44,6 +46,24 @@ internal static unsafe class LittleEndianHelper
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Read(int* value)
+    {
+        if (BitConverter.IsLittleEndian)
+            return *value;
+
+        return BinaryPrimitives.ReverseEndianness(*value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static long Read(long* value)
+    {
+        if (BitConverter.IsLittleEndian)
+            return *value;
+
+        return BinaryPrimitives.ReverseEndianness(*value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong Read(ulong* value)
     {
         if (BitConverter.IsLittleEndian)
             return *value;
@@ -98,7 +118,31 @@ internal static unsafe class LittleEndianHelper
 
         *address = BinaryPrimitives.ReverseEndianness(value);
     }
-    
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(ulong* address, ulong value)
+    {
+        if (BitConverter.IsLittleEndian)
+        {
+            *address = value;
+            return;
+        }
+
+        *address = BinaryPrimitives.ReverseEndianness(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Write(long* address, long value)
+    {
+        if (BitConverter.IsLittleEndian)
+        {
+            *address = value;
+            return;
+        }
+
+        *address = BinaryPrimitives.ReverseEndianness(value);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short AsLittleEndian(this short value)
     {
@@ -107,7 +151,7 @@ internal static unsafe class LittleEndianHelper
 
         return BinaryPrimitives.ReverseEndianness(value);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort AsLittleEndian(this ushort value)
     {
@@ -116,7 +160,7 @@ internal static unsafe class LittleEndianHelper
 
         return BinaryPrimitives.ReverseEndianness(value);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AsLittleEndian(this int value)
     {
@@ -125,9 +169,27 @@ internal static unsafe class LittleEndianHelper
 
         return BinaryPrimitives.ReverseEndianness(value);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint AsLittleEndian(this uint value)
+    {
+        if (BitConverter.IsLittleEndian)
+            return value;
+
+        return BinaryPrimitives.ReverseEndianness(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static long AsLittleEndian(this long value)
+    {
+        if (BitConverter.IsLittleEndian)
+            return value;
+
+        return BinaryPrimitives.ReverseEndianness(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ulong AsLittleEndian(this ulong value)
     {
         if (BitConverter.IsLittleEndian)
             return value;

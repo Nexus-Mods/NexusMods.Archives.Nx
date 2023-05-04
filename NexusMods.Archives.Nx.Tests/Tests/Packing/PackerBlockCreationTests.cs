@@ -12,11 +12,11 @@ public class PackerBlockCreationTests
     {
         // Setup
         const int solidBlockSize = 10;
-        var items = new Dictionary<string, List<PackerFileForBlockTesting>>
+        var items = new Dictionary<string, List<PackerFileForTesting>>
         {
             {
                 "",
-                new List<PackerFileForBlockTesting>
+                new List<PackerFileForTesting>
                 {
                     new()
                     {
@@ -43,16 +43,15 @@ public class PackerBlockCreationTests
         };
 
         // Act
-        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4,
-            CompressionPreference.NoPreference);
+        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4);
 
         // Assert
         blocks.Count.Should().Be(2);
-        blocks[0].Should().BeOfType<SolidBlock<PackerFileForBlockTesting>>();
-        blocks[1].Should().BeOfType<SolidBlock<PackerFileForBlockTesting>>();
+        blocks[0].Should().BeOfType<SolidBlock<PackerFileForTesting>>();
+        blocks[1].Should().BeOfType<SolidBlock<PackerFileForTesting>>();
 
         // Check Solid Block
-        var first = blocks[0] as SolidBlock<PackerFileForBlockTesting>;
+        var first = blocks[0] as SolidBlock<PackerFileForTesting>;
         var firstItems = first!.Items;
         first.Compression.Should().Be(CompressionPreference.Lz4); // respects block compression.
         firstItems.Count.Should().Be(3);
@@ -61,7 +60,7 @@ public class PackerBlockCreationTests
         firstItems[2].RelativePath.Should().Be("Block0File2");
 
         // Check single item block.
-        var second = blocks[1] as SolidBlock<PackerFileForBlockTesting>;
+        var second = blocks[1] as SolidBlock<PackerFileForTesting>;
         var secondItems = second!.Items;
         second.Compression.Should().Be(CompressionPreference.Lz4); // respects block compression.
         secondItems.Count.Should().Be(1);
@@ -73,11 +72,11 @@ public class PackerBlockCreationTests
     {
         // Setup
         const int solidBlockSize = 10;
-        var items = new Dictionary<string, List<PackerFileForBlockTesting>>
+        var items = new Dictionary<string, List<PackerFileForTesting>>
         {
             {
                 "",
-                new List<PackerFileForBlockTesting>
+                new List<PackerFileForTesting>
                 {
                     new()
                     {
@@ -107,23 +106,22 @@ public class PackerBlockCreationTests
 
         // We specified NoSOLID and LZ4 on Block0File0. Block chunker should respect this decision.
         // Act
-        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.ZStandard,
-            CompressionPreference.NoPreference);
+        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.ZStandard);
 
         // Assert
         blocks.Count.Should().Be(2);
-        blocks[0].Should().BeOfType<SolidBlock<PackerFileForBlockTesting>>();
-        blocks[1].Should().BeOfType<SolidBlock<PackerFileForBlockTesting>>();
+        blocks[0].Should().BeOfType<SolidBlock<PackerFileForTesting>>();
+        blocks[1].Should().BeOfType<SolidBlock<PackerFileForTesting>>();
 
         // Check Solid Block
-        var first = blocks[0] as SolidBlock<PackerFileForBlockTesting>;
+        var first = blocks[0] as SolidBlock<PackerFileForTesting>;
         var firstItems = first!.Items;
         first.Compression.Should().Be(CompressionPreference.Lz4); // respects block compression.
         firstItems.Count.Should().Be(1);
         firstItems[0].RelativePath.Should().Be("Block0File0");
 
         // Check single item block.
-        var second = blocks[1] as SolidBlock<PackerFileForBlockTesting>;
+        var second = blocks[1] as SolidBlock<PackerFileForTesting>;
         var secondItems = second!.Items;
         second.Compression.Should().Be(CompressionPreference.ZStandard); // respects block compression.
         secondItems.Count.Should().Be(3);
@@ -136,11 +134,11 @@ public class PackerBlockCreationTests
         const int solidBlockSize = 9;
         const int chunkSize = 10;
 
-        var items = new Dictionary<string, List<PackerFileForBlockTesting>>
+        var items = new Dictionary<string, List<PackerFileForTesting>>
         {
             {
                 "",
-                new List<PackerFileForBlockTesting>
+                new List<PackerFileForTesting>
                 {
                     new()
                     {
@@ -157,24 +155,27 @@ public class PackerBlockCreationTests
 
         // Assert
         blocks.Count.Should().Be(3);
-        blocks[0].Should().BeOfType<ChunkedFileBlock<PackerFileForBlockTesting>>();
-        blocks[1].Should().BeOfType<ChunkedFileBlock<PackerFileForBlockTesting>>();
-        blocks[2].Should().BeOfType<ChunkedFileBlock<PackerFileForBlockTesting>>();
+        blocks[0].Should().BeOfType<ChunkedFileBlock<PackerFileForTesting>>();
+        blocks[1].Should().BeOfType<ChunkedFileBlock<PackerFileForTesting>>();
+        blocks[2].Should().BeOfType<ChunkedFileBlock<PackerFileForTesting>>();
 
         // Check Solid Block
-        var first = blocks[0] as ChunkedFileBlock<PackerFileForBlockTesting>;
+        var first = blocks[0] as ChunkedFileBlock<PackerFileForTesting>;
         first!.Compression.Should().Be(CompressionPreference.ZStandard); // respects chunk compression.
         first.StartOffset.Should().Be(0);
+        first.ChunkIndex.Should().Be(0);
         first.ChunkSize.Should().Be(chunkSize);
 
-        var second = blocks[1] as ChunkedFileBlock<PackerFileForBlockTesting>;
+        var second = blocks[1] as ChunkedFileBlock<PackerFileForTesting>;
         second!.Compression.Should().Be(CompressionPreference.ZStandard); // respects chunk compression.
         second.StartOffset.Should().Be(chunkSize); // 10
-        first.ChunkSize.Should().Be(chunkSize);
+        second.ChunkIndex.Should().Be(1);
+        second.ChunkSize.Should().Be(chunkSize);
 
-        var last = blocks[2] as ChunkedFileBlock<PackerFileForBlockTesting>;
+        var last = blocks[2] as ChunkedFileBlock<PackerFileForTesting>;
         last!.Compression.Should().Be(CompressionPreference.ZStandard); // respects chunk compression.
         last.StartOffset.Should().Be(chunkSize * 2); // 20
+        last.ChunkIndex.Should().Be(2);
         last.ChunkSize.Should().Be(5);
     }
 }

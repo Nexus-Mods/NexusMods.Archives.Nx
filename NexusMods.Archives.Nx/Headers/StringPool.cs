@@ -20,9 +20,9 @@ public struct StringPool
     public const int DefaultCompressionLevel = 16;
 
     /// <summary>
-    ///     Maximum size of uncompressed stringpool allowed.
+    ///     Maximum size of compressed stringpool allowed.
     /// </summary>
-    public const int MaxUncompressedSize = 268435456;
+    public const int MaxCompressedSize = 33550336;
 
     /// <summary>
     ///     Packs a stringpool given the file paths provided.
@@ -47,9 +47,6 @@ public struct StringPool
         // Null terminators.
         totalPathSize += items.Length;
 
-        if (totalPathSize > MaxUncompressedSize)
-            ThrowHelpers.ThrowInsufficientStringPoolSizeException(totalPathSize);
-
         // Chances are the paths are entirely ANSI.
         // If they are not, a realloc might happen, slowing things down.
         // Note: The pool uses powers of 2, so for minimal non-ANSI characters, we will actually have a bit of extra space.
@@ -73,10 +70,6 @@ public struct StringPool
                     written += 1;
                     numLeft -= written;
                     ptr += written;
-
-                    // Assert within size.
-                    if (poolBuf.AvailableSize - numLeft > MaxUncompressedSize)
-                        ThrowHelpers.ThrowInsufficientStringPoolSizeException();
                 }
                 catch (ArgumentException)
                 {
@@ -94,7 +87,13 @@ public struct StringPool
         }
 
         var numBytes = poolBuf.AvailableSize - numLeft;
-        return Compression.CompressZStd(poolBuf.PinnedArray.AsSpan(0, numBytes));
+        var result = Compression.CompressZStd(poolBuf.PinnedArray.AsSpan(0, numBytes));
+        if (result.Length <= MaxCompressedSize)
+            return result;
+
+        result.Dispose();
+        ThrowHelpers.ThrowInsufficientStringPoolSizeException(result.Length);
+        return result;
     }
 
     /// <summary>

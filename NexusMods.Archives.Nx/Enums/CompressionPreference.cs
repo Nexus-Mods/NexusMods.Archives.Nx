@@ -1,8 +1,12 @@
-﻿namespace NexusMods.Archives.Nx.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+using NetEscapades.EnumGenerators;
+
+namespace NexusMods.Archives.Nx.Enums;
 
 /// <summary>
 ///     Preferred option for compression.
 /// </summary>
+[EnumExtensions]
 public enum CompressionPreference : byte
 {
     /// <summary>
@@ -11,6 +15,7 @@ public enum CompressionPreference : byte
     NoPreference = 255,
 
     // Note: Values below match their encoding in ToC, so we use 255 as 'none'.
+    // Note: Max allowed value is 7 in current implementation due to packing.
 
     /// <summary>
     ///     Do not compress at all, copy data verbatim.
@@ -27,3 +32,7 @@ public enum CompressionPreference : byte
     /// </summary>
     Lz4 = 2
 }
+
+// Auto generated.
+[ExcludeFromCodeCoverage]
+public static partial class CompressionPreferenceExtensions { }

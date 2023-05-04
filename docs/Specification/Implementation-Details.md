@@ -37,10 +37,9 @@ Most compression algorithms accept `Span<byte>`; and in cases where we might nee
 To do this, we will perform the following steps:  
 
 - Files are sorted by size. (optimize for blocks)  
-- Files are then grouped by extension. (optimize for ratio)  
-- These groups are chunked into blocks. Files whose size exceeds `BlockSize / 2` starting with first file that doesn't fit into block are allocated their own block.  
-- The groups are then re-combined in order of `total size of group data` ascending.  
-- We assign the groups to individual threads using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.  
+- Files are then grouped by extension. (optimize for ratio) [while preserving sorting]  
+- These groups are chunked into SOLID blocks (and huge files into Chunk blocks).  
+- We assign the groups to individual blocks using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.
 
 !!! note
   
@@ -58,18 +57,14 @@ To do this, we will perform the following steps:
     The appropriate approach depends on your input data and use case; below are some general tips.
 
 - For repacking downloaded files from the web; prefer faster compression approaches.  
-    - Use `zstd -11` or `zstd -16` (depending on CPU, estimate power by thread count).  
+    - Prefer `lz4 -12` or `zstd -16` (depending on CPU, estimate power by thread count).  
     - Can't have the user wait too long...  
     - We only use highest levels e.g. `zstd -22` when 'publishing' (uploading) to web.  
 
 - Files which we know are not compressible are assigned `copy` as compression strategy in their blocks.  
     - We will provide a mechanism to feed this info from outside the library.  
 
-- Extraordinarily large files should be handled with LZ4.  
-    - To avoid case of lots of small files, and one huge file.  
-    - Files 1GB and beyond. Needs benchmarking.  
-
-- Prefer ZStd for large files.
+- Prefer ZStd for large files.  
 
 ## Repacking/Appending Files
 

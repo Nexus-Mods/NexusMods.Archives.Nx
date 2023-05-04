@@ -99,7 +99,7 @@ public class FileFinder
             {
                 RelativePath = relativePath,
                 FileSize = entry.Length,
-                FileDataProvider = new FromDirectoryDataProvider()
+                FileDataProvider = new FromDirectoryDataProvider
                 {
                     Directory = _baseDirectory,
                     RelativePath = relativePath

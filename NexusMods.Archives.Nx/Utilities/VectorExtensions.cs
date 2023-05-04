@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -6,6 +7,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Extensions tied to the <see cref="Vector" /> class.
 /// </summary>
+[ExcludeFromCodeCoverage] // Taken from another project where this is tested.
 internal static class VectorExtensions
 {
     /// <summary>

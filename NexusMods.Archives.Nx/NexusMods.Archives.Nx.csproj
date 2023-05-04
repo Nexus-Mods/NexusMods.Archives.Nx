@@ -9,12 +9,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="K4os.Compression.LZ4" Version="1.3.5" />
+        <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta07" />
         <PackageReference Include="PolySharp" Version="1.13.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="SharpZstd.Interop" Version="1.5.2-beta3" />
-        <PackageReference Include="System.IO.Hashing" Version="7.0.0" />
+        <PackageReference Include="System.IO.Hashing" Version="8.0.0-preview.3.23174.8" />
     </ItemGroup>
 
     <ItemGroup>

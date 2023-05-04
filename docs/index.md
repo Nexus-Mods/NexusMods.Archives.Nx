@@ -3,10 +3,6 @@ hide:
   - toc
 ---
 
-!!! warning
-
-    Work in progress. We've only gotten started!
-
 <div align="center">
 	<h1>The Nexus (.nx) Archive Format</h1>
 	<img src="./Nexus/Images/Nexus-Icon.png" width="150" align="center" />

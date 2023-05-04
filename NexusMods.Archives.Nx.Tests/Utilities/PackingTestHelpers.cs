@@ -3,7 +3,7 @@
 namespace NexusMods.Archives.Nx.Tests.Utilities;
 
 /// <summary>
-/// Helpers for packing tests.
+///     Helpers for packing tests.
 /// </summary>
 public class PackingTestHelpers
 {
@@ -32,7 +32,7 @@ public class PackingTestHelpers
         setProperty1(ref instance, value1);
         getProperty2(ref instance).Should().Be(value2);
     }
-    
+
     public static void AssertSizeBits<TStruct>(
         ref TStruct instance,
         SetPropertyByRefDelegate<TStruct, long> setProperty,
@@ -45,13 +45,15 @@ public class PackingTestHelpers
             setProperty(ref instance, testValue);
             getProperty(ref instance).Should().Be(testValue);
         }
-        
+
         // Numbits + 1 should overflow.
         var overflowValue = Permutations.GetBitPackingOverlapTestValue(numBits + 1);
         setProperty(ref instance, overflowValue);
         getProperty(ref instance).Should().NotBe(overflowValue);
     }
-    
-    public delegate void SetPropertyByRefDelegate<TStruct, in TValue>(ref TStruct instance, TValue value) where TStruct : struct;
+
+    public delegate void SetPropertyByRefDelegate<TStruct, in TValue>(ref TStruct instance, TValue value)
+        where TStruct : struct;
+
     public delegate TValue GetPropertyByRefDelegate<TStruct, out TValue>(ref TStruct instance) where TStruct : struct;
 }

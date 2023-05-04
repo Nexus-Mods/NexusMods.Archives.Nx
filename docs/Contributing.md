@@ -4,24 +4,20 @@
 
     Some useful guidance for anyone wishing to contribute to library.
 
-## Public API Analyzer in Rider
+## Public API Analyzer
 
 !!! tip
 
-    [Rider does not have a way to apply Roslyn code fixes in a larger scope](https://youtrack.jetbrains.com/issue/RIDER-18372),
-    so working with [Public API Analyzer](https://github.com/dotnet/roslyn-analyzers/blob/main/src/PublicApiAnalyzers/PublicApiAnalyzers.Help.md) might be painful.
+    This project uses [Public API Analyzer](https://github.com/dotnet/roslyn-analyzers/blob/main/src/PublicApiAnalyzers/PublicApiAnalyzers.Help.md) to ensure API stability.  
+    Before submitting a PR, please fix any analyzer warnings created by adding new APIs.
 
-To work around this, apply the fixes from `dotnet` CLI:
+Note: The analyzer quick fix only fixes it for one target framework.  
+For convenience, a `Powershell` script `FixUndeclaredAPIs.ps1` is included in repo root to work around this.  
 
-```pwsh
-# Fix 'Not Declared in Public API' & 'nullable enable not defined'
-# For some reason, RS0016 can only handle 1 target framework per run (it's pretty silly)
-# So you have to run once for every TFM.
+## Rider Bug: Tests not Recompiled After Main Library Changes
 
-dotnet format analyzers ./NexusMods.Archives.Nx.sln --diagnostics RS0037 RS0016 # first time
-dotnet format analyzers ./NexusMods.Archives.Nx.sln --diagnostics RS0037 RS0016 # second time
-dotnet format analyzers ./NexusMods.Archives.Nx.sln --diagnostics RS0037 RS0016 # third time
-# etc...
-```
+!!! failure
 
-For convenience, a `Powershell` script `FixUndeclaredAPIs.ps1` is included in repo root. 
+    In some cases, making changes to the main library will not correctly trigger recompilation of test project; leading
+    you to debug old code. This happens in 2023.1.1; unsure if affects other versions. Make sure to hit Ctrl+Shift+B to 
+    force a recompliation of whole project just in case.

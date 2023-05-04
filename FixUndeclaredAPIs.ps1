@@ -4,6 +4,6 @@ $arguments = @("format", "analyzers", ".\NexusMods.Archives.Nx.sln", "--diagnost
 
 for ($i = 1; $i -le $numTargetFrameworks; $i++)
 {
-     Write-Host "Executing command: $command $($arguments -join ' ') (attempt $i)"
+     Write-Host "Executing command: $command $($arguments -join ' ') (framework $i)"
      & $command $arguments
 }

@@ -6,7 +6,7 @@
 - `u4` [Version/Variant](#versionvariant)
 - `u4` [BlockSize](#block-size)
 - `u3` [Large File Chunk Size](#large-file-chunk-size)
-- `u13` [TocPageCount](#tocpagecount)
+- `u13` [HeaderPageCount](#headerpagecount)
 - `u8` [Feature Flags](#feature-flags)
 
 ## Version/Variant
@@ -35,10 +35,7 @@ Parsed as `(32768 << blockSize) - 1`.
 
 i.e. BlockSize = 11 is `67108863` (i.e. `64MiB - 1` or `2^26 - 1`).  
 
-We remove -1 from the value for 2 reasons:  
-
-- Avoid collisions with [Chunk Size](#large-file-chunk-size).  
-- Value of `2^26` is reserved to mean: [This file is non-SOLID](./Table-Of-Contents.md#implicit-property-is-solid).
+We remove -1 from the value to avoid collisions with [Chunk Size](#large-file-chunk-size).  
 
 ## Large File Chunk Size
 
@@ -62,9 +59,9 @@ i.e. ChunkSize = 7 is `536870912` (512MiB, i.e. 2^29).
 
     Chunk size should always exceed Block size. Implementation of archiver can either return error or enforce this automatically.
 
-## TocPageCount
+## Header Page Count
 
-Number of 4K memory pages required to store the entire Table of Contents (incl. compressed StringPool).  
+Number of 4K memory pages required to store this header and the Table of Contents (incl. compressed StringPool).  
 
 Size: `13 bits`, (0-8191).  
 Max size of 32MiB.  
@@ -79,7 +76,7 @@ return 4096 * tocPageCount;
 
 !!! note
 
-    The Table of Contents is padded to the value stored here; i.e. first block is stored at offset specified in this value.
+    The headers are padded to the number of bytes stored here.
 
 ## Feature Flags
 

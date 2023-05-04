@@ -80,15 +80,12 @@ All packed fields are `little-endian`; and written out when total number of bits
 
 ## Previewing the Format
 
-!!! info "ToDo"
-
-    Add link once library is written and template actually exists.
-
 !!! info 
 
-    For people wishing to study the format, or debug it a [010-Editor](https://www.sweetscape.com/010editor/) template 
-    is available for usage [Link Pending].  
+    For people wishing to study the format, or debug it, a [010-Editor](https://www.sweetscape.com/010editor/) template 
+    is available for usage [010 Template](./010Template.bt).  
 
-[Include Instructions Here]
+Hit `Templates -> Open Template` and then the big play button.  
+Then you'll be able to browse the format in 'Variables' window.  
 
-If anyone wants to make a [Kaitai Struct](https://kaitai.io) variation; contributions are welcome 💜.
+Alternatively, contributions are welcome if anyone wants to make a [Kaitai Struct](https://kaitai.io) variation 💜.

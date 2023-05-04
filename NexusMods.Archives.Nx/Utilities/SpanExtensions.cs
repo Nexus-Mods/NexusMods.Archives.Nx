@@ -330,4 +330,26 @@ internal static class SpanExtensions
         FindAllOffsetsOfByteFallback(data + position, length - position, value, position, results);
     }
 #endif
+    
+    /// <summary>
+    ///     Returns a reference to an element at a specified index without performing a bounds check.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the input <typeparamref name="T" /> array instance.</typeparam>
+    /// <param name="span">The input <typeparamref name="T" /> array instance.</param>
+    /// <param name="x">The index of the element to retrieve within <paramref name="span" />.</param>
+    /// <returns>A reference to the element within <paramref name="span" /> at the index specified by <paramref name="x" />.</returns>
+    /// <remarks>
+    ///     This method doesn't do any bounds checks, therefore it is responsibility of the caller to ensure the
+    ///     <paramref name="x" /> parameter is valid.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ref T DangerousGetReferenceAt<T>(this Span<T> span, int x)
+    {
+#if NET5_0_OR_GREATER
+        ref var r0 = ref MemoryMarshal.GetReference(span);
+        return ref Unsafe.Add(ref r0, (nint)(uint)x);
+#else
+        return ref Unsafe.Add(ref span[0], (nint)(uint)x);
+#endif
+    }
 }

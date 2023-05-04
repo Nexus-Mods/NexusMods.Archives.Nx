@@ -6,7 +6,7 @@ using NexusMods.Archives.Nx.Tests.Utilities;
 namespace NexusMods.Archives.Nx.Tests.Tests.Headers;
 
 /// <summary>
-/// Tests for bitpacked OffsetPathIndexTuple.
+///     Tests for bitpacked OffsetPathIndexTuple.
 /// </summary>
 public class OffsetPathIndexTuplePackingTests
 {
@@ -14,9 +14,10 @@ public class OffsetPathIndexTuplePackingTests
     public unsafe void IsCorrectSizeBytes() => sizeof(OffsetPathIndexTuple).Should().Be(OffsetPathIndexTuple.SizeBytes);
 
     /// <summary>
-    /// Version and Block Size are packed together, this test validates that they don't affect each other.
+    ///     Version and Block Size are packed together, this test validates that they don't affect each other.
     /// </summary>
-    [Theory, AutoNativeHeaders]
+    [Theory]
+    [AutoNativeHeaders]
     public void CanBePacked_ValuesDontOverlap(OffsetPathIndexTuple tuple)
     {
         // Note: This method tests all valid values for Version and BlockSize. 192 total loop iterations.
@@ -35,7 +36,7 @@ public class OffsetPathIndexTuplePackingTests
                 blockOffset,
                 blockIndex
             );
-            
+
             // A & B
             PackingTestHelpers.TestPackedProperties(
                 ref tuple,
@@ -46,7 +47,7 @@ public class OffsetPathIndexTuplePackingTests
                 blockOffset,
                 pathIndex
             );
-            
+
             // B & C
             PackingTestHelpers.TestPackedProperties(
                 ref tuple,
@@ -59,34 +60,28 @@ public class OffsetPathIndexTuplePackingTests
             );
         }
     }
-    
-    [Theory, AutoNativeHeaders]
-    public void DecompressedBlockOffsetShouldBe26Bits(OffsetPathIndexTuple tuple)
-    {
-        PackingTestHelpers.AssertSizeBits(
-            ref tuple, 
-            (ref OffsetPathIndexTuple instance, long value) => instance.DecompressedBlockOffset = (int)value,
-            (ref OffsetPathIndexTuple instance) => instance.DecompressedBlockOffset,
-            26);
-    }
-    
-    [Theory, AutoNativeHeaders]
-    public void FilePathIndexShouldBe20Bits(OffsetPathIndexTuple tuple)
-    {
-        PackingTestHelpers.AssertSizeBits(
-            ref tuple, 
-            (ref OffsetPathIndexTuple instance, long value) => instance.FilePathIndex = (int)value,
-            (ref OffsetPathIndexTuple instance) => instance.FilePathIndex,
-            20);
-    }
-    
-    [Theory, AutoNativeHeaders]
-    public void FirstBlockIndexShouldBe18Bits(OffsetPathIndexTuple tuple)
-    {
-        PackingTestHelpers.AssertSizeBits(
-            ref tuple, 
-            (ref OffsetPathIndexTuple instance, long value) => instance.FirstBlockIndex = (int)value,
-            (ref OffsetPathIndexTuple instance) => instance.FirstBlockIndex,
-            18);
-    }
+
+    [Theory]
+    [AutoNativeHeaders]
+    public void DecompressedBlockOffsetShouldBe26Bits(OffsetPathIndexTuple tuple) => PackingTestHelpers.AssertSizeBits(
+        ref tuple,
+        (ref OffsetPathIndexTuple instance, long value) => instance.DecompressedBlockOffset = (int)value,
+        (ref OffsetPathIndexTuple instance) => instance.DecompressedBlockOffset,
+        26);
+
+    [Theory]
+    [AutoNativeHeaders]
+    public void FilePathIndexShouldBe20Bits(OffsetPathIndexTuple tuple) => PackingTestHelpers.AssertSizeBits(
+        ref tuple,
+        (ref OffsetPathIndexTuple instance, long value) => instance.FilePathIndex = (int)value,
+        (ref OffsetPathIndexTuple instance) => instance.FilePathIndex,
+        20);
+
+    [Theory]
+    [AutoNativeHeaders]
+    public void FirstBlockIndexShouldBe18Bits(OffsetPathIndexTuple tuple) => PackingTestHelpers.AssertSizeBits(
+        ref tuple,
+        (ref OffsetPathIndexTuple instance, long value) => instance.FirstBlockIndex = (int)value,
+        (ref OffsetPathIndexTuple instance) => instance.FirstBlockIndex,
+        18);
 }

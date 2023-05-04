@@ -3,15 +3,13 @@ namespace NexusMods.Archives.Nx.Tests.Utilities;
 public static class Permutations
 {
     /// <summary>
-    ///     Returns values for bit packing tests. <br/>
-    ///     This function returns values from numBits 0 to <paramref name="maxBits"/> such that: <br/><br/>
-    /// 
-    ///     Value 0: 0b1<br/>
-    ///     Value 1: 0b11<br/>
-    ///     Value 2: 0b111<br/>
-    ///     Value 3: 0b1111<br/>
-    ///     etc.<br/>
-    ///
+    ///     Returns values for bit packing tests. <br />
+    ///     This function returns values from numBits 0 to <paramref name="maxBits" /> such that: <br /><br />
+    ///     Value 0: 0b1<br />
+    ///     Value 1: 0b11<br />
+    ///     Value 2: 0b111<br />
+    ///     Value 3: 0b1111<br />
+    ///     etc.<br />
     ///     These values are used for testing individual bit packed values do not overlap.
     /// </summary>
     public static IEnumerable<long> GetBitPackingOverlapTestValues(int maxBits)
@@ -24,9 +22,10 @@ public static class Permutations
             value |= 1;
         }
     }
-    
+
     /// <summary>
-    ///     Gets the value that would appear at index <paramref name="numBits"/> of <see cref="GetBitPackingOverlapTestValues"/>.
+    ///     Gets the value that would appear at index <paramref name="numBits" /> of
+    ///     <see cref="GetBitPackingOverlapTestValues" />.
     /// </summary>
     public static long GetBitPackingOverlapTestValue(int numBits)
     {

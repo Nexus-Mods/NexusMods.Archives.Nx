@@ -32,4 +32,21 @@ public class FileFinderTests
 
         files.Count.Should().Be(DummyKnownFileDirectory.DummyFiles.Length);
     }
+
+    /// <summary>
+    ///     Determines if the code can properly find all files.
+    /// </summary>
+    [Theory]
+    [AutoFileSystem]
+    public unsafe void CanAccessFileData(FileFinder finder, DummyKnownFileDirectory dummyKnownDirectory)
+    {
+        var files = finder.GetFiles(dummyKnownDirectory.FolderPath);
+        foreach (var file in files)
+        {
+            using var data = file.FileDataProvider.GetFileData(0, (uint)file.FileSize);
+
+            // Our test files store size at offset 0.
+            (*data.Data).Should().Be((byte)data.DataLength);
+        }
+    }
 }

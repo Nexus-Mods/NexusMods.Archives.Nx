@@ -9,26 +9,15 @@
     - `u26`: DecompressedBlockOffset [[limits max block size](./File-Header.md#block-size)]
     - `u20`: FilePathIndex (in [StringPool](#string-pool)) [[limits max file count](./File-Header.md#versionvariant)]
     - `u18`: FirstBlockIndex
-- Blocks[BlockCount]
-    - `u32/u64` CompressedBlockSize
-- BlockCompressions
-    - `u2` Compression
-- [Align(u8)](#blockcompressions)
-- StringPool (see below)
+- [Blocks[BlockCount]](#blocks)
+    - `u29` CompressedBlockSize
+    - `u3` [Compression](#compression)
+- [StringPool](#string-pool)
     - `RawCompressedData...`
 
 ## File Entries
 
 Use known fixed size and are 4 byte aligned to improve parsing speed; size 20-24 bytes per item depending on variant.
-
-### Implicit Property: Is SOLID
-
-!!! tip
-
-    Reserved value `DecompressedBlockOffset == 2^26` means 'file is not SOLID'.  
-
-This is why we [take away 1 from Block Size in header](./File-Header.md#block-size).  
-This allows us to insert non-SOLID files (even under block size) into single blocks.  
 
 ### Implicit Property: Chunk Count
 
@@ -36,24 +25,31 @@ This allows us to insert non-SOLID files (even under block size) into single blo
 
     Files exceeding [Chunk Size](./File-Header.md#large-file-chunk-size) span multiple blocks.
 
-Number of blocks used to store the file is calculated as `DecompressedSize` / [Chunk Size](./File-Header.md#large-file-chunk-size).
+Number of blocks used to store the file is calculated as `DecompressedSize` / [Chunk Size](./File-Header.md#large-file-chunk-size).  
+All chunk blocks are stored sequentially.  
 
 ## Blocks
 
-Each entry contains raw size of the block; this avoids us having to have an offset for each block.
+Each entry contains raw size of the block; and compression used. This avoids us having to have an offset for each block.
 
-## BlockCompressions
+### Compression
 
-!!! note "This section is padded to next byte. a.k.a. `Align(u8)"
-
-Size: `2 bits` (0-3)
+Size: `3 bits` (0-7)
 
 - `0`: Copy
 - `1`: ZStandard
 - `2`: LZ4
-- `3`: Reserved
+- `3-7`: Reserved
 
-If we ever need to add more formats; we still got reserved space for flags in header; and a flag could extend this to 4 bits (16 values).
+!!! note "As we do not store the length of the decompressed data, this must be determined from the compressed block."
+
+#### ZStandard
+
+In the case of ZStandard, we must avoid the streaming API as this makes the length of decompressed data not calculable.
+
+#### LZ4
+
+For LZ4, we prefix the compressed stream with the length `[u4]` of the uncompressed data. Little Endian as always.
 
 ## String Pool
 

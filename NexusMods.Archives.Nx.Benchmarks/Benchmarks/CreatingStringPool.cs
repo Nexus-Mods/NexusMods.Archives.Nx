@@ -16,7 +16,8 @@ public class CreatingStringPool
     public StringWrapper[] Strings = null!;
 
     // Do not rename. Column depends on this name.
-    [Params(1000, 2000, 4000)] public int N { get; set; }
+    [Params(1000, 2000, 4000)] 
+    public int N { get; set; }
 
     [GlobalSetup]
     public void Setup() => Strings = StringWrapper.FromStringArray(Assets.GetYakuzaFileList()[..N].ToArray());

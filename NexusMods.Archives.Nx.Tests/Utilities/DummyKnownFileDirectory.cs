@@ -29,6 +29,7 @@ public class DummyKnownFileDirectory : TemporaryDirectory
             var target = Path.Combine(FolderPath, dummyFile.FileName);
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             using var file = File.Create(target);
+            buffer[0] = (byte)dummyFile.FileSize;
             file.Write(buffer, 0, dummyFile.FileSize);
         }
     }
