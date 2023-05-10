@@ -35,4 +35,5 @@ public enum CompressionPreference : byte
 
 // Auto generated.
 [ExcludeFromCodeCoverage]
+// ReSharper disable once PartialTypeWithSinglePart
 public static partial class CompressionPreferenceExtensions { }

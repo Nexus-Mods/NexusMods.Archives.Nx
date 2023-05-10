@@ -29,7 +29,8 @@ public static class NxPacker
 
         // Let's go!
         var stream = settings.Output;
-        var headerData = Polyfills.AllocatePinnedArray<byte>(toc.CalculateTableSize() + sizeof(NativeFileHeader));
+        var tocSize = toc.CalculateTableSize();
+        var headerData = Polyfills.AllocatePinnedArray<byte>(tocSize + sizeof(NativeFileHeader));
         stream.SetLength(((long)headerData.Length).RoundUp4096());
         stream.Position = stream.Length;
 
@@ -37,8 +38,8 @@ public static class NxPacker
         {
             // Pack the Blocks
             // Note: Blocks must be packed 'in-order' for chunked files; because their blocks need to be sequential.
-            var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
-            var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null);
+            using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
+            using var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null);
             var context = new BlockContext
             {
                 Settings = settings,
@@ -66,7 +67,7 @@ public static class NxPacker
             // Write headers.
             stream.Seek(0, SeekOrigin.Begin);
             NativeFileHeader.Init((NativeFileHeader*)headerDataPtr, toc.Version, settings.BlockSize, settings.ChunkSize, headerData.Length);
-            toc.Build(headerDataPtr + sizeof(NativeFileHeader));
+            toc.Build(headerDataPtr + sizeof(NativeFileHeader), tocSize);
             stream.Write(headerData, 0, headerData.Length);
         }
     }
@@ -153,17 +154,22 @@ public static class NxPacker
                     continue;
                 }
 
-                // Add item to SOLID block.
-                currentBlock.Add(item);
-                currentBlockSize += item.FileSize;
-                if (currentBlockSize < blockSize)
-                    continue;
+                // Check if the item fits in the current block
+                if (currentBlockSize + item.FileSize <= blockSize)
+                {
+                    // [Hot Path] Add item to SOLID block.
+                    currentBlock.Add(item);
+                    currentBlockSize += item.FileSize;
+                }
+                else
+                {
+                    // [Cold Path] Add the current block if it has any items and start a new block
+                    if (currentBlock.Count > 0)
+                        blocks.Add(new SolidBlock<T>(currentBlock, solidBlockAlgorithm));
 
-                // Add SOLID block, and reset items in block.
-                blocks.Add(new SolidBlock<T>(currentBlock, solidBlockAlgorithm));
-
-                currentBlock = new List<T>();
-                currentBlockSize = 0;
+                    currentBlock = new List<T> { item };
+                    currentBlockSize = item.FileSize;
+                }
             }
         }
 

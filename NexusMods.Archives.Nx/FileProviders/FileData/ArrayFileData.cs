@@ -26,6 +26,7 @@ public unsafe class ArrayFileData : IFileData
     {
         _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
         Data = (byte*)_handle.AddrOfPinnedObject() + start;
+        // ReSharper disable once RedundantCast
         DataLength = (UIntPtr)length;
     }
 

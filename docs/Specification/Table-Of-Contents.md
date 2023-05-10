@@ -2,7 +2,8 @@
 
 - `u32`: FileCount [[limited to 1 million due to FilePathIndex](./File-Header.md#versionvariant)]
 - `u18`: BlockCount
-- `u14`: Reserved/Padding
+- `u12`: [TablePadding](#table-padding)
+- `u2`: Reserved
 - `FileEntry[FileCount]`
     - `u64`: FileHash (xxHash64)
     - `u32/u64`: DecompressedSize
@@ -25,7 +26,20 @@ Use known fixed size and are 4 byte aligned to improve parsing speed; size 20-24
 
     Files exceeding [Chunk Size](./File-Header.md#large-file-chunk-size) span multiple blocks.
 
-Number of blocks used to store the file is calculated as `DecompressedSize` / [Chunk Size](./File-Header.md#large-file-chunk-size).  
+Number of blocks used to store the file is calculated as: `DecompressedSize` / [Chunk Size](./File-Header.md#large-file-chunk-size), 
+and +1 if there is any remainder, i.e. 
+
+```csharp
+public int GetChunkCount(int chunkSizeBytes)
+{
+    var count = DecompressedSize / (ulong)chunkSizeBytes;
+    if (DecompressedSize % (ulong)chunkSizeBytes != 0)
+        count += 1;
+
+    return (int)count;
+}
+```
+
 All chunk blocks are stored sequentially.  
 
 ## Blocks
@@ -43,13 +57,30 @@ Size: `3 bits` (0-7)
 
 !!! note "As we do not store the length of the decompressed data, this must be determined from the compressed block."
 
-#### ZStandard
+We use streaming APIs to decompress data.
 
-In the case of ZStandard, we must avoid the streaming API as this makes the length of decompressed data not calculable.
+## Table Padding
 
-#### LZ4
+!!! info
 
-For LZ4, we prefix the compressed stream with the length `[u4]` of the uncompressed data. Little Endian as always.
+    Stores the amount of padding that was applied to the table during serialization.  
+
+This is needed to calculate the end position of the [String Pool](#string-pool) without using more space in ToC.  
+
+This value is encoded as: 
+```csharp
+// FileHeader is just the 8 byte header.
+var paddingOffset = (tocSize + sizeof(FileHeader)).RoundUp4096() - tocSize;
+```
+
+And decoded as:
+
+```csharp
+tocSize = (tocSize + sizeof(FileHeader)).RoundUp4096();
+var paddingSize = tocSize - paddingOffset;
+```
+
+This way the decoding logic can work when given either a padded or unpadded size.
 
 ## String Pool
 

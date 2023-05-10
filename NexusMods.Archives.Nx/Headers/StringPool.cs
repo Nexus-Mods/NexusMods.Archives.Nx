@@ -99,16 +99,17 @@ public struct StringPool
     /// <summary>
     ///     Unpacks strings from a given pool.
     /// </summary>
-    /// <param name="poolSpan">The compressed stringpool.</param>
+    /// <param name="poolPtr">The compressed stringpool.</param>
+    /// <param name="compressedDataSize">Size of compressed data at the address.</param>
     /// <param name="fileCountHint">Hint for file count.</param>
     /// <returns>The strings in the pool.</returns>
     /// <remarks>
     ///     The number of expected strings in the pool is obtained from
     /// </remarks>
-    public static unsafe string[] Unpack(Span<byte> poolSpan, int fileCountHint = 0)
+    public static unsafe string[] Unpack(byte* poolPtr, int compressedDataSize, int fileCountHint = 0)
     {
         // Okay time to deconstruct the pool.
-        using var decompressed = Compression.DecompressZStd(poolSpan);
+        using var decompressed = Compression.DecompressZStd(poolPtr, compressedDataSize);
         var decompressedSpan = decompressed.Span;
         var offsets = decompressedSpan.FindAllOffsetsOfByte(0, fileCountHint);
         var items = Polyfills.AllocateUninitializedArray<string>(offsets.Count);
@@ -126,6 +127,21 @@ public struct StringPool
         }
 
         return items;
+    }
+    
+    /// <summary>
+    ///     Unpacks strings from a given pool.
+    /// </summary>
+    /// <param name="poolSpan">The compressed stringpool.</param>
+    /// <param name="fileCountHint">Hint for file count.</param>
+    /// <returns>The strings in the pool.</returns>
+    /// <remarks>
+    ///     The number of expected strings in the pool is obtained from
+    /// </remarks>
+    public static unsafe string[] Unpack(Span<byte> poolSpan, int fileCountHint = 0)
+    {
+        fixed (byte* poolSpanPtr = poolSpan)
+            return Unpack(poolSpanPtr, poolSpan.Length, fileCountHint);
     }
 }
 

@@ -1,6 +1,7 @@
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Structs;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
@@ -109,8 +110,9 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
 
         // TODO: Pooling these arrays might improve performance.
         // Populate ToC.
-        Toc = new TableOfContents(poolSize)
+        Toc = new TableOfContents
         {
+            PoolSize = poolSize,
             BlockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(blocks.Count),
             Blocks = Polyfills.AllocateUninitializedArray<BlockSize>(blocks.Count),
             Entries = Polyfills.AllocateUninitializedArray<FileEntry>(relativeFilePaths.Length),
@@ -155,7 +157,8 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     ///     Serializes the ToC to allow reading from binary.
     /// </summary>
     /// <param name="dataPtr">Memory where to serialize to.</param>
+    /// <param name="tocSize">Size of table of contents.</param>
     /// <returns>Number of bytes written.</returns>
-    /// <remarks>To determine needed size of <paramref name="dataPtr" />, call <see cref="CalculateTableSize" />.</remarks>
-    public unsafe int Build(byte* dataPtr) => Toc.Serialize(dataPtr, Version, PoolData.Span);
+    /// <remarks>To determine needed size of <paramref name="dataPtr" /> and <paramref name="tocSize"/>, call <see cref="CalculateTableSize" />.</remarks>
+    public unsafe int Build(byte* dataPtr, int tocSize) => Toc.Serialize(dataPtr, tocSize, Version, PoolData.Span);
 }

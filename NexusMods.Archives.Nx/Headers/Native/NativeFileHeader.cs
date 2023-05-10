@@ -89,7 +89,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     // Note: Not adding a constructor since it could technically be skipped, if not explicitly init'ed by `new`.
 
     /// <summary>
-    ///     Gets or sets the total amount of bytes required to fetch the entire table of contents.
+    ///     Gets or sets the total amount of bytes required to fetch this header and the table of contents.
     /// </summary>
     public int HeaderPageBytes
     {
@@ -114,6 +114,11 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
         get => 4194304 << ChunkSize;
         set => ChunkSize = (byte)Math.Log(value >> 22, 2);
     }
+
+    /// <summary>
+    ///     Gets or sets the total amount of bytes taken by table of contents (including padding).
+    /// </summary>
+    public unsafe int TocSize => HeaderPageBytes - sizeof(NativeFileHeader);
 
     /// <summary>
     ///     Initializes the header with given data.

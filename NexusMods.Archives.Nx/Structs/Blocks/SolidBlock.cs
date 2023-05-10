@@ -1,11 +1,11 @@
 ﻿using System.IO.Hashing;
-#if NET5_0_OR_GREATER
-using System.Runtime.InteropServices;
-#endif
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+#if NET5_0_OR_GREATER
+using System.Runtime.InteropServices;
+#endif
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -88,7 +88,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
                 blockCompression = asCopy ? CompressionPreference.Copy : Compression;
 
-                BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compressedAlloc, blockSize.CompressedSize);
+                BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compressedAlloc, blockSize.CompressedSize, settings.Progress);
             }
         }
     }

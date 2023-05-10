@@ -1,6 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 using K4os.Compression.LZ4;
+using K4os.Compression.LZ4.Streams;
 using NexusMods.Archives.Nx.Enums;
+using SharpZstd.Interop;
 using static SharpZstd.Interop.Zstd;
 
 namespace NexusMods.Archives.Nx.Utilities;
@@ -10,45 +13,6 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// </summary>
 internal static class Compression
 {
-    /// <summary>
-    ///     Compresses a given slice of data using LZ4.
-    /// </summary>
-    /// <param name="input">The data to compress.</param>
-    /// <param name="level">Level at which to compress at.</param>
-    /// <returns>The compressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice CompressLZ4(Span<byte> input, int level = 12)
-    {
-        var result = new ArrayRental(LZ4Codec.MaximumOutputSize(input.Length) + sizeof(int));
-        fixed (byte* inputPtr = input)
-        fixed (byte* resultPtr = result.Span)
-        {
-            // Write length, then compress.
-            LittleEndianHelper.Write((int*)resultPtr, input.Length);
-            var numCompressed = LZ4Codec.Encode(inputPtr, input.Length, resultPtr + 4, result.Array.Length - 4, (LZ4Level)level);
-            return new ArrayRentalSlice(result, numCompressed);
-        }
-    }
-
-    /// <summary>
-    ///     Decompresses the given data using LZ4.
-    /// </summary>
-    /// <param name="input">The data to decompress.</param>
-    /// <returns>The decompressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice DecompressLZ4(Span<byte> input)
-    {
-        fixed (byte* compressedPtr = input)
-        {
-            var decompSize = LittleEndianHelper.Read((int*)compressedPtr);
-            var result = new ArrayRental(decompSize);
-            var resultSpan = result.Span;
-            fixed (byte* resultPtr = resultSpan)
-            {
-                var decompressed = LZ4Codec.Decode(compressedPtr, input.Length, resultPtr, resultSpan.Length);
-                return new ArrayRentalSlice(result, decompressed);
-            }
-        }
-    }
-
     /// <summary>
     ///     Determines maximum memory needed to alloc to compress data with any method.
     /// </summary>
@@ -125,6 +89,54 @@ internal static class Compression
     }
 
     /// <summary>
+    ///     Decompresses data with a specific method.
+    /// </summary>
+    /// <param name="method">Method we compress with.</param>
+    /// <param name="source">Length of the source (compressed) in bytes.</param>
+    /// <param name="sourceLength">Number of bytes at source.</param>
+    /// <param name="destination">Pointer to destination (decompressed).</param>
+    /// <param name="destinationLength">Length of bytes at destination.</param>
+    public static unsafe void DecompressPartial(CompressionPreference method, byte* source, int sourceLength, byte* destination,
+        int destinationLength)
+    {
+        switch (method)
+        {
+            case CompressionPreference.Copy:
+                Unsafe.CopyBlockUnaligned(destination, source, (uint)sourceLength);
+                return;
+            case CompressionPreference.ZStandard:
+            {
+                // Initialize output buffer
+                nuint dstPos = 0;
+                nuint srcPos = 0;
+                nuint result = 0;
+                
+                var dStream = ZSTD_createDStream();
+                do
+                {
+                    result = ZSTD_decompressStream_simpleArgs(dStream, destination, (nuint)destinationLength, &dstPos, source, (nuint)sourceLength, &srcPos);
+                    var error = ZSTD_isError(result);
+                    if (error > 0)
+                        throw new InvalidOperationException($"ZStd Decompression error: {error}");
+                } 
+                while (result != 0 && dstPos < (nuint)destinationLength);
+                ZSTD_freeDStream(dStream);
+                return;
+            }
+            case CompressionPreference.Lz4:
+            {
+                // Fastest API with minimal alloc.
+                LZ4Frame.Decode(new Span<byte>(source, sourceLength), new SpanBufferWriter(destination, destinationLength));
+                return;
+            }
+
+            default:
+                ThrowHelpers.ThrowUnsupportedCompressionMethod(method);
+                return;
+        }
+    }
+
+    /// <summary>
     ///     Compresses a given slice of data using ZStandard.
     /// </summary>
     /// <param name="input">The data to compress.</param>
@@ -164,14 +176,67 @@ internal static class Compression
     {
         fixed (byte* compressedPtr = input)
         {
-            var decompSize = ZSTD_findDecompressedSize(compressedPtr, (UIntPtr)input.Length);
-            var result = new ArrayRental((int)decompSize);
-            var resultSpan = result.Span;
-            fixed (byte* resultPtr = resultSpan)
-            {
-                var decompressed = (int)ZSTD_decompress(resultPtr, (UIntPtr)resultSpan.Length, compressedPtr, (UIntPtr)input.Length);
-                return new ArrayRentalSlice(result, decompressed);
-            }
+            return DecompressZStd(compressedPtr, input.Length, (int)ZSTD_findDecompressedSize(compressedPtr, (UIntPtr)input.Length));
         }
+    }
+
+    /// <summary>
+    ///     Decompresses the given data using ZStandard.
+    /// </summary>
+    /// <param name="compressedDataPtr">Pointer to compressed data.</param>
+    /// <param name="compressedSize">Size of compressed data at <paramref name="compressedDataPtr"/>.</param>
+    /// <returns>The decompressed data. Make sure to dispose it!</returns>
+    public static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize)
+    {
+        return DecompressZStd(compressedDataPtr, compressedSize, (int)ZSTD_findDecompressedSize(compressedDataPtr, (UIntPtr)compressedSize));
+    }
+    
+    /// <summary>
+    ///     Decompresses the given data using ZStandard.
+    /// </summary>
+    /// <param name="compressedDataPtr">Pointer to compressed data.</param>
+    /// <param name="compressedSize">Size of compressed data at <paramref name="compressedDataPtr"/>.</param>
+    /// <param name="decompressedSize">Known ahead of time size for decompressed data.</param>
+    /// <returns>The decompressed data. Make sure to dispose it!</returns>
+    public static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize, int decompressedSize)
+    {
+        var result = new ArrayRental(decompressedSize);
+        var resultSpan = result.Span;
+        fixed (byte* resultPtr = resultSpan)
+        {
+            var decompressed = (int)ZSTD_decompress(resultPtr, (UIntPtr)resultSpan.Length, compressedDataPtr, (UIntPtr)compressedSize);
+            return new ArrayRentalSlice(result, decompressed);
+        }
+    }
+    
+    private unsafe struct SpanBufferWriter : IBufferWriter<byte>
+    {
+        private byte* _dataPtr;
+        private int _dataLength;
+        private int _position;
+
+        public SpanBufferWriter(byte* dataPtr, int dataLength)
+        {
+            _dataPtr = dataPtr;
+            _dataLength = dataLength;
+            _position = 0;
+        }
+
+        public void Advance(int count) => _position += count;
+
+        // Not used.
+        public Memory<byte> GetMemory(int sizeHint = 0) => throw new NotImplementedException();
+
+        public Span<byte> GetSpan(int sizeHint = 0)
+        {
+            if (sizeHint == 0)
+                return new(_dataPtr + _position, _dataLength - _position);
+
+            return new(_dataPtr + _position, sizeHint);
+        }
+
+        public ReadOnlySpan<byte> WrittenSpan => new(_dataPtr, _position);
+
+        public void Clear() => _position = 0;
     }
 }

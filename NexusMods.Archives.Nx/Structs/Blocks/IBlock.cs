@@ -52,7 +52,7 @@ internal static class BlockHelpers
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteToOutputLocked<T>(TableOfContentsBuilder<T> builder, int blockIndex, Stream output, PackerPoolRental compressedBlock,
-        int numBytes) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
+        int numBytes, IProgress<double>? progress) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
@@ -71,6 +71,9 @@ internal static class BlockHelpers
         output.Position = output.Length;
 
         // Advance to next block.
-        builder.GetAndIncrementBlockIndexAtomic();
+        var lastBlock = builder.GetAndIncrementBlockIndexAtomic();
+        
+        // Report progress.
+        progress?.Report(lastBlock / (float)builder.Toc.Blocks.Length);
     }
 }

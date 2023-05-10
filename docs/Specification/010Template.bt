@@ -65,7 +65,8 @@ struct TableOfContentsHeader
 {
     int32 FileCount;
     int32 BlockCount : 18;
-    int32 Reserved : 14;
+    int32 TablePadding : 12;
+    int32 Reserved : 2;
 };
 
 struct FileEntryV0 

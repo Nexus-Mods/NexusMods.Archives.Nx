@@ -69,6 +69,66 @@ public class PackerBlockCreationTests
     }
 
     [Fact]
+    public void MakeBlocks_WithBlockOverlap_SplitsCorrectly()
+    {
+        // Setup
+        const int solidBlockSize = 10;
+        var items = new Dictionary<string, List<PackerFileForTesting>>
+        {
+            {
+                "",
+                new List<PackerFileForTesting>
+                {
+                    new()
+                    {
+                        FileSize = 1,
+                        RelativePath = "Block0File0"
+                    },
+                    new()
+                    {
+                        FileSize = 8,
+                        RelativePath = "Block0File1"
+                    },
+                    new()
+                    {
+                        FileSize = 5,
+                        RelativePath = "Block1File0"
+                    },
+                    new()
+                    {
+                        FileSize = 1,
+                        RelativePath = "Block1File1"
+                    }
+                }
+            }
+        };
+
+        // Act
+        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4);
+
+        // Assert
+        blocks.Count.Should().Be(2);
+        blocks[0].Should().BeOfType<SolidBlock<PackerFileForTesting>>();
+        blocks[1].Should().BeOfType<SolidBlock<PackerFileForTesting>>();
+
+        // Check Solid Block
+        var first = blocks[0] as SolidBlock<PackerFileForTesting>;
+        var firstItems = first!.Items;
+        first.Compression.Should().Be(CompressionPreference.Lz4); // respects block compression.
+        firstItems.Count.Should().Be(2);
+        firstItems[0].RelativePath.Should().Be("Block0File0");
+        firstItems[1].RelativePath.Should().Be("Block0File1");
+
+        // Check single item block.
+        var second = blocks[1] as SolidBlock<PackerFileForTesting>;
+        var secondItems = second!.Items;
+        second.Compression.Should().Be(CompressionPreference.Lz4); // respects block compression.
+        secondItems.Count.Should().Be(2);
+        secondItems[0].RelativePath.Should().Be("Block1File0");
+        secondItems[1].RelativePath.Should().Be("Block1File1");
+    }
+    
+    [Fact]
     public void MakeBlocks_RespectsNoSolidAndCompressionPreference()
     {
         // Setup

@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers.Enums;
+using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Structs;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -16,35 +17,29 @@ public class TableOfContents : IEquatable<TableOfContents>
     /// <summary>
     ///     Used formats for compression of each block.
     /// </summary>
-    public required CompressionPreference[] BlockCompressions;
+    public CompressionPreference[] BlockCompressions { get; init; } = null!; // required
 
     /// <summary>
     ///     Individual block sizes in this structure.
     /// </summary>
-    public required BlockSize[] Blocks;
+    public BlockSize[] Blocks { get; init; } = null!; // required
 
     /// <summary>
     ///     Individual file entries.
     /// </summary>
-    public required FileEntry[] Entries;
+    public FileEntry[] Entries { get; init; } = null!; // required
 
     /// <summary>
     ///     String pool data.
     /// </summary>
-    public required string[] Pool;
+    public string[] Pool { get; init; } = null!; // required
 
     // primitives
 
     /// <summary>
     ///     Size of the StringPool used to initialize this ToC.
     /// </summary>
-    public readonly int PoolSize;
-
-    /// <summary>
-    ///     Initializes Table of Contents with a specific pool size.
-    /// </summary>
-    /// <param name="poolSize">Size of original pool in bytes.</param>
-    public TableOfContents(int poolSize) => PoolSize = poolSize;
+    public int PoolSize { get; init; } // required
 
     /// <summary>
     ///     Deserializes the table of contents from a given address and version.
@@ -53,14 +48,19 @@ public class TableOfContents : IEquatable<TableOfContents>
     /// <param name="tocSize">Size of table of contents.</param>
     /// <param name="version">Version of the table of contents.</param>
     /// <returns>Deserialized table of contents.</returns>
-    public static unsafe TableOfContents Deserialize(byte* dataPtr, int tocSize, ArchiveVersion version)
+    public static unsafe T Deserialize<T>(byte* dataPtr, int tocSize, ArchiveVersion version) where T : TableOfContents, new()
     {
+        // Re-add padding if it's missing.
+        tocSize = (tocSize + sizeof(NativeFileHeader)).RoundUp4096();
+        
         var reader = new LittleEndianReader(dataPtr);
 
         var fileCount = reader.ReadInt();
         var entries = Polyfills.AllocateUninitializedArray<FileEntry>(fileCount);
 
-        var blockCount = reader.ReadInt() >> 14;
+        var blockCountAndPoolSize = reader.ReadInt();
+        var blockCount = blockCountAndPoolSize >> 14;
+        var paddingOffset = (blockCountAndPoolSize >> 2) & 0xFFF;
         var blocks = Polyfills.AllocateUninitializedArray<BlockSize>(blockCount);
         var blockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(blockCount);
 
@@ -96,11 +96,12 @@ public class TableOfContents : IEquatable<TableOfContents>
 
         // Read the StringPool.
         var bytesRead = reader.Ptr - dataPtr;
-        var bytesRemaining = tocSize - bytesRead; // minus bytes read
-        var pool = StringPool.Unpack(new Span<byte>(reader.Ptr, (int)bytesRemaining), fileCount);
+        var stringPoolSize = tocSize - paddingOffset - bytesRead;
+        var pool = StringPool.Unpack(reader.Ptr, (int)stringPoolSize, fileCount);
 
-        return new TableOfContents((int)bytesRemaining)
+        return new T
         {
+            PoolSize = (int)stringPoolSize,
             Blocks = blocks,
             Entries = entries,
             Pool = pool,
@@ -160,16 +161,19 @@ public class TableOfContents : IEquatable<TableOfContents>
     ///     Serializes the ToC to allow reading from binary.
     /// </summary>
     /// <param name="dataPtr">Memory where to serialize to.</param>
+    /// <param name="tocSize">Size of table of contents.</param>
     /// <param name="version">Version of the archive used.</param>
     /// <param name="stringPoolData">Raw data for the string pool.</param>
     /// <returns>Number of bytes written.</returns>
     /// <remarks>To determine needed size of <paramref name="dataPtr" />, call <see cref="CalculateTableSize" />.</remarks>
-    public unsafe int Serialize(byte* dataPtr, ArchiveVersion version, Span<byte> stringPoolData)
+    public unsafe int Serialize(byte* dataPtr, int tocSize, ArchiveVersion version, Span<byte> stringPoolData)
     {
         // Note: Avoiding bitstreams entirely; manual packing for max perf.
         var writer = new LittleEndianWriter(dataPtr);
         writer.Write(Entries.Length); // limited to 1 mil so int is ok
-        writer.Write(Blocks.Length << 14); // upper 18 bits.
+        var blockCount = Blocks.Length; // Upper 18 bits
+        var paddingOffset = (tocSize + sizeof(NativeFileHeader)).RoundUp4096() - tocSize; // Next 12 bits.
+        writer.Write((blockCount << 14) | (paddingOffset << 2)); 
 
         // Now write out all the files.
         // Now let's write a fast loop like the runtime guys do 💜

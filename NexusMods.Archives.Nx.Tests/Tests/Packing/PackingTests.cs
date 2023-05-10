@@ -1,4 +1,6 @@
-﻿using NexusMods.Archives.Nx.FileProviders;
+﻿using AutoFixture;
+using AutoFixture.Xunit2;
+using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Utilities;
@@ -10,12 +12,38 @@ namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 /// </summary>
 public class PackingTests
 {
-    [Fact]
-    public void Pack_Baseline()
+    [Theory]
+    [AutoData]
+    public NxUnpacker Can_Pack_And_Parse_Baseline(IFixture fixture)
     {
         // Act
+        NxPacker.Pack(GetRandomDummyFiles(fixture, 4096, out var settings), settings);
+        settings.Output.Position = 0;
+        var streamProvider = new FromStreamProvider(settings.Output);
+        
+        // Test succeeds if it doesn't throw.
+        return new NxUnpacker(streamProvider);
+    }
+
+    [Theory]
+    [AutoData]
+    public NxUnpacker Can_Pack_And_Unpack_Baseline(IFixture fixture)
+    {
+        // Act
+        NxPacker.Pack(GetRandomDummyFiles(fixture, 4096, out var settings), settings);
+        settings.Output.Position = 0;
+        var streamProvider = new FromStreamProvider(settings.Output);
+        
+        // Test succeeds if it doesn't throw.
+        var unpacker = new NxUnpacker(streamProvider);
+        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        return unpacker;
+    }
+
+    private PackerFile[] GetRandomDummyFiles(IFixture fixture, int numBlockedFiles, out PackerSettings settings)
+    {
         var output = new MemoryStream();
-        var settings = new PackerSettings
+        settings = new PackerSettings
         {
             Output = output,
             BlockSize = 32767,
@@ -23,50 +51,28 @@ public class PackingTests
             MaxNumThreads = 1 // easier to debug.
         };
 
-        NxPacker.Pack(new PackerFile[]
+        var random = new Random();
+        var index = 0;
+        fixture.Customize<PackerFile>(c =>
         {
-            new()
+            return c.FromFactory(() =>
             {
-                FileSize = 5000,
-                RelativePath = "Block0File0",
-                FileDataProvider = new FromArrayProvider
+                var fileSize = random.Next(100, 16384);
+                return new PackerFile()
                 {
-                    Data = MakeDummyFile(5000)
-                }
-            },
-            new()
-            {
-                FileSize = 25000,
-                RelativePath = "Block0File1",
-                FileDataProvider = new FromArrayProvider
-                {
-                    Data = MakeDummyFile(25000)
-                }
-            },
-            new()
-            {
-                FileSize = 2000,
-                RelativePath = "Block0File2",
-                FileDataProvider = new FromArrayProvider
-                {
-                    Data = MakeDummyFile(2000)
-                }
-            },
-            new()
-            {
-                FileSize = 8000000L,
-                RelativePath = "ChunkedFile",
-                FileDataProvider = new FromArrayProvider
-                {
-                    Data = MakeDummyFile(8000000)
-                }
-            }
-        }, settings);
-
-        // Get result
-        File.WriteAllBytes("output.bin", output.ToArray());
+                    FileSize = fileSize,
+                    RelativePath = $"File_{index++}",
+                    FileDataProvider = new FromArrayProvider
+                    {
+                        Data = MakeDummyFile(fileSize)
+                    }
+                };
+            }).OmitAutoProperties();
+        });
+        
+        return fixture.CreateMany<PackerFile>(numBlockedFiles).ToArray();
     }
-
+    
     private byte[] MakeDummyFile(int length)
     {
         var result = Polyfills.AllocateUninitializedArray<byte>(length);

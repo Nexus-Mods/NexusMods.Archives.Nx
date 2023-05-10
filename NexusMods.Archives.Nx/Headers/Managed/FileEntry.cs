@@ -34,6 +34,19 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     ///     [u18] Index of the first block associated with this file.
     /// </summary>
     public int FirstBlockIndex;
+    
+    /// <summary>
+    /// Calculated via <see cref="DecompressedSize"/> divided by Chunk Size.
+    /// </summary>
+    /// <param name="chunkSizeBytes">Size of single chunk in archive.</param>
+    public int GetChunkCount(int chunkSizeBytes)
+    {
+        var count = DecompressedSize / (ulong)chunkSizeBytes;
+        if (DecompressedSize % (ulong)chunkSizeBytes != 0)
+            count += 1;
+
+        return (int)count;
+    }
 
     /// <summary>
     ///     Writes this managed file entry in the format of <see cref="NativeFileEntryV0" />.

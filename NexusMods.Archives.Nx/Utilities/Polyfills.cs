@@ -1,8 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.Runtime.CompilerServices;
 #if NET7_0_OR_GREATER
 using System.Numerics;
 #endif
-using System.Runtime.CompilerServices;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -117,7 +116,7 @@ internal class Polyfills
 #if NET7_0_OR_GREATER
         return stream.ReadAtLeast(buffer, minimumBytes, throwOnEndOfStream);
 #else
-        Debug.Assert(minimumBytes <= buffer.Length);
+        // Taken from Runtime.
         var totalRead = 0;
         while (totalRead < minimumBytes)
         {

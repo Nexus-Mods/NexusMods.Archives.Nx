@@ -79,15 +79,14 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     /// <param name="settings">Packer settings.</param>
     /// <param name="blockIndex">Index of currently packed block.</param>
     /// <param name="rawChunkData">Raw data of decompressed chunk (before compression)</param>
-    /// <param name="asCopy"></param>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <param name="asCopy">Whether block was compressed using 'copy' compression.</param>
     public void UpdateState(int chunkIndex, PackerPoolRental compData, int compressedSize, TableOfContentsBuilder<T> tocBuilder,
         PackerSettings settings, int blockIndex, Span<byte> rawChunkData, bool asCopy)
     {
         UpdateHash(rawChunkData);
 
         // Write out actual block.
-        BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compData, compressedSize);
+        BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compData, compressedSize, settings.Progress);
 
         // Update Block Details
         var toc = tocBuilder.Toc;

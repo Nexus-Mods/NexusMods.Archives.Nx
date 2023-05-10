@@ -27,13 +27,13 @@ public class FromStreamProvider : IFileDataProvider
     public FromStreamProvider(Stream stream)
     {
         Stream = stream;
-        StreamStart = stream.Length;
+        StreamStart = stream.Position;
     }
 
     /// <inheritdoc />
     public IFileData GetFileData(long start, uint length)
     {
-        var newPos = start + Stream.Length;
+        var newPos = StreamStart + start;
         Stream.Seek(newPos, SeekOrigin.Begin);
         var pooledData = new ArrayRental((int)length);
 

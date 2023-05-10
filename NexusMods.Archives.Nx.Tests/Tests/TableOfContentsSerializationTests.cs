@@ -54,11 +54,11 @@ public class TableOfContentsSerializationTests
         var data = new byte[tableOfContents.CalculateTableSize()];
         fixed (byte* dataPtr = data)
         {
-            var bytesWritten = tableOfContents.Build(dataPtr);
+            var bytesWritten = tableOfContents.Build(dataPtr, data.Length);
             bytesWritten.Should().Be(data.Length); // We calculated correct size.
 
             // Deserialize
-            var newTable = TableOfContents.Deserialize(dataPtr, data.Length, tableOfContents.Version);
+            var newTable = TableOfContents.Deserialize<TableOfContents>(dataPtr, data.Length, tableOfContents.Version);
             newTable.Should().Be(tableOfContents.Toc);
         }
     }

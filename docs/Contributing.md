@@ -19,5 +19,5 @@ For convenience, a `Powershell` script `FixUndeclaredAPIs.ps1` is included in re
 !!! failure
 
     In some cases, making changes to the main library will not correctly trigger recompilation of test project; leading
-    you to debug old code. This happens in 2023.1.1; unsure if affects other versions. Make sure to hit Ctrl+Shift+B to 
+    you to debug old code. This happens in 2023.1.1; unsure if affects other versions. Make sure to hit `Ctrl+Shift+B` to 
     force a recompliation of whole project just in case.
