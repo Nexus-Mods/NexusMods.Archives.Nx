@@ -135,7 +135,7 @@ internal static class Compression
                         ZSTD_freeDStream(dStream);
                         throw new InvalidOperationException($"ZStd Decompression error: {str}");
                     }
-                } 
+                }
                 while (result != 0 || outBuf.pos < (nuint)destinationLength);
                 ZSTD_freeDStream(dStream);
                 return;
@@ -143,7 +143,7 @@ internal static class Compression
             case CompressionPreference.Lz4:
             {
                 // Fastest API with minimal alloc.
-                LZ4Frame.Decode(new Span<byte>(source, sourceLength), new SpanBufferWriter(destination, destinationLength));
+                LZ4Codec.Decode(source, sourceLength, destination, destinationLength);
                 return;
             }
 
@@ -224,36 +224,5 @@ internal static class Compression
             var decompressed = (int)ZSTD_decompress(resultPtr, (UIntPtr)resultSpan.Length, compressedDataPtr, (UIntPtr)compressedSize);
             return new ArrayRentalSlice(result, decompressed);
         }
-    }
-    
-    private unsafe struct SpanBufferWriter : IBufferWriter<byte>
-    {
-        private byte* _dataPtr;
-        private int _dataLength;
-        private int _position;
-
-        public SpanBufferWriter(byte* dataPtr, int dataLength)
-        {
-            _dataPtr = dataPtr;
-            _dataLength = dataLength;
-            _position = 0;
-        }
-
-        public void Advance(int count) => _position += count;
-
-        // Not used.
-        public Memory<byte> GetMemory(int sizeHint = 0) => throw new NotImplementedException();
-
-        public Span<byte> GetSpan(int sizeHint = 0)
-        {
-            if (sizeHint == 0)
-                return new(_dataPtr + _position, _dataLength - _position);
-
-            return new(_dataPtr + _position, sizeHint);
-        }
-
-        public ReadOnlySpan<byte> WrittenSpan => new(_dataPtr, _position);
-
-        public void Clear() => _position = 0;
     }
 }

@@ -43,8 +43,6 @@ public class VectorisedReplaceCharacter
     private static unsafe void AssertStringReplaceInAnotherBuffer(string expected, string input, char oldChar,
         char newChar)
     {
-        // Please don't do this in production; unless lifetime of string doesn't 
-        // extend past current method, this is just for convenience
         Span<char> resultSpan = stackalloc char[input.Length];
         fixed (char* inputPtr = input)
         {
