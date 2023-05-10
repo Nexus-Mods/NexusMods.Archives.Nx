@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 #if NET7_0_OR_GREATER
 using System.Numerics;
 #endif
@@ -8,7 +9,8 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Method wrappers for newer runtime features that delegate back to older approaches on unsupported runtimes.
 /// </summary>
-internal class Polyfills
+[SuppressMessage("ReSharper", "ConvertIfStatementToReturnStatement")]
+internal static class Polyfills
 {
     /// <summary>
     ///     Allocates an array without zero filling it.

@@ -11,6 +11,7 @@ public interface ICanConvertToLittleEndian
     /// <remarks>
     ///     Only call this method once, or endian will be reversed again.
     /// </remarks>
+    // ReSharper disable once UnusedMemberInSuper.Global
     public void ReverseEndianIfNeeded();
 
     /*

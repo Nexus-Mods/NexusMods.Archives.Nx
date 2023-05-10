@@ -1,4 +1,5 @@
-﻿using NexusMods.Archives.Nx.FileProviders.FileData;
+﻿using JetBrains.Annotations;
+using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -8,7 +9,8 @@ namespace NexusMods.Archives.Nx.FileProviders;
 ///     File data provider that provides info from a stream.
 ///     Source Stream must support seeking.
 /// </summary>
-public class FromStreamProvider : IFileDataProvider
+[PublicAPI]
+public sealed class FromStreamProvider : IFileDataProvider
 {
     /// <summary>
     ///     Stream associated with this provider.
@@ -18,7 +20,7 @@ public class FromStreamProvider : IFileDataProvider
     /// <summary>
     ///     Start of stream pointer.
     /// </summary>
-    public long StreamStart { get; init; }
+    public long StreamStart { get; }
 
     /// <summary>
     ///     Creates a provider from a stream.

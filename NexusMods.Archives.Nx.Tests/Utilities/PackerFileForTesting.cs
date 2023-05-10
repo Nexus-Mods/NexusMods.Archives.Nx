@@ -30,5 +30,5 @@ public class PackerFileForTesting : IHasFileSize, IHasSolidType, IHasCompression
         RelativePath = relativePath;
     }
 
-    public IFileDataProvider FileDataProvider { get; }
+    public IFileDataProvider FileDataProvider { get; } = null!;
 }

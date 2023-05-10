@@ -6,7 +6,7 @@ namespace NexusMods.Archives.Nx.FileProviders;
 /// <summary>
 ///     File data provider that provides files from a given directory.
 /// </summary>
-public class FromDirectoryDataProvider : IFileDataProvider
+public sealed class FromDirectoryDataProvider : IFileDataProvider
 {
     // Note: We store directory and relative path separately because that saves memory in our use case (deduplicated strings);
     //       then we can temporarily combine when GetFileData gets called down the road.

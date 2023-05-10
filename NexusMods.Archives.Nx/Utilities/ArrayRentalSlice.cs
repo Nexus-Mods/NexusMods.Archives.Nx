@@ -3,7 +3,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Represents a slice of an <see cref="ArrayRental" />.
 /// </summary>
-public struct ArrayRentalSlice : IDisposable
+public readonly struct ArrayRentalSlice : IDisposable
 {
     /// <summary>
     ///     The underlying rental.

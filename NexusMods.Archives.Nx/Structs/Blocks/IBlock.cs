@@ -38,6 +38,7 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
     /// <summary>
     ///     Compression method used to pack the block.
     /// </summary>
+    // ReSharper disable once UnusedMemberInSuper.Global
     public CompressionPreference Compression { get; }
 }
 

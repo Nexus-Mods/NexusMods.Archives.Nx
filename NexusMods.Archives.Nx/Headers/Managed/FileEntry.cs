@@ -57,7 +57,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     {
         writer.WriteAtOffset(Hash, 0);
         writer.WriteAtOffset((int)DecompressedSize, 8);
-        writer.WriteAtOffset(new OffsetPathIndexTuple(DecompressedBlockOffset, FilePathIndex, FirstBlockIndex)._data, 12);
+        writer.WriteAtOffset(new OffsetPathIndexTuple(DecompressedBlockOffset, FilePathIndex, FirstBlockIndex).Data, 12);
         writer.Seek(NativeFileEntryV0.SizeBytes);
     }
 
@@ -70,7 +70,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     {
         writer.WriteAtOffset(Hash, 0);
         writer.WriteAtOffset(DecompressedSize, 8);
-        writer.WriteAtOffset(new OffsetPathIndexTuple(DecompressedBlockOffset, FilePathIndex, FirstBlockIndex)._data, 16);
+        writer.WriteAtOffset(new OffsetPathIndexTuple(DecompressedBlockOffset, FilePathIndex, FirstBlockIndex).Data, 16);
         writer.Seek(NativeFileEntryV1.SizeBytes);
     }
 

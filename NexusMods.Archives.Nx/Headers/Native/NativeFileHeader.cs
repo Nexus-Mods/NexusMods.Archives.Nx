@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
@@ -9,6 +10,7 @@ namespace NexusMods.Archives.Nx.Headers.Native;
 /// <summary>
 ///     Structure that represents the native serialized file header.
 /// </summary>
+[PublicAPI]
 [StructLayout(LayoutKind.Sequential, Pack = 1)] // We control alignment :)
 public struct NativeFileHeader : ICanConvertToLittleEndian
 {
@@ -17,7 +19,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     internal const int SizeBytes = 8;
 
-    internal const uint ExpectedMagic = 0x5355584E; // little endian 'SUXN'
+    private const uint ExpectedMagic = 0x5355584E; // little endian 'SUXN'
 
     // Data layout.
 

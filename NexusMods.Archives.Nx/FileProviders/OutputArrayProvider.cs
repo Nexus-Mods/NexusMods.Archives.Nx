@@ -8,7 +8,7 @@ namespace NexusMods.Archives.Nx.FileProviders;
 /// <summary>
 ///     Output data provider that writes data to an array.
 /// </summary>
-public class OutputArrayProvider : IOutputDataProvider
+public sealed class OutputArrayProvider : IOutputDataProvider
 {
     /// <summary>
     ///     The array held by this provider.
@@ -35,7 +35,7 @@ public class OutputArrayProvider : IOutputDataProvider
     
     /// <inheritdoc />
     public IFileData GetFileData(long start, uint length) => new ArrayFileData(Data, start, length);
-
+    
     /// <inheritdoc />
     public void Dispose() { }
 }

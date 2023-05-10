@@ -60,14 +60,14 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public int NumChunks = 0;
 
     /// <summary>
-    ///     Instance of the Microsoft xxHash64 hasher.
-    /// </summary>
-    public XxHash64 Hash = new();
-
-    /// <summary>
     ///     File associated with this chunked block.
     /// </summary>
     public T File { get; init; } = default!;
+    
+    /// <summary>
+    ///     Instance of the Microsoft xxHash64 hasher.
+    /// </summary>
+    private XxHash64 _hash = new();
 
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.
@@ -112,10 +112,10 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     ///     Updates the current hash.
     /// </summary>
     /// <param name="data">The data to be hashed.</param>
-    public void UpdateHash(Span<byte> data) => Hash.Append(data);
+    private void UpdateHash(Span<byte> data) => _hash.Append(data);
 
     /// <summary>
     ///     Receive the final hash.
     /// </summary>
-    public ulong GetFinalHash() => Hash.GetCurrentHashAsUInt64();
+    private ulong GetFinalHash() => _hash.GetCurrentHashAsUInt64();
 }

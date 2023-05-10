@@ -26,8 +26,7 @@ internal class OrderedTaskScheduler : TaskScheduler, IDisposable
         _threads = new Thread[concurrencyLevel];
         for (var x = 0; x < _threads.Length; x++)
         {
-            var thread = new Thread(ExecuteTasks);
-            thread.IsBackground = true;
+            var thread = new Thread(ExecuteTasks) { IsBackground = true };
             thread.Start();
             _threads[x] = thread;
         }

@@ -67,6 +67,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         // Read Files
         ref var currentEntry = ref entries.DangerousGetReferenceAt(0);
         ref var lastEntry = ref entries.DangerousGetReferenceAt(entries.Length);
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (version == ArchiveVersion.V0)
         {
             while (Unsafe.IsAddressLessThan(ref currentEntry, ref lastEntry))
@@ -179,6 +180,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         // Now let's write a fast loop like the runtime guys do 💜
         ref var currentEntry = ref Entries.DangerousGetReferenceAt(0);
         ref var lastEntry = ref Entries.DangerousGetReferenceAt(Entries.Length);
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (version == ArchiveVersion.V0)
         {
             while (Unsafe.IsAddressLessThan(ref currentEntry, ref lastEntry))

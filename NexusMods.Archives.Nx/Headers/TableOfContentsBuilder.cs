@@ -1,7 +1,6 @@
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
-using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Structs;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
@@ -29,21 +28,11 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     ///     file out of order. This means that we need to know the order of any given string ahead of time.
     /// </remarks>
     public Dictionary<string, int> FileNameToIndexDictionary = null!;
-
-    /// <summary>
-    ///     Compressed strings in the StringPool.
-    /// </summary>
-    public ArrayRentalSlice PoolData;
-
+    
     /// <summary>
     ///     Current block in ToC builder.
     /// </summary>
     public int CurrentBlock;
-
-    /// <summary>
-    ///     Currently modified file entry.
-    /// </summary>
-    public int CurrentFile;
 
     /// <summary>
     ///     Version between 0 and 15.
@@ -55,6 +44,16 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     ///     This table of contents contains blocks which can create chunks.
     /// </summary>
     public bool CanCreateChunks;
+    
+    /// <summary>
+    ///     Compressed strings in the StringPool.
+    /// </summary>
+    private readonly ArrayRentalSlice _poolData;
+    
+    /// <summary>
+    ///     Currently modified file entry.
+    /// </summary>
+    private int _currentFile;
 
     /// <summary>
     ///     Initializes a Table of Contents from given set of items.
@@ -65,14 +64,14 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     {
         // Note: Files are sorted in-place during pack.
         // TODO: We can generate the PoolData in parallel; which could save us ~10ms on packing huge 1500+ file archives.
-        PoolData = StringPool.Pack(files);
-        Init(blocks, files, PoolData.Length);
+        _poolData = StringPool.Pack(files);
+        Init(blocks, files, _poolData.Length);
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        PoolData.Dispose();
+        _poolData.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -121,7 +120,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     }
 
     /// <summary>
-    ///     Calculates the size of the table, including stringpool.
+    ///     Calculates the size of the table, including String Pool.
     /// </summary>
     public int CalculateTableSize() => Toc.CalculateTableSize(Version);
 
@@ -132,18 +131,8 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// </summary>
     public ref FileEntry GetAndIncrementFileAtomic()
     {
-        var index = Interlocked.Increment(ref CurrentFile) - 1;
+        var index = Interlocked.Increment(ref _currentFile) - 1;
         return ref Toc.Entries.DangerousGetReferenceAt(index);
-    }
-
-    /// <summary>
-    ///     Retrieves a number of file entries, while incrementing the index atomically.
-    /// </summary>
-    /// <param name="numFiles">Number of files to fetch.</param>
-    public Span<FileEntry> GetAndIncrementFilesAtomic(int numFiles)
-    {
-        var startIndex = Interlocked.Add(ref CurrentFile, numFiles) - numFiles;
-        return Toc.Entries.AsSpan().SliceFast(startIndex, numFiles);
     }
 
     /// <summary>
@@ -160,5 +149,5 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// <param name="tocSize">Size of table of contents.</param>
     /// <returns>Number of bytes written.</returns>
     /// <remarks>To determine needed size of <paramref name="dataPtr" /> and <paramref name="tocSize"/>, call <see cref="CalculateTableSize" />.</remarks>
-    public unsafe int Build(byte* dataPtr, int tocSize) => Toc.Serialize(dataPtr, tocSize, Version, PoolData.Span);
+    public unsafe int Build(byte* dataPtr, int tocSize) => Toc.Serialize(dataPtr, tocSize, Version, _poolData.Span);
 }

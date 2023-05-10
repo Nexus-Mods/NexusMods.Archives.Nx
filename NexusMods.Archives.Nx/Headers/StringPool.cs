@@ -1,4 +1,5 @@
 using System.Text;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -7,22 +8,18 @@ namespace NexusMods.Archives.Nx.Headers;
 /// <summary>
 ///     Provides an abstraction over the string pool used in the application.
 /// </summary>
+[PublicAPI]
 public struct StringPool
 {
-    /// <summary>
-    ///     Used directory separator.
-    /// </summary>
-    public const char Separator = '/';
-
-    /// <summary>
-    ///     Default compression level for table of contents. [Currently non-customizable]
-    /// </summary>
-    public const int DefaultCompressionLevel = 16;
-
     /// <summary>
     ///     Maximum size of compressed stringpool allowed.
     /// </summary>
     public const int MaxCompressedSize = 33550336;
+
+    /// <summary>
+    ///     Default compression level for table of contents. [Currently non-customizable]
+    /// </summary>
+    private const int DefaultCompressionLevel = 16;
 
     /// <summary>
     ///     Packs a stringpool given the file paths provided.
@@ -87,7 +84,8 @@ public struct StringPool
         }
 
         var numBytes = poolBuf.AvailableSize - numLeft;
-        var result = Compression.CompressZStd(poolBuf.PinnedArray.AsSpan(0, numBytes));
+        // ReSharper disable once RedundantArgumentDefaultValue
+        var result = Compression.CompressZStd(poolBuf.PinnedArray.AsSpan(0, numBytes), DefaultCompressionLevel);
         if (result.Length <= MaxCompressedSize)
             return result;
 
@@ -101,12 +99,23 @@ public struct StringPool
     /// </summary>
     /// <param name="poolPtr">The compressed stringpool.</param>
     /// <param name="compressedDataSize">Size of compressed data at the address.</param>
+    /// <returns>The strings in the pool.</returns>
+    /// <remarks>
+    ///     The number of expected strings in the pool is obtained from
+    /// </remarks>
+    public static unsafe string[] Unpack(byte* poolPtr, int compressedDataSize) => Unpack(poolPtr, compressedDataSize, 0);
+
+    /// <summary>
+    ///     Unpacks strings from a given pool.
+    /// </summary>
+    /// <param name="poolPtr">The compressed stringpool.</param>
+    /// <param name="compressedDataSize">Size of compressed data at the address.</param>
     /// <param name="fileCountHint">Hint for file count.</param>
     /// <returns>The strings in the pool.</returns>
     /// <remarks>
     ///     The number of expected strings in the pool is obtained from
     /// </remarks>
-    public static unsafe string[] Unpack(byte* poolPtr, int compressedDataSize, int fileCountHint = 0)
+    public static unsafe string[] Unpack(byte* poolPtr, int compressedDataSize, int fileCountHint)
     {
         // Okay time to deconstruct the pool.
         using var decompressed = Compression.DecompressZStd(poolPtr, compressedDataSize);
@@ -133,12 +142,26 @@ public struct StringPool
     ///     Unpacks strings from a given pool.
     /// </summary>
     /// <param name="poolSpan">The compressed stringpool.</param>
+    /// <returns>The strings in the pool.</returns>
+    /// <remarks>
+    ///     The number of expected strings in the pool is obtained from
+    /// </remarks>
+    public static unsafe string[] Unpack(Span<byte> poolSpan)
+    {
+        fixed (byte* poolSpanPtr = poolSpan)
+            return Unpack(poolSpanPtr, poolSpan.Length, 0);
+    }
+    
+    /// <summary>
+    ///     Unpacks strings from a given pool.
+    /// </summary>
+    /// <param name="poolSpan">The compressed stringpool.</param>
     /// <param name="fileCountHint">Hint for file count.</param>
     /// <returns>The strings in the pool.</returns>
     /// <remarks>
     ///     The number of expected strings in the pool is obtained from
     /// </remarks>
-    public static unsafe string[] Unpack(Span<byte> poolSpan, int fileCountHint = 0)
+    public static unsafe string[] Unpack(Span<byte> poolSpan, int fileCountHint)
     {
         fixed (byte* poolSpanPtr = poolSpan)
             return Unpack(poolSpanPtr, poolSpan.Length, fileCountHint);

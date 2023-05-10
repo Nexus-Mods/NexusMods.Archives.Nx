@@ -1,4 +1,5 @@
-﻿using NexusMods.Archives.Nx.Enums;
+﻿using JetBrains.Annotations;
+using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Structs;
@@ -6,6 +7,7 @@ namespace NexusMods.Archives.Nx.Structs;
 /// <summary>
 ///     Controls the behaviour of the packer.
 /// </summary>
+[PublicAPI]
 public class PackerSettings
 {
     /// <summary>
@@ -91,6 +93,7 @@ public class PackerSettings
     ///     Retrieves the compression level for the specified algorithm.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">Compression algorithm used is unsupported.</exception>
+    // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
     public int GetCompressionLevel(CompressionPreference preference) => preference switch
     {
         CompressionPreference.Copy => 0,

@@ -1,4 +1,5 @@
-﻿using NexusMods.Archives.Nx.FileProviders;
+﻿using JetBrains.Annotations;
+using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
@@ -10,6 +11,7 @@ namespace NexusMods.Archives.Nx.Packing;
 /// <summary>
 ///     Utility for unpacking `.nx` files.
 /// </summary>
+[PublicAPI]
 public class NxUnpacker
 {
     // At Initialization
@@ -87,6 +89,7 @@ public class NxUnpacker
     public OutputArrayProvider[] ExtractFilesInMemory(Span<FileEntry> files, UnpackerSettings settings)
     {
         var results = MakeArrayOutputProviders(files, settings);
+        // ReSharper disable once CoVariantArrayConversion
         ExtractFiles(results, settings);
         return results;
     }
@@ -100,6 +103,7 @@ public class NxUnpacker
     public OutputFileProvider[] ExtractFilesToDisk(Span<FileEntry> files, string outputFolder, UnpackerSettings settings)
     {
         var results = MakeDiskOutputProviders(files, outputFolder);
+        // ReSharper disable once CoVariantArrayConversion
         ExtractFiles(results, settings);
         return results;
     }

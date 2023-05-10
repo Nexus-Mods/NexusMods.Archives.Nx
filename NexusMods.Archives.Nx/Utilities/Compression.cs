@@ -1,11 +1,10 @@
-﻿using System.Buffers;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
-using K4os.Compression.LZ4.Streams;
 using NexusMods.Archives.Nx.Enums;
 using SharpZstd.Interop;
 using static SharpZstd.Interop.Zstd;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -32,6 +31,7 @@ internal static class Compression
     /// <param name="sourceLength">Number of bytes at source.</param>
     public static int AllocForCompressSize(CompressionPreference method, int sourceLength)
     {
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (method)
         {
             case CompressionPreference.Copy:
@@ -40,6 +40,7 @@ internal static class Compression
                 return (int)ZSTD_COMPRESSBOUND((nuint)sourceLength);
             case CompressionPreference.Lz4:
                 return LZ4Codec.MaximumOutputSize(sourceLength);
+            case CompressionPreference.NoPreference:
             default:
                 ThrowHelpers.ThrowUnsupportedCompressionMethod(method);
                 return default;
@@ -55,11 +56,12 @@ internal static class Compression
     /// <param name="sourceLength">Number of bytes at source.</param>
     /// <param name="destination">Pointer to destination.</param>
     /// <param name="destinationLength">Length of bytes at destination.</param>
-    /// <param name="defaultedToCopy">If this is true, data was uncompressable and default compression was used instead.</param>
+    /// <param name="defaultedToCopy">If this is true, data was uncompressible and default compression was used instead.</param>
     public static unsafe int Compress(CompressionPreference method, int level, byte* source, int sourceLength, byte* destination,
         int destinationLength, out bool defaultedToCopy)
     {
         defaultedToCopy = false;
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (method)
         {
             case CompressionPreference.Copy:
@@ -100,6 +102,7 @@ internal static class Compression
     public static unsafe void DecompressPartial(CompressionPreference method, byte* source, int sourceLength, byte* destination,
         int destinationLength)
     {
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (method)
         {
             case CompressionPreference.Copy:
@@ -108,16 +111,16 @@ internal static class Compression
             case CompressionPreference.ZStandard:
             {
                 // Initialize output buffer
-                nuint result = 0;
+                nuint result;
                 var dStream = ZSTD_createDStream();
-                var outBuf = new ZSTD_outBuffer()
+                var outBuf = new ZSTD_outBuffer
                 {
                     dst = destination,
                     pos = 0,
                     size = (nuint)destinationLength
                 };
                 
-                var inBuf = new ZSTD_inBuffer()
+                var inBuf = new ZSTD_inBuffer
                 {
                     src = source,
                     pos = 0,
@@ -128,13 +131,13 @@ internal static class Compression
                 {
                     result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
                     var error = ZSTD_isError(result);
-                    if (error > 0)
-                    {
-                        var namePtr = (nint)ZSTD_getErrorName(result);
-                        var str = Marshal.PtrToStringAnsi(namePtr);
-                        ZSTD_freeDStream(dStream);
-                        throw new InvalidOperationException($"ZStd Decompression error: {str}");
-                    }
+                    if (error <= 0) 
+                        continue;
+                    
+                    var namePtr = (nint)ZSTD_getErrorName(result);
+                    var str = Marshal.PtrToStringAnsi(namePtr);
+                    ZSTD_freeDStream(dStream);
+                    throw new InvalidOperationException($"ZStd Decompression error: {str}");
                 }
                 while (result != 0 || outBuf.pos < (nuint)destinationLength);
                 ZSTD_freeDStream(dStream);
@@ -187,25 +190,12 @@ internal static class Compression
     /// <summary>
     ///     Decompresses the given data using ZStandard.
     /// </summary>
-    /// <param name="input">The data to decompress.</param>
-    /// <returns>The decompressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice DecompressZStd(Span<byte> input)
-    {
-        fixed (byte* compressedPtr = input)
-        {
-            return DecompressZStd(compressedPtr, input.Length, (int)ZSTD_findDecompressedSize(compressedPtr, (UIntPtr)input.Length));
-        }
-    }
-
-    /// <summary>
-    ///     Decompresses the given data using ZStandard.
-    /// </summary>
     /// <param name="compressedDataPtr">Pointer to compressed data.</param>
     /// <param name="compressedSize">Size of compressed data at <paramref name="compressedDataPtr"/>.</param>
     /// <returns>The decompressed data. Make sure to dispose it!</returns>
     public static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize)
     {
-        return DecompressZStd(compressedDataPtr, compressedSize, (int)ZSTD_findDecompressedSize(compressedDataPtr, (UIntPtr)compressedSize));
+        return DecompressZStd(compressedDataPtr, compressedSize, (int)ZSTD_findDecompressedSize(compressedDataPtr, (nuint)compressedSize));
     }
     
     /// <summary>
@@ -221,7 +211,7 @@ internal static class Compression
         var resultSpan = result.Span;
         fixed (byte* resultPtr = resultSpan)
         {
-            var decompressed = (int)ZSTD_decompress(resultPtr, (UIntPtr)resultSpan.Length, compressedDataPtr, (UIntPtr)compressedSize);
+            var decompressed = (int)ZSTD_decompress(resultPtr, (nuint)resultSpan.Length, compressedDataPtr, (nuint)compressedSize);
             return new ArrayRentalSlice(result, decompressed);
         }
     }

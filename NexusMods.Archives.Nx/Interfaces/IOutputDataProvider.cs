@@ -13,12 +13,12 @@ public interface IOutputDataProvider : IDisposable
     /// <summary>
     /// The relative path to the output location.
     /// </summary>
-    public string RelativePath { get; init; }
+    public string RelativePath { get; }
     
     /// <summary>
     /// The entry this provider is for.
     /// </summary>
-    public FileEntry Entry { get; init; }
+    public FileEntry Entry { get; }
     
     /// <summary>
     ///     Gets the output data behind this provider.

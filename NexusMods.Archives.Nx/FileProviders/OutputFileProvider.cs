@@ -7,7 +7,7 @@ namespace NexusMods.Archives.Nx.FileProviders;
 /// <summary>
 ///     File data provider that provides info from an array.
 /// </summary>
-public class OutputFileProvider : IOutputDataProvider
+public sealed class OutputFileProvider : IOutputDataProvider
 {
     /// <inheritdoc />
     public string RelativePath { get; init; }
@@ -15,7 +15,7 @@ public class OutputFileProvider : IOutputDataProvider
     /// <inheritdoc />
     public FileEntry Entry { get; init; }
 
-    private FileStream _fileStream;
+    private readonly FileStream _fileStream;
     private bool _isDisposed;
 
     /// <summary>
@@ -34,7 +34,7 @@ public class OutputFileProvider : IOutputDataProvider
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
 
 #if NET7_0_OR_GREATER
-        _fileStream = new FileStream(fullPath, new FileStreamOptions()
+        _fileStream = new FileStream(fullPath, new FileStreamOptions
         {
             PreallocationSize = (long)entry.DecompressedSize,
             Access = FileAccess.ReadWrite,
@@ -49,7 +49,10 @@ public class OutputFileProvider : IOutputDataProvider
     
     /// <inheritdoc />
     public IFileData GetFileData(long start, uint length) => new MemoryMappedFileData(_fileStream, start, length);
-
+    
+    /// <inheritdoc />
+    ~OutputFileProvider() => Dispose();
+    
     /// <inheritdoc />
     public void Dispose()
     {
@@ -58,5 +61,6 @@ public class OutputFileProvider : IOutputDataProvider
 
         _isDisposed = true;
         _fileStream.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

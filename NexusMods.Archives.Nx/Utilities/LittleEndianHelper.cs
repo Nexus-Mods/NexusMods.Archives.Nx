@@ -142,7 +142,19 @@ internal static unsafe class LittleEndianHelper
 
         *address = BinaryPrimitives.ReverseEndianness(value);
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static uint AsLittleEndian(this uint value)
+    {
+        if (BitConverter.IsLittleEndian)
+            return value;
 
+        return BinaryPrimitives.ReverseEndianness(value);
+    }
+
+    /*
+    // Commented out unused to avoid polluting dead code in DLL (and also not annoy R#/Rider). Uncomment as needed.
+     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short AsLittleEndian(this short value)
     {
@@ -170,14 +182,7 @@ internal static unsafe class LittleEndianHelper
         return BinaryPrimitives.ReverseEndianness(value);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint AsLittleEndian(this uint value)
-    {
-        if (BitConverter.IsLittleEndian)
-            return value;
 
-        return BinaryPrimitives.ReverseEndianness(value);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long AsLittleEndian(this long value)
@@ -196,4 +201,5 @@ internal static unsafe class LittleEndianHelper
 
         return BinaryPrimitives.ReverseEndianness(value);
     }
+    */
 }

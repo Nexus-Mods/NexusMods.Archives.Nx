@@ -7,7 +7,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     A tuple of array pools for the packer.
 /// </summary>
-internal struct PackerArrayPools : IDisposable
+internal readonly struct PackerArrayPools : IDisposable
 {
     /// <summary>
     ///     Designated pool for blocks.
@@ -49,7 +49,7 @@ internal class PackerArrayPool : IDisposable
     /// <summary>
     ///     Maximum size that can be rented from the shared pool.
     /// </summary>
-    public const int SharedPoolMaxSize = 1048576;
+    private const int SharedPoolMaxSize = 1048576;
 
     /// <summary>
     ///     Checks if internal arrays have been allocated.
@@ -102,6 +102,8 @@ internal class PackerArrayPool : IDisposable
             // Use CompareExchange to make operation atomic, and thus thread safe.
             var oldValue = Interlocked.CompareExchange(ref _arraysTaken[x], 1, 0);
 
+            // Hot path, don't invert if.
+            // ReSharper disable once InvertIf
             if (oldValue == 0)
             {
                 arrayIndex = x;
@@ -129,7 +131,7 @@ internal class PackerArrayPool : IDisposable
     public void Dispose() => _arrays = null!;
 }
 
-internal struct PackerPoolRental : IDisposable
+internal readonly struct PackerPoolRental : IDisposable
 {
     /// <summary>
     ///     The underlying array for this rental.

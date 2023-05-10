@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Enums;
@@ -57,6 +58,7 @@ public class OutOfPackerPoolArraysException : Exception
 /// <summary>
 ///     Represents an error that occurs when a Table of Contents for an unsupported version is encountered.
 /// </summary>
+[PublicAPI]
 public class TocVersionNotSupportedException : NotSupportedException
 {
     /// <summary>
@@ -72,6 +74,7 @@ public class TocVersionNotSupportedException : NotSupportedException
 /// <summary>
 ///     Represents an error that occurs when the file is not a Nexus archive.
 /// </summary>
+[PublicAPI]
 public class NotANexusArchiveException : NotSupportedException
 {
     /// <inheritdoc />
@@ -82,6 +85,7 @@ public class NotANexusArchiveException : NotSupportedException
 /// <summary>
 ///     Represents an error that occurs when an unsupported compression method is encountered.
 /// </summary>
+[PublicAPI]
 public class UnsupportedCompressionMethodException : NotSupportedException
 {
     /// <summary>

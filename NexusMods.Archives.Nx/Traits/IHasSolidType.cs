@@ -2,6 +2,7 @@
 
 namespace NexusMods.Archives.Nx.Traits;
 
+// ReSharper disable once CommentTypo
 /// <summary>
 ///     Used for items which can specify a preference on whether they'd prefer to be SOLIDly packed or not.
 /// </summary>

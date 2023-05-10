@@ -1,4 +1,5 @@
-﻿using NexusMods.Archives.Nx.Headers.Enums;
+﻿using JetBrains.Annotations;
+using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Interfaces;
@@ -9,6 +10,7 @@ namespace NexusMods.Archives.Nx.Headers;
 /// <summary>
 ///     Utility for parsing `.nx` headers intended for extracting files.
 /// </summary>
+[PublicAPI]
 public static class HeaderParser
 {
     /// <summary>

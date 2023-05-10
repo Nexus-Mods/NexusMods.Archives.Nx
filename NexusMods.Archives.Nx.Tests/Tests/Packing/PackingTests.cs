@@ -3,7 +3,8 @@ using AutoFixture.Xunit2;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
-using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Archives.Nx.Tests.Utilities;
+using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
@@ -67,7 +68,7 @@ public class PackingTests
     public void Can_Pack_And_Unpack_WithChunkedOnlyBlocks(IFixture fixture)
     {
         // Act
-        var files = GetRandomDummyFiles(fixture, 128, 4194305, 16777220, out var settings);
+        var files = GetRandomDummyFiles(fixture, 32, 1048577, 4194308, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -79,6 +80,36 @@ public class PackingTests
         // Verify data.
         AssertExtracted(extracted);
     }
+    
+    [Theory]
+    [AutoData]
+    public void Can_Pack_And_Unpack_ToDisk(IFixture fixture)
+    {
+        // Act
+        var files = GetRandomDummyFiles(fixture, 16, 1048577, 4194308, out var settings);
+        NxPacker.Pack(files, settings);
+        settings.Output.Position = 0;
+        var streamProvider = new FromStreamProvider(settings.Output);
+        
+        // Test succeeds if it doesn't throw.
+        using var temporaryFilePath = new TemporaryDirectory();
+        var unpacker = new NxUnpacker(streamProvider);
+        var extracted = unpacker.ExtractFilesToDisk(unpacker.GetFileEntriesRaw(), temporaryFilePath.FolderPath, new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        
+        // Verify data.
+        foreach (var item in extracted)
+        {
+            var path = Path.Combine(temporaryFilePath.FolderPath, item.RelativePath);
+            File.Exists(path);
+            var data = File.ReadAllBytes(path);
+            for (var x = 0; x < data.Length; x++)
+            {
+                // Not asserting every byte as that would be slow, only failures.
+                if (data[x] != (byte)(x % 255))
+                    Assert.Fail($"Data[x] is {data[x]}, Should be: {(byte)(x % 255)}");
+            }
+        }
+    }
 
     private PackerFile[] GetRandomDummyFiles(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
     {
@@ -87,7 +118,7 @@ public class PackingTests
         {
             Output = output,
             BlockSize = 32767,
-            ChunkSize = 4194304,
+            ChunkSize = 1048576,
             MaxNumThreads = 1 // easier to debug.
         };
 

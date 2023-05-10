@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Traits;
@@ -7,6 +8,7 @@ namespace NexusMods.Archives.Nx.Structs;
 /// <summary>
 ///     An individual file input into the packer.
 /// </summary>
+[PublicAPI]
 public class PackerFile : IHasRelativePath, IHasFileSize, IHasSolidType, IHasCompressionPreference, ICanProvideFileData
 {
     /// <inheritdoc />
@@ -18,7 +20,7 @@ public class PackerFile : IHasRelativePath, IHasFileSize, IHasSolidType, IHasCom
     /// <inheritdoc />
     public long FileSize { get; init; }
 
-    // Do not change default value for CompressionPreference without updating PackerFileForBlockTesting's value.
+    // Do not change default value for CompressionPreference without updating PackerFileForTesting 's value.
 
     /// <summary>
     ///     Preferred algorithm to compress the item with.<br />

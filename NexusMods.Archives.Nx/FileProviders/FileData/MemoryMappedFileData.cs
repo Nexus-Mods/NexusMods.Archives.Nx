@@ -6,7 +6,7 @@ namespace NexusMods.Archives.Nx.FileProviders.FileData;
 /// <summary>
 ///     Implementation of <see cref="IFileData" /> backed up by memory mapped files.
 /// </summary>
-public class MemoryMappedFileData : IFileData
+public sealed class MemoryMappedFileData : IFileData
 {
     /// <inheritdoc />
     public unsafe byte* Data { get; }
@@ -50,7 +50,7 @@ public class MemoryMappedFileData : IFileData
         // but it would speed up large chunked files. Issue is; we don't know the tradeoff here :p.
 
         // Create a memory-mapped file
-        _mappedFile = MemoryMappedFile.CreateFromFile(stream, "", 0, MemoryMappedFileAccess.ReadWrite, HandleInheritability.Inheritable, true);
+        _mappedFile = MemoryMappedFile.CreateFromFile(stream, null, length, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
         _mappedFileView = _mappedFile.CreateViewAccessor(start, length);
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
         DataLength = length;

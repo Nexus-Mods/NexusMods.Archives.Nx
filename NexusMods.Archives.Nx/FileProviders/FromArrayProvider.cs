@@ -6,7 +6,7 @@ namespace NexusMods.Archives.Nx.FileProviders;
 /// <summary>
 ///     File data provider that provides info from an array.
 /// </summary>
-public class FromArrayProvider : IFileDataProvider
+public sealed class FromArrayProvider : IFileDataProvider
 {
     /// <summary>
     ///     The array held by this provider.

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -64,47 +65,6 @@ internal static class SpanExtensions
     ///     Slices a span without any bounds checks.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ReadOnlySpan<T> SliceFast<T>(this ReadOnlySpan<T> data, int start)
-    {
-#if NETSTANDARD2_0
-        return data.Slice(start);
-#else
-        return MemoryMarshal.CreateSpan(ref Unsafe.Add(ref MemoryMarshal.GetReference(data), start),
-            data.Length - start);
-#endif
-    }
-
-    /// <summary>
-    ///     Slices a span without any bounds checks.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ReadOnlySpan<T> SliceFast<T>(this ReadOnlySpan<T> data, int start, int length)
-    {
-#if NETSTANDARD2_0
-        return data.Slice(start, length);
-#else
-        return MemoryMarshal.CreateSpan(ref Unsafe.Add(ref MemoryMarshal.GetReference(data), start), length);
-#endif
-    }
-
-    /// <summary>
-    ///     Slices a span without any bounds checks.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Span<T> SliceFast<T>(this Span<T> data, int start)
-    {
-#if NETSTANDARD2_0
-        return data.Slice(start);
-#else
-        return MemoryMarshal.CreateSpan(ref Unsafe.Add(ref MemoryMarshal.GetReference(data), start),
-            data.Length - start);
-#endif
-    }
-
-    /// <summary>
-    ///     Slices a span without any bounds checks.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Span<T> SliceFast<T>(this Span<T> data, int start, int length)
     {
 #if NETSTANDARD2_0
@@ -125,10 +85,11 @@ internal static class SpanExtensions
     ///     This can be the original <paramref name="data" /> buffer if required.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Span<char> Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer) =>
+    public static void Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer)
+    {
         // char is not supported by Vector; but ushort is.
-        Replace(data.CastFast<char, ushort>(), oldValue, newValue, buffer.CastFast<char, ushort>())
-            .CastFast<ushort, char>();
+        Replace(data.CastFast<char, ushort>(), oldValue, newValue, buffer.CastFast<char, ushort>()).CastFast<ushort, char>();
+    }
 
     /// <summary>
     ///     Replaces the occurrences of one value with another in a span.
@@ -270,7 +231,7 @@ internal static class SpanExtensions
         var byteVec = Vector256.Create(value);
         var dataPtr = data;
         var dataMaxPtr = dataPtr + (length - avxRegisterLength);
-        var simdJump = avxRegisterLength - 1;
+        const int simdJump = avxRegisterLength - 1;
 
         while (dataPtr < dataMaxPtr)
         {
@@ -304,7 +265,7 @@ internal static class SpanExtensions
         var byteVec = Vector128.Create(value);
         var dataPtr = data;
         var dataMaxPtr = dataPtr + (length - sseRegisterLength);
-        var simdJump = sseRegisterLength - 1;
+        const int simdJump = sseRegisterLength - 1;
 
         while (dataPtr < dataMaxPtr)
         {
@@ -330,26 +291,4 @@ internal static class SpanExtensions
         FindAllOffsetsOfByteFallback(data + position, length - position, value, position, results);
     }
 #endif
-
-    /// <summary>
-    ///     Returns a reference to an element at a specified index without performing a bounds check.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the input <typeparamref name="T" /> array instance.</typeparam>
-    /// <param name="span">The input <typeparamref name="T" /> array instance.</param>
-    /// <param name="x">The index of the element to retrieve within <paramref name="span" />.</param>
-    /// <returns>A reference to the element within <paramref name="span" /> at the index specified by <paramref name="x" />.</returns>
-    /// <remarks>
-    ///     This method doesn't do any bounds checks, therefore it is responsibility of the caller to ensure the
-    ///     <paramref name="x" /> parameter is valid.
-    /// </remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref T DangerousGetReferenceAt<T>(this Span<T> span, int x)
-    {
-#if NET5_0_OR_GREATER
-        ref var r0 = ref MemoryMarshal.GetReference(span);
-        return ref Unsafe.Add(ref r0, (nint)(uint)x);
-#else
-        return ref Unsafe.Add(ref span[0], (nint)(uint)x);
-#endif
-    }
 }

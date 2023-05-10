@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Utilities;
 

@@ -3,7 +3,7 @@
 namespace NexusMods.Archives.Nx.Headers.Structs;
 
 /// <summary>
-///     Represents an individual block in the TOC.
+///     Represents an individual block size in the TOC.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct BlockSize
@@ -14,9 +14,4 @@ public struct BlockSize
     ///     Compressed size of the block.
     /// </summary>
     public int CompressedSize;
-
-    /// <summary>
-    ///     Creates a blocksize with a specified compressed size.
-    /// </summary>
-    public BlockSize(int compressedSize) => CompressedSize = compressedSize;
 }

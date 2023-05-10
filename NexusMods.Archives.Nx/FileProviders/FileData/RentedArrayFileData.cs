@@ -7,16 +7,17 @@ namespace NexusMods.Archives.Nx.FileProviders.FileData;
 /// <summary>
 ///     Implementation of <see cref="IFileData" /> backed up by a pinned array.
 /// </summary>
-public unsafe class RentedArrayFileData : IFileData
+public sealed unsafe class RentedArrayFileData : IFileData
 {
     /// <inheritdoc />
     public byte* Data { get; }
 
     /// <inheritdoc />
-    public UIntPtr DataLength { get; }
+    public nuint DataLength { get; }
 
-    private ArrayRentalSlice _data;
+    private readonly ArrayRentalSlice _data;
     private GCHandle _handle;
+    private bool _isDisposed;
 
     /// <summary>
     ///     Creates file data backed by an array.
@@ -27,13 +28,21 @@ public unsafe class RentedArrayFileData : IFileData
         _data = data;
         _handle = GCHandle.Alloc(data.Rental.Array, GCHandleType.Pinned);
         Data = (byte*)_handle.AddrOfPinnedObject();
-        DataLength = (UIntPtr)data.Length;
+        DataLength = (nuint)data.Length;
     }
-
+    
+    /// <inheritdoc />
+    ~RentedArrayFileData() => Dispose();
+    
     /// <inheritdoc />
     public void Dispose()
     {
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
         _handle.Free();
         _data.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

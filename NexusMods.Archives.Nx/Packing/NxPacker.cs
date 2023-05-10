@@ -98,6 +98,7 @@ public static class NxPacker
     }
 
     // Note: Items inside each dictionary must preserve ascending order.
+    // ReSharper disable once ParameterTypeCanBeEnumerable.Global
     internal static Dictionary<string, List<T>> MakeGroups<T>(T[] files) where T : IHasRelativePath
     {
         // Note: This could probably do with some fewer allocations, but it's okay for now.

@@ -1,10 +1,12 @@
-﻿using NexusMods.Archives.Nx.Utilities;
+﻿using JetBrains.Annotations;
+using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Structs;
 
 /// <summary>
 /// Allows you to modify unpacker behaviour.
 /// </summary>
+[PublicAPI]
 public class UnpackerSettings
 {
     /// <summary>
