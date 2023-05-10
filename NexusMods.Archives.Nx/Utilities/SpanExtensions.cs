@@ -125,7 +125,7 @@ internal static class SpanExtensions
     ///     This can be the original <paramref name="data" /> buffer if required.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Span<char> lReplace(this Span<char> data, char oldValue, char newValue, Span<char> buffer) =>
+    public static Span<char> Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer) =>
         // char is not supported by Vector; but ushort is.
         Replace(data.CastFast<char, ushort>(), oldValue, newValue, buffer.CastFast<char, ushort>())
             .CastFast<ushort, char>();

@@ -30,13 +30,27 @@ public class PackingTests
     public NxUnpacker Can_Pack_And_Unpack_Baseline(IFixture fixture)
     {
         // Act
-        NxPacker.Pack(GetRandomDummyFiles(fixture, 4096, out var settings), settings);
+        var files = GetRandomDummyFiles(fixture, 4096, out var settings);
+        NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
         
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
         var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        
+        // Verify data.
+        foreach (var item in extracted)
+        {
+            var data = item.Data;
+            for (var x = 0; x < data.Length; x++)
+            {
+                // Not asserting every byte as that would be slow, only failures.
+                if (data[x] != (byte)(x % 255))
+                    Assert.Fail($"Data[x] is {data[x]}, Should be: {(byte)(x % 255)}");
+            }
+        }
+        
         return unpacker;
     }
 
@@ -57,7 +71,7 @@ public class PackingTests
         {
             return c.FromFactory(() =>
             {
-                var fileSize = random.Next(100, 16384);
+                var fileSize = random.Next(65535, 65535 * 2);
                 return new PackerFile()
                 {
                     FileSize = fileSize,

@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
 using K4os.Compression.LZ4.Streams;
 using NexusMods.Archives.Nx.Enums;
@@ -107,19 +108,35 @@ internal static class Compression
             case CompressionPreference.ZStandard:
             {
                 // Initialize output buffer
-                nuint dstPos = 0;
-                nuint srcPos = 0;
                 nuint result = 0;
-                
                 var dStream = ZSTD_createDStream();
+                var outBuf = new ZSTD_outBuffer()
+                {
+                    dst = destination,
+                    pos = 0,
+                    size = (nuint)destinationLength
+                };
+                
+                var inBuf = new ZSTD_inBuffer()
+                {
+                    src = source,
+                    pos = 0,
+                    size = (nuint)sourceLength
+                };
+
                 do
                 {
-                    result = ZSTD_decompressStream_simpleArgs(dStream, destination, (nuint)destinationLength, &dstPos, source, (nuint)sourceLength, &srcPos);
+                    result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
                     var error = ZSTD_isError(result);
                     if (error > 0)
-                        throw new InvalidOperationException($"ZStd Decompression error: {error}");
+                    {
+                        var namePtr = (nint)ZSTD_getErrorName(result);
+                        var str = Marshal.PtrToStringAnsi(namePtr);
+                        ZSTD_freeDStream(dStream);
+                        throw new InvalidOperationException($"ZStd Decompression error: {str}");
+                    }
                 } 
-                while (result != 0 && dstPos < (nuint)destinationLength);
+                while (result != 0 || outBuf.pos < (nuint)destinationLength);
                 ZSTD_freeDStream(dStream);
                 return;
             }

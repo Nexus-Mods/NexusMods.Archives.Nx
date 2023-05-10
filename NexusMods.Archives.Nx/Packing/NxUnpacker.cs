@@ -131,15 +131,16 @@ public class NxUnpacker
         var blockIndex = extractable.BlockIndex;
         var chunkSize = _nxHeader.Header.ChunkSizeBytes;
         var offset = _nxHeader.BlockOffsets[blockIndex];
+        var blockSize = _nxHeader.Blocks[blockIndex].CompressedSize;
         var method = _nxHeader.BlockCompressions[blockIndex];
         using var extractedBlock = new ArrayRental(extractable.DecompressSize);
-        using var compressedBlock = _dataProvider.GetFileData(offset, _nxHeader.Header.BlockSize);
+        using var compressedBlock = _dataProvider.GetFileData(offset, (uint)blockSize);
         
         // Decompress the needed bytes.
         fixed (byte* extractedPtr = extractedBlock.Span)
         {
             // Decompress all.
-            Compression.DecompressPartial(method, compressedBlock.Data, (int)compressedBlock.DataLength, extractedPtr, extractedBlock.Array.Length);
+            Compression.DecompressPartial(method, compressedBlock.Data, blockSize, extractedPtr, extractable.DecompressSize);
             
             // Copy to outputs.
             var outputs = extractable.Outputs;

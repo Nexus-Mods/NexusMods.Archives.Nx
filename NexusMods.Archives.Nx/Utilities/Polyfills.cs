@@ -114,7 +114,7 @@ internal class Polyfills
     public static int ReadAtLeast(Stream stream, byte[] buffer, int minimumBytes, bool throwOnEndOfStream = true)
     {
 #if NET7_0_OR_GREATER
-        return stream.ReadAtLeast(buffer, minimumBytes, throwOnEndOfStream);
+        return stream.ReadAtLeast(buffer.AsSpan(0, minimumBytes), minimumBytes, throwOnEndOfStream);
 #else
         // Taken from Runtime.
         var totalRead = 0;

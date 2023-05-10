@@ -142,7 +142,8 @@ public static class NxPacker
             foreach (var item in values)
             {
                 // If the item is too big, it's getting chunked, regardless of preference.
-                if (item.FileSize > chunkSize)
+                // Note: This is not a typo; we treat items above block size as chunked, for convenience.
+                if (item.FileSize > blockSize)
                 {
                     ChunkItem(item, blocks, chunkSize, chunkedBlockAlgorithm);
                     continue;
