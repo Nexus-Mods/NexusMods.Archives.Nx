@@ -71,16 +71,23 @@ internal static class Compression
                 return sourceLength;
             case CompressionPreference.ZStandard:
             {
-                var bytes = (int)ZSTD_compress(destination, (nuint)destinationLength, source, (nuint)sourceLength, level);
-                if (bytes > sourceLength) // default to 
+                var result = ZSTD_compress(destination, (nuint)destinationLength, source, (nuint)sourceLength, level);
+                // -70 means destination buffer is too small, in other words, we failed to compress this data.
+                if ((int)result > sourceLength || (int)result == -70) 
                     goto case CompressionPreference.Copy;
-
-                return bytes;
+                
+                var error = ZSTD_isError(result);
+                if (error <= 0)
+                    return (int)result;
+                    
+                var namePtr = (nint)ZSTD_getErrorName(result);
+                var str = Marshal.PtrToStringAnsi(namePtr);
+                throw new InvalidOperationException($"ZStd Compression error: {str}");
             }
             case CompressionPreference.Lz4:
             {
                 var bytes = LZ4Codec.Encode(source, sourceLength, destination, destinationLength, (LZ4Level)level);
-                if (bytes > sourceLength)
+                if (bytes > sourceLength || bytes < 0) // 'negative value if buffer is too small'
                     goto case CompressionPreference.Copy;
 
                 return bytes;
