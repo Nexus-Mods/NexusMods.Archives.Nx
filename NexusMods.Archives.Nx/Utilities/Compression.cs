@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
+using K4os.Compression.LZ4.Streams;
 using NexusMods.Archives.Nx.Enums;
 using SharpZstd.Interop;
 using static SharpZstd.Interop.Zstd;
@@ -99,9 +100,10 @@ internal static class Compression
     /// <param name="sourceLength">Number of bytes at source.</param>
     /// <param name="destination">Pointer to destination (decompressed).</param>
     /// <param name="destinationLength">Length of bytes at destination.</param>
-    public static unsafe void DecompressPartial(CompressionPreference method, byte* source, int sourceLength, byte* destination,
+    public static unsafe void Decompress(CompressionPreference method, byte* source, int sourceLength, byte* destination,
         int destinationLength)
     {
+        // TODO: Partial decompression. .NET Port of LZ4 does not support this currently.
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (method)
         {
@@ -146,7 +148,10 @@ internal static class Compression
             case CompressionPreference.Lz4:
             {
                 // Fastest API with minimal alloc.
-                LZ4Codec.Decode(source, sourceLength, destination, destinationLength);
+                var result = LZ4Codec.Decode(source, sourceLength, destination, destinationLength);
+                if (result < 0)
+                    throw new InvalidOperationException($"LZ4 Decompression error: {result}");
+                
                 return;
             }
 

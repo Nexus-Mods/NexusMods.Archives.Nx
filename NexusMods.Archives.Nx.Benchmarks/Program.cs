@@ -13,4 +13,7 @@ using NexusMods.Archives.Nx.Benchmarks.Columns;
 //BenchmarkRunner.Run<UnpackingStringPool>();
 //BenchmarkRunner.Run<ParsingTableOfContents>(DefaultConfig.Instance.AddColumn(new SizeAfterTocCompressionColumn()).AddColumn(new TocNumBlocksColumn()));
 //BenchmarkRunner.Run<OutputWriteLock>();
+
+// Modify path in source code before executing these ones
+BenchmarkRunner.Run<PackArchiveToDisk>();
 Console.WriteLine("Hello, World!");

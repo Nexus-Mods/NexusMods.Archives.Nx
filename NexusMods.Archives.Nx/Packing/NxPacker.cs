@@ -126,6 +126,7 @@ public static class NxPacker
     {
         var blocks = new List<IBlock<T>>();
         var currentBlock = new List<T>();
+        long currentBlockSize = 0;
 
         // Default algorithms if no preference is specified.
         if (solidBlockAlgorithm == CompressionPreference.NoPreference)
@@ -138,7 +139,6 @@ public static class NxPacker
         foreach (var keyValue in items)
         {
             var values = keyValue.Value;
-            long currentBlockSize = 0;
 
             foreach (var item in values)
             {

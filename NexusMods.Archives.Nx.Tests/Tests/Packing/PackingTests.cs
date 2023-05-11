@@ -38,7 +38,7 @@ public class PackingTests
         
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
         
         // Verify data.
         AssertExtracted(extracted);
@@ -57,7 +57,7 @@ public class PackingTests
         
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
         
         // Verify data.
         AssertExtracted(extracted);
@@ -75,7 +75,25 @@ public class PackingTests
         
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+        
+        // Verify data.
+        AssertExtracted(extracted);
+    }
+    
+    [Theory]
+    [AutoData]
+    public void Can_Pack_And_Unpack_WithEmptyFiles(IFixture fixture)
+    {
+        // Act
+        var files = GetRandomDummyFiles(fixture, 4096, 0, 0, out var settings);
+        NxPacker.Pack(files, settings);
+        settings.Output.Position = 0;
+        var streamProvider = new FromStreamProvider(settings.Output);
+        
+        // Test succeeds if it doesn't throw.
+        var unpacker = new NxUnpacker(streamProvider);
+        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
         
         // Verify data.
         AssertExtracted(extracted);
@@ -94,7 +112,7 @@ public class PackingTests
         // Test succeeds if it doesn't throw.
         using var temporaryFilePath = new TemporaryDirectory();
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesToDisk(unpacker.GetFileEntriesRaw(), temporaryFilePath.FolderPath, new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+        var extracted = unpacker.ExtractFilesToDisk(unpacker.GetFileEntriesRaw(), temporaryFilePath.FolderPath, new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
         
         // Verify data.
         foreach (var item in extracted)
@@ -119,7 +137,7 @@ public class PackingTests
             Output = output,
             BlockSize = 32767,
             ChunkSize = 1048576,
-            MaxNumThreads = 1 // easier to debug.
+            MaxNumThreads = Environment.ProcessorCount // set to 1 for debugging.
         };
 
         var random = new Random();
@@ -154,8 +172,9 @@ public class PackingTests
     }
     private static void AssertExtracted(OutputArrayProvider[] extracted)
     {
-        foreach (var item in extracted)
+        for (var index = 0; index < extracted.Length; index++)
         {
+            var item = extracted[index];
             var data = item.Data;
             for (var x = 0; x < data.Length; x++)
             {

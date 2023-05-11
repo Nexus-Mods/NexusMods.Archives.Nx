@@ -57,8 +57,6 @@ Size: `3 bits` (0-7)
 
 !!! note "As we do not store the length of the decompressed data, this must be determined from the compressed block."
 
-We use streaming APIs to decompress data.
-
 ## Table Padding
 
 !!! info

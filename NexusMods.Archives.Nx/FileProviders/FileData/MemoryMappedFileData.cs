@@ -1,4 +1,5 @@
 ﻿using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
 using NexusMods.Archives.Nx.Interfaces;
 
 namespace NexusMods.Archives.Nx.FileProviders.FileData;
@@ -9,13 +10,13 @@ namespace NexusMods.Archives.Nx.FileProviders.FileData;
 public sealed class MemoryMappedFileData : IFileData
 {
     /// <inheritdoc />
-    public unsafe byte* Data { get; }
+    public unsafe byte* Data { get; private set; }
 
     /// <inheritdoc />
-    public nuint DataLength { get; }
+    public nuint DataLength { get; private set; }
 
-    private readonly MemoryMappedFile _mappedFile;
-    private readonly MemoryMappedViewAccessor _mappedFileView;
+    private MemoryMappedFile? _mappedFile;
+    private MemoryMappedViewAccessor? _mappedFileView;
     private bool _disposed;
 
     /// <summary>
@@ -31,10 +32,15 @@ public sealed class MemoryMappedFileData : IFileData
         // but it would speed up large chunked files. Issue is; we don't know the tradeoff here :p.
 
         // Create a memory-mapped file
-        _mappedFile = MemoryMappedFile.CreateFromFile(filePath, FileMode.Open);
-        _mappedFileView = _mappedFile.CreateViewAccessor(start, length);
-        Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
-        DataLength = length;
+        if (length != 0)
+        {
+            var fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+            _mappedFile = MemoryMappedFile.CreateFromFile(fs, null, 0, MemoryMappedFileAccess.ReadWrite, HandleInheritability.Inheritable, false);
+            InitFromMmf(start, length);
+            return;
+        }
+        
+        InitEmpty();
     }
 
     /// <summary>
@@ -50,10 +56,29 @@ public sealed class MemoryMappedFileData : IFileData
         // but it would speed up large chunked files. Issue is; we don't know the tradeoff here :p.
 
         // Create a memory-mapped file
-        _mappedFile = MemoryMappedFile.CreateFromFile(stream, null, length, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
-        _mappedFileView = _mappedFile.CreateViewAccessor(start, length);
+        if (length != 0)
+        {
+            _mappedFile = MemoryMappedFile.CreateFromFile(stream, null, length, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
+            InitFromMmf(start, length);
+            return;
+        }
+        
+        InitEmpty();
+    }
+
+    private unsafe void InitFromMmf(long start, uint length)
+    {
+        _mappedFileView = _mappedFile!.CreateViewAccessor(start, length);
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
         DataLength = length;
+    }
+    
+    private unsafe void InitEmpty()
+    {
+        Data = (byte*)0x0;
+        DataLength = 0;
+        _mappedFile = null;
+        _mappedFileView = null;
     }
 
     /// <inheritdoc />
@@ -66,8 +91,8 @@ public sealed class MemoryMappedFileData : IFileData
             return;
 
         _disposed = true;
-        _mappedFile.Dispose();
-        _mappedFileView.Dispose();
+        _mappedFile?.Dispose();
+        _mappedFileView?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

@@ -35,12 +35,15 @@ public sealed class FromStreamProvider : IFileDataProvider
     /// <inheritdoc />
     public IFileData GetFileData(long start, uint length)
     {
-        var newPos = StreamStart + start;
-        Stream.Seek(newPos, SeekOrigin.Begin);
-        var pooledData = new ArrayRental((int)length);
+        lock (Stream)
+        {
+            var newPos = StreamStart + start;
+            Stream.Seek(newPos, SeekOrigin.Begin);
+            var pooledData = new ArrayRental((int)length);
 
-        // In case of old framework, or Stream which doesn't implement span overload, don't use span here.
-        var numRead = Polyfills.ReadAtLeast(Stream, pooledData.Array, (int)length);
-        return new RentedArrayFileData(new ArrayRentalSlice(pooledData, numRead));
+            // In case of old framework, or Stream which doesn't implement span overload, don't use span here.
+            var numRead = Polyfills.ReadAtLeast(Stream, pooledData.Array, (int)length);
+            return new RentedArrayFileData(new ArrayRentalSlice(pooledData, numRead));
+        }
     }
 }
