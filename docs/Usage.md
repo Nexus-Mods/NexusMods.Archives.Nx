@@ -10,7 +10,7 @@
 
 !!! info
 
-    Low level API is for those who want to get more control over the packing process.
+    Lower level API is for those who want to get more control over the packing process.
 
 ### Packing
 
@@ -21,7 +21,7 @@ Example:
 ```csharp
 using var output = File.Create("archive.nx");
 var settings = new PackerSettings { Output = output };
-var files = FileFinder.GetFilesStatic("some/folder/path");
+var files = FileFinder.GetFiles("some/folder/path");
 NxPacker.Pack(files, settings);
 ```
 
