@@ -14,9 +14,9 @@ public class FileFinderTests
     /// </summary>
     [Theory]
     [AutoFileSystem]
-    public void CanFindAllFiles(FileFinder finder, DummyKnownFileDirectory dummyKnownDirectory)
+    public void CanFindAllFiles(DummyKnownFileDirectory dummyKnownDirectory)
     {
-        var files = finder.GetFiles(dummyKnownDirectory.FolderPath);
+        var files = FileFinder.GetFiles(dummyKnownDirectory.FolderPath);
         foreach (var file in files)
         {
             var originalPath = Path.Combine(dummyKnownDirectory.FolderPath, file.RelativePath);
@@ -38,9 +38,9 @@ public class FileFinderTests
     /// </summary>
     [Theory]
     [AutoFileSystem]
-    public unsafe void CanAccessFileData(FileFinder finder, DummyKnownFileDirectory dummyKnownDirectory)
+    public unsafe void CanAccessFileData(DummyKnownFileDirectory dummyKnownDirectory)
     {
-        var files = finder.GetFiles(dummyKnownDirectory.FolderPath);
+        var files = FileFinder.GetFiles(dummyKnownDirectory.FolderPath);
         foreach (var file in files)
         {
             using var data = file.FileDataProvider.GetFileData(0, (uint)file.FileSize);

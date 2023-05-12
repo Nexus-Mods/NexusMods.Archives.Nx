@@ -1,5 +1,4 @@
 ﻿using System.IO.MemoryMappedFiles;
-using System.Runtime.InteropServices;
 using NexusMods.Archives.Nx.Interfaces;
 
 namespace NexusMods.Archives.Nx.FileProviders.FileData;

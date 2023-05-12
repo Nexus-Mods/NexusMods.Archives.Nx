@@ -11,8 +11,6 @@ namespace NexusMods.Archives.Nx.Headers.Native.Structs;
 /// </summary>
 public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
 {
-    internal const int SizeBytes = 8;
-
     internal long Data;
 
     /// <summary>

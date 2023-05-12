@@ -39,9 +39,16 @@ public class NxUnpacker
     /// Retrieves all file entries from this archive.
     /// </summary>
     /// <remarks>
-    ///     Do not modify the returned array.
+    ///     Do not directly modify the returned span.
     /// </remarks>
     public Span<FileEntry> GetFileEntriesRaw() => _nxHeader.Entries;
+
+    /// <summary>
+    /// Retrieves a file path for a given entry.
+    /// </summary>
+    /// <param name="entry">The entry for which to get the archived file path.</param>
+    /// <returns>The archived file path.</returns>
+    public string GetFilePath(FileEntry entry) => _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex);
 
     /// <summary>
     /// Extracts all files from this archive in memory.
@@ -137,7 +144,6 @@ public class NxUnpacker
         var offset = _nxHeader.BlockOffsets[blockIndex];
         var blockSize = _nxHeader.Blocks[blockIndex].CompressedSize;
         var method = _nxHeader.BlockCompressions[blockIndex];
-        var allocSize = Math.Max(extractable.DecompressSize, _nxHeader.Header.ChunkSizeBytes);
         
         using var extractedBlock = new ArrayRental(extractable.DecompressSize);
         using var compressedBlock = _dataProvider.GetFileData(offset, (uint)blockSize);
