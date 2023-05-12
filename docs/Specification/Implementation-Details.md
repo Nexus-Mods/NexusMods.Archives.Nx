@@ -3,7 +3,7 @@
 !!! info
 
     This page contains guidance for people implementing their own libraries for working with `.nx` files.  
-    It is not a step by step guide.  
+    It is not a step by step guide, just some guidelines.  
 
 ## Use Memory Maps
 
@@ -24,7 +24,7 @@ The decoding logic should assigns each block to a given thread; and then each th
 
 - Allocate and `mmap` output files in advance.  
 - Decompress relevant data into output files.  
-- Flush to disk every file where all data has been written. (Check once all work per thread done.)  
+- Flush to disk every file when all data has been written.  
 
 Most compression algorithms accept `Span<byte>`; and in cases where we might need to do native interop; we of course have pointers.
 
@@ -39,7 +39,7 @@ To do this, we will perform the following steps:
 - Files are sorted by size. (optimize for blocks)  
 - Files are then grouped by extension. (optimize for ratio) [while preserving sorting]  
 - These groups are chunked into SOLID blocks (and huge files into Chunk blocks).  
-- We assign the groups to individual blocks using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.
+- We assign the groups to individual blocks using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.  
 
 !!! note
   
@@ -62,7 +62,7 @@ To do this, we will perform the following steps:
     - We only use highest levels e.g. `zstd -22` when 'publishing' (uploading) to web.  
 
 - Files which we know are not compressible are assigned `copy` as compression strategy in their blocks.  
-    - We will provide a mechanism to feed this info from outside the library.  
+    - We provide a mechanism to feed this info from outside the library.  
 
 - Prefer ZStd for large files.  
 

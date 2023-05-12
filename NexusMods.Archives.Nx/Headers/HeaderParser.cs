@@ -22,6 +22,7 @@ public static class HeaderParser
     /// <param name="hasLotsOfFiles">
     ///     This is a hint to the parser whether the file to be parsed contains lots of individual files (100+).
     /// </param>
+    /// <exception cref="NotANexusArchiveException">Not a Nexus Archive.</exception>
     public static unsafe ParsedHeader ParseHeader(IFileDataProvider provider, bool hasLotsOfFiles = false)
     {
         /*
@@ -66,7 +67,8 @@ public static class HeaderParser
     /// <param name="dataSize">Number of bytes available at <paramref name="data" />.</param>
     /// <returns>
     ///     A result with <see cref="HeaderParserResult.Header"/> not null if parsed, else <see cref="HeaderParserResult.Header"/> is null
-    ///     and you should call this method again with a larger <paramref name="dataSize"/>.
+    ///     and you should call this method again with a larger <paramref name="dataSize"/>. The required number of bytes is specified in
+    ///     <see cref="HeaderParserResult.HeaderSize"/>.
     /// </returns>
     /// <exception cref="NotANexusArchiveException">Not a Nexus Archive.</exception>
     public static unsafe HeaderParserResult TryParseHeader(byte* data, int dataSize)

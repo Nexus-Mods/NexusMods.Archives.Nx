@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Native;
@@ -10,6 +11,7 @@ namespace NexusMods.Archives.Nx.Headers.Managed;
 /// <summary>
 ///     Managed representation of the deserialized table of contents.
 /// </summary>
+[PublicAPI]
 public class TableOfContents : IEquatable<TableOfContents>
 {
     // pointers & non-primitives

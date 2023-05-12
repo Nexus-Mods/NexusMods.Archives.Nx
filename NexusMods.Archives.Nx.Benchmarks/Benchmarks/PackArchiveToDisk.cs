@@ -12,7 +12,7 @@ public class PackArchiveToDisk
     public PackerFile[] Files { get; set; } = null!;
     
     [GlobalSetup]
-    public void Setup() => Files = FileFinder.GetFilesStatic(Directory).ToArray();
+    public void Setup() => Files = FileFinder.GetFiles(Directory).ToArray();
 
     [GlobalCleanup]
     public void Cleanup() => File.Delete(OutputPath);
