@@ -1,0 +1,112 @@
+name: 'Upload Codecov Coverage, Changelog & NuGet Packages'
+description: 'Uploads all test coverage data and relevant NuGet Packages.'
+inputs:
+  code-coverage-path: # id of input
+    description: 'Path to file containing code coverage'
+    required: false
+    default: './Coverage.xml'
+
+  changelog-path: # id of input
+    description: 'Path to where the changelog will be generated'
+    required: false
+    default: './Changelog.md'
+
+  nupkg-glob: # id of input
+    description: 'Glob pattern for NuGet packages'
+    required: false
+    default: './src/*.nupkg'
+
+  nuget-key: # id of input
+    description: 'Key used to upload packages to nuget.org'
+    required: false
+    default: ""
+
+  changelog-template: # id of input
+    description: 'Template file used for auto-changelog'
+    required: false
+    default: 'keepachangelog'
+
+  is-release: # id of input
+    description: 'Template file used for auto-changelog'
+    required: true
+
+  release-tag: # id of input
+    description: 'Tag associated with release, must be set if is-release is true'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Print input variables
+      shell: bash
+      run: |
+        echo "code-coverage-path: ${{ inputs.code-coverage-path }}"
+        echo "changelog-path: ${{ inputs.changelog-path }}"
+        echo "nupkg-glob: ${{ inputs.nupkg-glob }}"
+        echo "changelog-template: ${{ inputs.changelog-template }}"
+        echo "is-release: ${{ inputs.is-release }}"
+        echo "release-tag: ${{ inputs.release-tag }}"
+
+    - name: "Upload Merged Coverage"
+      uses: actions/upload-artifact@v3
+      with:
+        name: Merged Coverage
+        path: ${{ inputs.code-coverage-path }}
+
+    - name: Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        # Comma-separated list of files to upload
+        files: ${{ inputs.code-coverage-path }}
+
+    - name: Create Changelog (on Tag)
+      shell: pwsh
+      run: |
+        if (${{ inputs.is-release }} -eq "true")
+        {
+            auto-changelog --sort-commits date --hide-credit --template "${{ inputs.changelog-template }}" --commit-limit false --unreleased --starting-version "${{ inputs.release-tag }}" --output "${{ inputs.changelog-path }}"
+        }
+        else
+        {
+            auto-changelog --sort-commits date --hide-credit --template "${{ inputs.changelog-template }}" --commit-limit false --unreleased --output "${{ inputs.changelog-path }}"
+        }
+
+    - name: Upload NuGet Package Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        # Artifact name
+        name: NuGet Packages
+        # A file, directory or wildcard pattern that describes what to upload
+        path: |
+          ${{ inputs.nupkg-glob }}
+
+    - name: Upload Changelog Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        # Artifact name
+        name: Changelog
+        # A file, directory or wildcard pattern that describes what to upload
+        path: ${{ inputs.changelog-path }}
+        retention-days: 0
+
+    - name: Upload to GitHub Releases
+      uses: softprops/action-gh-release@v0.1.15
+      if: ${{ inputs.is-release == 'true' }}
+      with:
+        # Path to load note-worthy description of changes in release from
+        body_path: ${{ inputs.changelog-path }}
+        # Newline-delimited list of path globs for asset files to upload
+        files: |
+          ${{ inputs.nupkg-glob }}
+          ${{ inputs.changelog-path }}
+
+    - name: Upload to NuGet (on Tag)
+      shell: pwsh
+      if: ${{ inputs.is-release == 'true' }}
+      run: |
+        $items = Get-ChildItem -Path "${{ inputs.nupkg-glob }}" -Recurse
+        Foreach ($item in $items)
+        {
+            Write-Host "Pushing $item"
+            dotnet nuget push "$item" -k "${{ inputs.nuget-key }}" -s "https://api.nuget.org/v3/index.json" --skip-duplicate
+        }

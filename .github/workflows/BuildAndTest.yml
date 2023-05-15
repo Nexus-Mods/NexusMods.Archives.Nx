@@ -41,8 +41,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
-      - name: Setup Reloaded Library SDKs & Components
-        uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/setup-sdks-components@v1
+      - name: "Setup SDKs & Components"
+        uses: Nexus-Mods/NexusMods.Archives.Nx/.github/actions/setup-sdks-components@main
       - name: Build Tests
         run: dotnet build -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj
       - name: Run Tests
@@ -60,8 +60,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
-      - name: "Setup Reloaded Library SDKs & Components"
-        uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/setup-sdks-components@v1
+      - name: "Setup SDKs & Components"
+        uses: Nexus-Mods/NexusMods.Archives.Nx/.github/actions/setup-sdks-components@main
       - name: Build Library
         run: dotnet build -c Release
       - name: "Install ReportGenerator"
@@ -75,7 +75,7 @@ jobs:
           dotnet tool install --global dotnet-coverage
           dotnet-coverage merge ./artifacts/*.cobertura.xml --recursive --output ./Cobertura.xml --output-format xml
       - name: "Upload Coverage & Packages"
-        uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/upload-coverage-packages@v1
+        uses: Nexus-Mods/NexusMods.Archives.Nx/.github/actions/upload-coverage-packages@main
         with:
           code-coverage-path: './Cobertura.xml'
           changelog-path: './Changelog.md'
