@@ -45,13 +45,8 @@ jobs:
         uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/setup-sdks-components@v1
       - name: Build Tests
         run: dotnet build -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj
-      - name: Upload Tests Build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-${{ matrix.os }}-${{ matrix.targetFramework }}
-          path: NexusMods.Archives.Nx.Tests/bin/Release/*
       - name: Run Tests
-        run: dotnet test -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj --collect:"XPlat Code Coverage;Format=opencover;" --results-directory "Coverage"
+        run: dotnet test -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj --collect:"XPlat Code Coverage;Format=cobertura;" --results-directory "Coverage" --no-build 
       - name: "Upload Coverage"
         uses: actions/upload-artifact@v3
         with:
