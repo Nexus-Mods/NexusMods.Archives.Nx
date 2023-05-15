@@ -5,7 +5,7 @@ using NexusMods.Archives.Nx.Utilities;
 namespace NexusMods.Archives.Nx.FileProviders.FileData;
 
 /// <summary>
-///     Implementation of <see cref="IFileData" /> backed up by a pinned array.
+///     Implementation of <see cref="IFileData" /> backed up by a rented array.
 /// </summary>
 public sealed unsafe class RentedArrayFileData : IFileData
 {
@@ -20,9 +20,9 @@ public sealed unsafe class RentedArrayFileData : IFileData
     private bool _isDisposed;
 
     /// <summary>
-    ///     Creates file data backed by an array.
+    ///     Creates file data backed by a rented array.
     /// </summary>
-    /// <param name="data">The data backed up by the array.</param>
+    /// <param name="data">The rented array.</param>
     public RentedArrayFileData(ArrayRentalSlice data)
     {
         _data = data;

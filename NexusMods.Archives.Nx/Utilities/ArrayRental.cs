@@ -1,10 +1,12 @@
 using System.Buffers;
+using JetBrains.Annotations;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
 /// <summary>
 ///     Instance of a rented array. Don't forget to dispose me please!
 /// </summary>
+[PublicAPI]
 public readonly struct ArrayRental : IDisposable
 {
     /// <summary>

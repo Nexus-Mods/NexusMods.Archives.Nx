@@ -13,6 +13,7 @@ public interface IOutputDataProvider : IDisposable
     /// <summary>
     /// The relative path to the output location.
     /// </summary>
+    // ReSharper disable once UnusedMemberInSuper.Global
     public string RelativePath { get; }
     
     /// <summary>

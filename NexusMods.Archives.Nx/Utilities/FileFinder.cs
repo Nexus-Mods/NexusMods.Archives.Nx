@@ -11,8 +11,29 @@ namespace NexusMods.Archives.Nx.Utilities;
 ///     Class used for finding files within a given directory.
 /// </summary>
 [PublicAPI]
-public class FileFinder
+public static class FileFinder
 {
+    /// <summary>
+    ///     Retrieves all packable files from within a given directory.
+    /// </summary>
+    /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
+    /// <param name="searchOption">
+    ///     One of the enumeration values that specifies whether the search operation
+    ///     should include all subdirectories or only the current directory.
+    /// </param>
+    public static List<PackerFile> GetFiles(string directoryPath, SearchOption searchOption =
+        SearchOption.AllDirectories)
+    {
+#if NETSTANDARD2_0
+        return GetFilesOld(directoryPath, SearchOption.AllDirectories);
+#elif NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        return GetFiles(directoryPath, new EnumerationOptions
+        {
+            RecurseSubdirectories = true
+        });
+#endif
+    }
+    
 #if NETSTANDARD2_0
     /// <summary>
     ///     Retrieves all packable files from within a given directory.
@@ -22,19 +43,7 @@ public class FileFinder
     ///     One of the enumeration values that specifies whether the search operation
     ///     should include all subdirectories or only the current directory.
     /// </param>
-    public List<PackerFile> GetFiles(string directoryPath, SearchOption searchOption =
-        SearchOption.AllDirectories) => GetFilesStatic(directoryPath, searchOption);
-
-    /// <summary>
-    ///     Retrieves all packable files from within a given directory.
-    /// </summary>
-    /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
-    /// <param name="searchOption">
-    ///     One of the enumeration values that specifies whether the search operation
-    ///     should include all subdirectories or only the current directory.
-    /// </param>
-    public static List<PackerFile> GetFilesStatic(string directoryPath, SearchOption searchOption =
-        SearchOption.AllDirectories)
+    private static List<PackerFile> GetFilesOld(string directoryPath, SearchOption searchOption)
     {
         // TODO: This fallback for NS2.0 is slow.
         var results = new List<PackerFile>();
@@ -57,15 +66,7 @@ public class FileFinder
 
         return results;
     }
-#endif
-
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
-    /// <summary>
-    ///     Retrieves all packable files from within a given directory.
-    /// </summary>
-    /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
-    public List<PackerFile> GetFiles(string directoryPath) => GetFilesStatic(directoryPath);
-    
+#elif NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
     /// <summary>
     ///     Retrieves all packable files from within a given directory.
     /// </summary>
@@ -73,25 +74,7 @@ public class FileFinder
     /// <param name="options">
     ///     Options to use when searching for files.
     /// </param>
-    public List<PackerFile> GetFiles(string directoryPath, EnumerationOptions options) => GetFilesStatic(directoryPath, options);
-
-    /// <summary>
-    ///     Retrieves all packable files from within a given directory.
-    /// </summary>
-    /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
-    public static List<PackerFile> GetFilesStatic(string directoryPath) => GetFilesStatic(directoryPath, new EnumerationOptions
-    {
-        RecurseSubdirectories = true
-    });
-
-    /// <summary>
-    ///     Retrieves all packable files from within a given directory.
-    /// </summary>
-    /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
-    /// <param name="options">
-    ///     Options to use when searching for files.
-    /// </param>
-    public static List<PackerFile> GetFilesStatic(string directoryPath, EnumerationOptions options)
+    public static List<PackerFile> GetFiles(string directoryPath, EnumerationOptions options)
     {
         directoryPath = Path.GetFullPath(directoryPath);
         var enumerator = new PackerFileEnumerator(directoryPath, options);

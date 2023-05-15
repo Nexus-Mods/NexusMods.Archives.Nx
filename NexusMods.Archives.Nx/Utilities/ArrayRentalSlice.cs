@@ -1,8 +1,11 @@
+using JetBrains.Annotations;
+
 namespace NexusMods.Archives.Nx.Utilities;
 
 /// <summary>
 ///     Represents a slice of an <see cref="ArrayRental" />.
 /// </summary>
+[PublicAPI]
 public readonly struct ArrayRentalSlice : IDisposable
 {
     /// <summary>

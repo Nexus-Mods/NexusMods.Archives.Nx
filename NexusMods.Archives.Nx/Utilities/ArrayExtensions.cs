@@ -8,7 +8,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Extensions for dealing with arrays.
 /// </summary>
-public static class ArrayExtensions
+internal static class ArrayExtensions
 {
     /// <summary>
     ///     Returns a reference to an element at a specified index without performing a bounds check.

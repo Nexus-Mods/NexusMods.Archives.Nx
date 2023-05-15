@@ -48,6 +48,42 @@ theme:
 
 nav:
   - Home: index.md
+  - Usage: Usage.md
+  - Benchmarks: Benchmarks.md
+  - API Reference:
+      - About: Library/About.md
+      - Headers:
+          - About: Library/Headers/About.md
+          - HeaderParser: Library/Headers/HeaderParser.md
+          - StringPool: Library/Headers/StringPool.md
+      - File Providers:
+          - About: Library/FileProviders/About.md
+          - Interfaces: Library/FileProviders/Interfaces.md
+          - FileData:
+              - ArrayFileData: Library/FileProviders/FileData/ArrayFileData.md
+              - MemoryMappedFileData: Library/FileProviders/FileData/MemoryMappedFileData.md
+              - RentedArrayFileData: Library/FileProviders/FileData/RentedArrayFileData.md
+          - Inputs:
+              - FromArrayProvider: Library/FileProviders/Inputs/FromArrayProvider.md
+              - FromDirectoryDataProvider: Library/FileProviders/Inputs/FromDirectoryDataProvider.md
+              - FromStreamProvider: Library/FileProviders/Inputs/FromStreamProvider.md
+          - Outputs:
+              - OutputArrayProvider: Library/FileProviders/Outputs/OutputArrayProvider.md
+              - OutputFileProvider: Library/FileProviders/Outputs/OutputFileProvider.md
+      - Traits:
+          - About: Library/Traits/About.md
+          - ICanConvertToLittleEndian: Library/Traits/ICanConvertToLittleEndian.md
+          - ICanProvideFileData: Library/Traits/ICanProvideFileData.md
+          - IHasCompressionPreference: Library/Traits/IHasCompressionPreference.md
+          - IHasFileSize: Library/Traits/IHasFileSize.md
+          - IHasRelativePath: Library/Traits/IHasRelativePath.md
+          - IHasSolidType: Library/Traits/IHasSolidType.md
+      - Utilities:
+        - ArrayRental: Library/Utilities/ArrayRental.md
+        - FileFinder: Library/Utilities/FileFinder.md
+        - LittleEndianReader: Library/Utilities/LittleEndianReader.md
+        - LittleEndianWriter: Library/Utilities/LittleEndianWriter.md
+
   - Contributing to Library: Contributing.md
   - Format Specification:
       - Overview: Specification/Overview.md

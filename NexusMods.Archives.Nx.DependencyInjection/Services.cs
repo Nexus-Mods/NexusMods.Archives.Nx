@@ -15,7 +15,6 @@ public static class Services
     /// </summary>
     public static IServiceCollection AddNxArchiver(this IServiceCollection services)
     {
-        services.AddSingleton(new FileFinder());
         return services;
     }
 }
