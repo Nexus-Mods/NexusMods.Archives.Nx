@@ -11,6 +11,12 @@ namespace NexusMods.Archives.Nx.Headers.Native.Structs;
 /// </summary>
 public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
 {
+    /// <summary>
+    /// Size of this structure, in bytes.
+    /// </summary>
+    // ReSharper disable once UnusedMember.Global
+    internal const int SizeBytes = 8;
+    
     internal long Data;
 
     /// <summary>

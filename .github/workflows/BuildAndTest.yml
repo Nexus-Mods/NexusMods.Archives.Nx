@@ -1,0 +1,85 @@
+name: Build, Test and Publish
+on:
+  push:
+    branches: [ main, ci-cd ]
+    tags:
+      - '*'
+  pull_request:
+    branches: [ main, ci-cd ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-13 # macos-latest (macos-12) currently has issues with failing to run some AVX2 instructions.
+        targetFramework:
+          - net7.0
+          - net5.0
+          - netcoreapp3.1
+        platform:
+          - x64
+          # I'd like to add arm64 here, but GitHub runners don't support it. The native port of Zstandard does support it though.
+          # Modern Linux and OSX environments also don't support x86 backcompat; and we don't have runners for them either.
+        include:
+          - os: windows-latest
+            targetFramework: net7.0
+            platform: x86
+          - os: windows-latest
+            targetFramework: net5.0
+            platform: x86
+          - os: windows-latest
+            targetFramework: netcoreapp3.1
+            platform: x86
+    
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Setup Reloaded Library SDKs & Components
+        uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/setup-sdks-components@v1
+      - name: Build Tests
+        run: dotnet build -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj
+      - name: Run Tests
+        run: dotnet test -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj --collect:"XPlat Code Coverage;Format=cobertura;" --results-directory "Coverage" --no-build 
+      - name: "Upload Coverage"
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.targetFramework }}
+          path: Coverage/*/coverage.cobertura.xml
+  upload:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: "Setup Reloaded Library SDKs & Components"
+        uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/setup-sdks-components@v1
+      - name: Build Library
+        run: dotnet build -c Release
+      - name: "Install ReportGenerator"
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+      - name: "Download Coverage Artifacts"
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: "Merge Coverage Files"
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet-coverage merge ./artifacts/*.cobertura.xml --recursive --output ./Cobertura.xml --output-format xml
+      - name: "Upload Coverage & Packages"
+        uses: Reloaded-Project/Reloaded.Project.Configurations/.github/actions/upload-coverage-packages@v1
+        with:
+          code-coverage-path: './Cobertura.xml'
+          changelog-path: './Changelog.md'
+          nupkg-glob: './*.nupkg'
+          nuget-key: ${{ secrets.NUGET_KEY }}
+          changelog-template: 'keepachangelog'
+          is-release: ${{ startsWith(github.ref, 'refs/tags/') }}
