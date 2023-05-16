@@ -110,12 +110,11 @@ internal static class Compression
     public static unsafe void Decompress(CompressionPreference method, byte* source, int sourceLength, byte* destination,
         int destinationLength)
     {
-        // TODO: Partial decompression. .NET Port of LZ4 does not support this currently.
         // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (method)
         {
             case CompressionPreference.Copy:
-                Unsafe.CopyBlockUnaligned(destination, source, (uint)sourceLength);
+                Buffer.MemoryCopy(destination, source, (uint)sourceLength, (uint)sourceLength);
                 return;
             case CompressionPreference.ZStandard:
             {
