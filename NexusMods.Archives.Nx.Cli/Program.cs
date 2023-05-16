@@ -63,7 +63,8 @@ void Extract(string source, string target, int? threads)
 {
     Console.WriteLine($"Extracting {source} to {target} with [{threads}] threads.");
     var initializeTimeTaken = Stopwatch.StartNew();
-    var provider = new FromStreamProvider(new FileStream(source, FileMode.Open, FileAccess.Read));
+    using var originalArchiveStream = new FileStream(source, FileMode.Open, FileAccess.Read);
+    var provider = new FromStreamProvider(originalArchiveStream);
     var builder = new NxUnpackerBuilder(provider);
     builder.AddFilesWithDiskOutput(builder.GetFileEntriesRaw(), target);
 
@@ -99,7 +100,7 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
         builder.WithBlockSize(blocksize.Value);
     
     if (chunksize.HasValue)
-        builder.WithBlockSize(chunksize.Value);
+        builder.WithChunkSize(chunksize.Value);
 
     if (zstandardlevel.HasValue)
         builder.WithZStandardLevel(zstandardlevel.Value);
@@ -111,7 +112,7 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
         builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
     
     if (chunkedAlgorithm.HasValue)
-        builder.WithSolidBlockAlgorithm(chunkedAlgorithm.Value);
+        builder.WithChunkedFileAlgorithm(chunkedAlgorithm.Value);
     
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
