@@ -52,7 +52,8 @@ void Extract(string source, string target, int? threads)
 {
     Console.WriteLine($"Extracting {source} to {target} with [{threads}] threads.");
     var initializeTimeTaken = Stopwatch.StartNew();
-    var builder = new NxUnpackerBuilder(new FromStreamProvider(new FileStream(source, FileMode.Open, FileAccess.Read)));
+    var provider = new FromStreamProvider(new FileStream(source, FileMode.Open, FileAccess.Read));
+    var builder = new NxUnpackerBuilder(provider);
     builder.AddFilesWithDiskOutput(builder.GetFileEntriesRaw(), target);
 
     if (threads.HasValue)

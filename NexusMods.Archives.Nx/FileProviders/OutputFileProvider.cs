@@ -1,4 +1,5 @@
-﻿using NexusMods.Archives.Nx.FileProviders.FileData;
+﻿using System.IO.MemoryMappedFiles;
+using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
 
@@ -15,6 +16,12 @@ public sealed class OutputFileProvider : IOutputDataProvider
     /// <inheritdoc />
     public FileEntry Entry { get; init; }
 
+    /// <summary>
+    /// Full path to the file.
+    /// </summary>
+    public string FullPath { get; init; }
+    
+    private MemoryMappedFile? _mappedFile;
     private readonly FileStream _fileStream;
     private bool _isDisposed;
 
@@ -31,26 +38,40 @@ public sealed class OutputFileProvider : IOutputDataProvider
 
         // Preallocate the file
         // Note: GetFullPath normalizes the path.
-        var fullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+        FullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
 
-#if NET7_0_OR_GREATER
-        _fileStream = new FileStream(fullPath, new FileStreamOptions
+        trycreate:
+        try
         {
-            PreallocationSize = (long)entry.DecompressedSize,
-            Access = FileAccess.ReadWrite,
-            Mode = FileMode.Create,
-            Share = FileShare.ReadWrite
-        });
+#if NET7_0_OR_GREATER
+            _fileStream = new FileStream(FullPath, new FileStreamOptions
+            {
+                PreallocationSize = (long)entry.DecompressedSize,
+                Access = FileAccess.ReadWrite,
+                Mode = FileMode.Create,
+                Share = FileShare.ReadWrite,
+                BufferSize = 0,
+                Options = FileOptions.SequentialScan
+            });
 #else
-        _fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-        _fileStream.SetLength((long)entry.DecompressedSize);
+            _fileStream = new FileStream(FullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 0);
+            _fileStream.SetLength((long)entry.DecompressedSize);
 #endif
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // This is written this way because explicit check is slow.
+            Directory.CreateDirectory(Path.GetDirectoryName(FullPath)!);
+            goto trycreate;
+        }
+
+        if (entry.DecompressedSize > 0)
+            _mappedFile = MemoryMappedFile.CreateFromFile(_fileStream, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
     }
     
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new MemoryMappedFileData(_fileStream, start, length);
-    
+    public IFileData GetFileData(long start, uint length) => new MemoryMappedOutputFileData(_mappedFile!, start, length);
+
     /// <inheritdoc />
     ~OutputFileProvider() => Dispose();
     
@@ -61,6 +82,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
             return;
 
         _isDisposed = true;
+        _mappedFile?.Dispose();
         _fileStream.Dispose();
         GC.SuppressFinalize(this);
     }

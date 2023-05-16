@@ -98,13 +98,14 @@ public class NxUnpacker
     {
         // Wrap entries into arrays.
         var results = Polyfills.AllocateUninitializedArray<OutputFileProvider>(files.Length);
-        for (var x = 0; x < files.Length; x++)
-        {
-            var entry = files[x];
-            var relPath = _nxHeader.Pool[entry.FilePathIndex];
-            results.DangerousGetReferenceAt(x) = new OutputFileProvider(outputFolder, relPath, entry);
-        }
+        var filesCopy = files.ToArray();
 
+        Parallel.ForEach(filesCopy, (entry, _, x) =>
+        {
+            var relPath = _nxHeader.Pool[entry.FilePathIndex];
+            results.DangerousGetReferenceAt((int)x) = new OutputFileProvider(outputFolder, relPath, entry);
+        });
+        
         return results;
     }
     
