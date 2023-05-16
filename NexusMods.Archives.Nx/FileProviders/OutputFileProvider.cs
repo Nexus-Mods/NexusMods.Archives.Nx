@@ -32,20 +32,29 @@ public sealed class OutputFileProvider : IOutputDataProvider
         // Preallocate the file
         // Note: GetFullPath normalizes the path.
         var fullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
 
-#if NET7_0_OR_GREATER
-        _fileStream = new FileStream(fullPath, new FileStreamOptions
+        trycreate:
+        try
         {
-            PreallocationSize = (long)entry.DecompressedSize,
-            Access = FileAccess.ReadWrite,
-            Mode = FileMode.Create,
-            Share = FileShare.ReadWrite
-        });
+#if NET7_0_OR_GREATER
+            _fileStream = new FileStream(fullPath, new FileStreamOptions
+            {
+                PreallocationSize = (long)entry.DecompressedSize,
+                Access = FileAccess.ReadWrite,
+                Mode = FileMode.Create,
+                Share = FileShare.ReadWrite
+            });
 #else
-        _fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-        _fileStream.SetLength((long)entry.DecompressedSize);
+            _fileStream = new FileStream(fullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            _fileStream.SetLength((long)entry.DecompressedSize);
 #endif
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // This is written this way because explicit check is slow.
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+            goto trycreate;
+        }
     }
     
     /// <inheritdoc />
