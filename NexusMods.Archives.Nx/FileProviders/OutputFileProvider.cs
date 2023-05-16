@@ -49,10 +49,12 @@ public sealed class OutputFileProvider : IOutputDataProvider
                 PreallocationSize = (long)entry.DecompressedSize,
                 Access = FileAccess.ReadWrite,
                 Mode = FileMode.Create,
-                Share = FileShare.ReadWrite
+                Share = FileShare.ReadWrite,
+                BufferSize = 0,
+                Options = FileOptions.SequentialScan
             });
 #else
-            _fileStream = new FileStream(FullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            _fileStream = new FileStream(FullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 0);
             _fileStream.SetLength((long)entry.DecompressedSize);
 #endif
         }
