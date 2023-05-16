@@ -21,6 +21,16 @@ var extractCommand = new Command("extract", "Extract files from an archive")
 
 extractCommand.Handler = CommandHandler.Create<string, string, int?>(Extract);
 
+// Extract Command
+var benchmarkCommand = new Command("benchmark", "Extracts a file in-memory, benchmarking the operation. Make sure you have enough RAM for 2 copies!")
+{
+    new Option<string>("--source", "Archive to benchmark extracting.") { IsRequired = true },
+    new Option<int?>("--attempts", () => null, "Number of decompression operations to do. (Default: 25)"),
+    maxNumThreads
+};
+
+benchmarkCommand.Handler = CommandHandler.Create<string, int?, int?>(Benchmark);
+
 // Pack Command
 var packCommand = new Command("pack", "Pack files to an archive.")
 {
@@ -42,7 +52,8 @@ packCommand.Handler = CommandHandler.Create<string, string, int?, int?, int?, in
 var rootCommand = new RootCommand
 {
     extractCommand,
-    packCommand
+    packCommand,
+    benchmarkCommand
 };
 
 // Parse the incoming args and invoke the handler 
@@ -120,4 +131,27 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
         });
     
     Console.WriteLine("Packed in {0}ms", packingTimeTaken.ElapsedMilliseconds);
+}
+
+void Benchmark(string source, int? threads, int? attempts)
+{
+    var data = File.ReadAllBytes(source);
+    var builder = new NxUnpackerBuilder(new FromArrayProvider { Data = data });
+    builder.AddFilesWithArrayOutput(builder.GetFileEntriesRaw(), out var outputs);
+    if (threads.HasValue)
+        builder.WithMaxNumThreads(threads.Value);
+
+    long totalTimeTaken = 0;
+    attempts = attempts.GetValueOrDefault(25);
+    for (var x = 0; x < attempts; x++)
+    {
+        var unpackingTimeTaken = Stopwatch.StartNew();
+        builder.Extract();
+        Console.WriteLine("Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
+        totalTimeTaken += unpackingTimeTaken.ElapsedMilliseconds;
+    }
+
+    var averageMs = (totalTimeTaken / (float)attempts);
+    Console.WriteLine("Average {0:###.00}ms", averageMs);
+    Console.WriteLine("Throughput {0:###.00}GiB/s", (outputs.Sum(x => x.Data.Length) / averageMs / 1048576));
 }
