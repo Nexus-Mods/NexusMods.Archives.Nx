@@ -4,7 +4,46 @@
 
     The recommended way to use the library is through the high level *Fluent* API.
 
-!!! tip "Coming Soon (TM)"
+### Packing
+
+!!! info "Use the `NxPackerBuilder` API to fluently create a new archive."
+
+```csharp
+var builder = new NxPackerBuilder();
+builder.AddFolder(source);
+builder.WithOutput(new FileStream(target, FileMode.Create, FileAccess.ReadWrite));
+
+// Set some settings
+if (blocksize.HasValue) builder.WithBlockSize(blocksize.Value);
+if (chunksize.HasValue) builder.WithBlockSize(chunksize.Value);
+if (zstandardlevel.HasValue) builder.WithZStandardLevel(zstandardlevel.Value);
+if (lz4level.HasValue) builder.WithLZ4Level(lz4level.Value);
+if (solidAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
+if (chunkedAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(chunkedAlgorithm.Value);
+if (threads.HasValue) builder.WithMaxNumThreads(threads.Value);
+    
+// Make the Archive
+builder.Build(); // Blocking
+```
+
+### Unpacking
+
+!!! info "Use the `NxUnpackerBuilder` API to fluently extract an archive."
+
+```csharp
+// Make the builder.
+var stream = new FileStream(source, FileMode.Open, FileAccess.Read);
+var builder = new NxUnpackerBuilder(new FromStreamProvider(stream));
+
+// Output all files to disk.
+builder.AddFilesWithDiskOutput(builder.GetFileEntriesRaw(), outputDirectory);
+
+if (threads.HasValue)
+    builder.WithMaxNumThreads(threads.Value);
+    
+// Extract the archive.
+builder.Extract(); // Blocking
+```
 
 ## Mid Level API
 
