@@ -51,11 +51,14 @@ rootCommand.Invoke(args);
 void Extract(string source, string target, int? threads)
 {
     Console.WriteLine($"Extracting {source} to {target} with [{threads}] threads.");
+    var initializeTimeTaken = Stopwatch.StartNew();
     var builder = new NxUnpackerBuilder(new FromStreamProvider(new FileStream(source, FileMode.Open, FileAccess.Read)));
     builder.AddFilesWithDiskOutput(builder.GetFileEntriesRaw(), target);
 
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
+    
+    Console.WriteLine("Initialized in {0}ms", initializeTimeTaken.ElapsedMilliseconds);
 
     // Progress Reporting.
     var unpackingTimeTaken = Stopwatch.StartNew();
