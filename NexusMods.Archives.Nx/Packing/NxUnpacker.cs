@@ -39,9 +39,30 @@ public class NxUnpacker
     /// Retrieves all file entries from this archive.
     /// </summary>
     /// <remarks>
-    ///     Do not directly modify the returned span.
+    ///     Do not directly modify the returned span. Make a copy.
     /// </remarks>
+    /// <returns>All entries from inside the archive.</returns>
     public Span<FileEntry> GetFileEntriesRaw() => _nxHeader.Entries;
+    
+    /// <summary>
+    /// Retrieves all file entries from this archive, with their corresponding relative paths.
+    /// </summary>
+    /// <returns>All file entries and their corresponding file names from inside the archive.</returns>
+    public PathedFileEntry[] GetPathedFileEntries()
+    {
+        var results = Polyfills.AllocateUninitializedArray<PathedFileEntry>(_nxHeader.Entries.Length);
+        for (var x = 0; x < results.Length; x++)
+        {
+            ref var entry = ref _nxHeader.Entries.DangerousGetReferenceAt(x);
+            results[x] = new PathedFileEntry()
+            {
+                Entry = entry,
+                FileName = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
+            };
+        }
+        
+        return results;
+    }
 
     /// <summary>
     /// Retrieves a file path for a given entry.
@@ -54,8 +75,7 @@ public class NxUnpacker
     /// Extracts all files from this archive in memory.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
-    /// <param name="settings">The settings for the unpacker.</param>
-    public OutputArrayProvider[] MakeArrayOutputProviders(Span<FileEntry> files, UnpackerSettings settings)
+    public OutputArrayProvider[] MakeArrayOutputProviders(Span<FileEntry> files)
     {
         // Wrap entries into arrays.
         var results = Polyfills.AllocateUninitializedArray<OutputArrayProvider>(files.Length);
@@ -95,7 +115,7 @@ public class NxUnpacker
     /// <param name="settings">The settings for the unpacker.</param>
     public OutputArrayProvider[] ExtractFilesInMemory(Span<FileEntry> files, UnpackerSettings settings)
     {
-        var results = MakeArrayOutputProviders(files, settings);
+        var results = MakeArrayOutputProviders(files);
         // ReSharper disable once CoVariantArrayConversion
         ExtractFiles(results, settings);
         return results;
@@ -238,4 +258,21 @@ public class NxUnpacker
         /// </summary>
         public required List<IOutputDataProvider> Outputs { get; init; }
     }
+}
+
+/// <summary>
+/// Represents a tuple between <see cref="FileEntry"/> and the name of the corresponding entry.
+/// </summary>
+[PublicAPI]
+public class PathedFileEntry
+{
+    /// <summary>
+    /// Attaches a file entry to a name.
+    /// </summary>
+    public FileEntry Entry { get; init; }
+
+    /// <summary>
+    /// Name of the file in question.
+    /// </summary>
+    public required string FileName { get; init; }
 }

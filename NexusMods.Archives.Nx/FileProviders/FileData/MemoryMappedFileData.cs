@@ -1,11 +1,14 @@
 ﻿using System.IO.MemoryMappedFiles;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
+// ReSharper disable IntroduceOptionalParameters.Global
 
 namespace NexusMods.Archives.Nx.FileProviders.FileData;
 
 /// <summary>
 ///     Implementation of <see cref="IFileData" /> backed up by memory mapped files.
 /// </summary>
+[PublicAPI]
 public sealed class MemoryMappedFileData : IFileData
 {
     /// <inheritdoc />
@@ -24,7 +27,16 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="filePath">Path of the file to map.</param>
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
-    public unsafe MemoryMappedFileData(string filePath, long start, uint length)
+    public unsafe MemoryMappedFileData(string filePath, long start, uint length) : this(filePath, start, length, false) { }
+    
+    /// <summary>
+    ///     Creates file data backed by a memory mapped file.
+    /// </summary>
+    /// <param name="filePath">Path of the file to map.</param>
+    /// <param name="start">Offset to start of the file.</param>
+    /// <param name="length">Length of the data to map.</param>
+    /// <param name="readOnly">If true, this is read only.</param>
+    public unsafe MemoryMappedFileData(string filePath, long start, uint length, bool readOnly)
     {
         // TODO: Investigate if it's worth using OpenExisting in cases of chunked files.
         // Checking if an existing MMF is already there is a perf penalty for opening lots of small files
@@ -33,14 +45,25 @@ public sealed class MemoryMappedFileData : IFileData
         // Create a memory-mapped file
         if (length != 0)
         {
-            var fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-            _mappedFile = MemoryMappedFile.CreateFromFile(fs, null, 0, MemoryMappedFileAccess.ReadWrite, HandleInheritability.Inheritable, false);
-            InitFromMmf(start, length);
+            var fileMode = readOnly ? FileAccess.Read : FileAccess.ReadWrite;
+            var mmfAccess = readOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
+            
+            var fs = new FileStream(filePath, FileMode.Open, fileMode, FileShare.ReadWrite);
+            _mappedFile = MemoryMappedFile.CreateFromFile(fs, null, 0, mmfAccess, HandleInheritability.Inheritable, false);
+            InitFromMmf(start, length, readOnly);
             return;
         }
         
         InitEmpty();
     }
+    
+    /// <summary>
+    ///     Creates file data backed by a memory mapped file.
+    /// </summary>
+    /// <param name="stream">The base stream to map to.</param>
+    /// <param name="start">Offset to start of the file.</param>
+    /// <param name="length">Length of the data to map.</param>
+    public unsafe MemoryMappedFileData(FileStream stream, long start, uint length) : this(stream, start, length, false) { }
 
     /// <summary>
     ///     Creates file data backed by a memory mapped file.
@@ -48,7 +71,8 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="stream">The base stream to map to.</param>
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
-    public unsafe MemoryMappedFileData(FileStream stream, long start, uint length)
+    /// <param name="readOnly">If true, this is read only.</param>
+    public unsafe MemoryMappedFileData(FileStream stream, long start, uint length, bool readOnly)
     {
         // TODO: Investigate if it's worth using OpenExisting in cases of chunked files.
         // Checking if an existing MMF is already there is a perf penalty for opening lots of small files
@@ -57,17 +81,19 @@ public sealed class MemoryMappedFileData : IFileData
         // Create a memory-mapped file
         if (length != 0)
         {
-            _mappedFile = MemoryMappedFile.CreateFromFile(stream, null, length, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
-            InitFromMmf(start, length);
+            var mmfAccess = readOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
+            _mappedFile = MemoryMappedFile.CreateFromFile(stream, null, length, mmfAccess, HandleInheritability.None, true);
+            InitFromMmf(start, length, readOnly);
             return;
         }
         
         InitEmpty();
     }
 
-    private unsafe void InitFromMmf(long start, uint length)
+    private unsafe void InitFromMmf(long start, uint length, bool isReadOnly = false)
     {
-        _mappedFileView = _mappedFile!.CreateViewAccessor(start, length);
+        var access = isReadOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
+        _mappedFileView = _mappedFile!.CreateViewAccessor(start, length, access);
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
         DataLength = length;
     }

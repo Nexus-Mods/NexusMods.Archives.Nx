@@ -30,7 +30,8 @@ public sealed class OutputFileProvider : IOutputDataProvider
         Entry = entry;
 
         // Preallocate the file
-        var fullPath = Path.Combine(outputFolder, RelativePath);
+        // Note: GetFullPath normalizes the path.
+        var fullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
 
 #if NET7_0_OR_GREATER

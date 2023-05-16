@@ -15,7 +15,7 @@ public class PackerFile : IHasRelativePath, IHasFileSize, IHasSolidType, IHasCom
     public required IFileDataProvider FileDataProvider { get; init; }
 
     /// <inheritdoc />
-    public string RelativePath { get; init; } = string.Empty;
+    public string RelativePath { get; set; } = string.Empty;
 
     /// <inheritdoc />
     public long FileSize { get; init; }
