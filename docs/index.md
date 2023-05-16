@@ -9,7 +9,11 @@ hide:
 	<br/> <br/>
     A Quite OK Archive Format.
     <br/>
-    For <i>Storing</i> and <i>Sharing</i> Mods.
+    For <i>Storing</i> and <i>Sharing</i> Mods.<br/>
+    <a href="https://codecov.io/gh/Nexus-Mods/NexusMods.Archives.Nx" > 
+      <img src="https://codecov.io/gh/Nexus-Mods/NexusMods.Archives.Nx/branch/main/graph/badge.svg?token=ZRKYAL4EF2"/> 
+    </a>
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/Nexus-Mods/NexusMods.Archives.Nx/BuildAndTest.yml">
 </div>
 
 ## About
