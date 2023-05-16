@@ -2,12 +2,28 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         
         <!-- Enable Dynamic PGO for targets lower than net8.0 -->
         <TieredPGO>enable</TieredPGO>
+        
+        <!-- Native Binaries go Brrrrr -->
+        <PublishAot>true</PublishAot>
+
+        <!-- For Analyzing Binary Output Size with sizoscope -->
+        <IlcGenerateMstatFile>true</IlcGenerateMstatFile>
+        <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
+        
+        <!-- Optimize NativeAOT -->
+        <OptimizationPreference>Speed</OptimizationPreference>
+        <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+        <EventSourceSupport>false</EventSourceSupport>
+        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
     </PropertyGroup>
 
     <ItemGroup>
