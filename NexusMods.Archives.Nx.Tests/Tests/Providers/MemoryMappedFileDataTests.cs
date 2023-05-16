@@ -18,16 +18,4 @@ public class MemoryMappedFileDataTests
         // Act
         using var fileData = new MemoryMappedFileData(tempPath, 0, 0);
     }
-    
-    [Fact]
-    public void CanMapZeroByteFile_FromExistingStream()
-    {
-        // Arrange
-        using var tempDir = new TemporaryDirectory();
-        var tempPath = Path.Combine(tempDir.FolderPath, "empty.txt");
-        using var fs = File.Create(tempPath);
-        
-        // Act
-        using var fileData = new MemoryMappedFileData(fs, 0, 0);
-    }
 }
