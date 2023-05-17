@@ -6,10 +6,12 @@ using System.Diagnostics;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Structs;
 using Spectre.Console;
 
 // Common Options
-var maxNumThreads = new Option<int?>("--threads", () => null, "Number of threads to spawn (values <= 0 mean default).");
+var defaultPackerSettings = new PackerSettings() { Output = null! };
+var maxNumThreads = new Option<int?>("--threads", () => defaultPackerSettings.MaxNumThreads, "Number of threads to spawn (values <= 0 mean default).");
 
 // Extract Command
 var extractCommand = new Command("extract", "Extract files from an archive")
@@ -25,7 +27,7 @@ extractCommand.Handler = CommandHandler.Create<string, string, int?>(Extract);
 var benchmarkCommand = new Command("benchmark", "Extracts a file in-memory, benchmarking the operation. Make sure you have enough RAM for 2 copies!")
 {
     new Option<string>("--source", "Archive to benchmark extracting.") { IsRequired = true },
-    new Option<int?>("--attempts", () => null, "Number of decompression operations to do. (Default: 25)"),
+    new Option<int?>("--attempts", () => 25, "Number of decompression operations to do."),
     maxNumThreads
 };
 
@@ -36,13 +38,13 @@ var packCommand = new Command("pack", "Pack files to an archive.")
 {
     new Option<string>("--source", "[Required] Source folder to pack files from.") { IsRequired = true },
     new Option<string>("--target", "[Required] Target location to place packed archive to.") { IsRequired = true },
-    new Option<int?>("--blocksize", () => null,
+    new Option<int?>("--blocksize", () => defaultPackerSettings.BlockSize,
         "Size of SOLID blocks. Range is 32767 to 67108863 (64 MiB). This is a power of 2 (minus one) and must be smaller than chunk size."),
-    new Option<int?>("--chunksize", () => null, "Size of large file chunks. Range is 4194304 (4 MiB) to 536870912 (512 MiB)."),
-    new Option<int?>("--zstandardlevel", () => null, "Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22."),
-    new Option<int?>("--lz4level", () => null, "Compression level to use for LZ4 if LZ4 is used. Range: 1 - 12."),
-    new Option<CompressionPreference?>("--solid-algorithm", () => null, "Compression algorithm used for compressing SOLID blocks."),
-    new Option<CompressionPreference?>("--chunked-algorithm", () => null, "Compression algorithm used for compressing chunked files."),
+    new Option<int?>("--chunksize", () => defaultPackerSettings.ChunkSize, "Size of large file chunks. Range is 4194304 (4 MiB) to 536870912 (512 MiB)."),
+    new Option<int?>("--zstandardlevel", () => defaultPackerSettings.ZStandardLevel, "Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22."),
+    new Option<int?>("--lz4level", () => defaultPackerSettings.Lz4Level, "Compression level to use for LZ4 if LZ4 is used. Range: 1 - 12."),
+    new Option<CompressionPreference?>("--solid-algorithm", () => defaultPackerSettings.SolidBlockAlgorithm, "Compression algorithm used for compressing SOLID blocks."),
+    new Option<CompressionPreference?>("--chunked-algorithm", () => defaultPackerSettings.ChunkedFileAlgorithm, "Compression algorithm used for compressing chunked files."),
     maxNumThreads
 };
 
