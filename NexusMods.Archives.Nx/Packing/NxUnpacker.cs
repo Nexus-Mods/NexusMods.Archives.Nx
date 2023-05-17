@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Text;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
@@ -169,17 +170,45 @@ public class NxUnpacker
         var blockSize = _nxHeader.Blocks[blockIndex].CompressedSize;
         var method = _nxHeader.BlockCompressions[blockIndex];
         
-        using var extractedBlock = _decompressPool.Rent(extractable.DecompressSize);
         using var compressedBlock = _dataProvider.GetFileData(offset, (uint)blockSize);
-        
+        var outputs = extractable.Outputs;
+        var canFastDecompress = outputs.Count == 1;
+    fallback:
+        if (canFastDecompress)
+        {
+            // This is a hot path in case of 1 output which starts at offset 0. 
+            // This is common in the case of chunked files extracted to disk.
+            var output = outputs[0];
+            var entry = output.Entry;
+            if (entry.DecompressedBlockOffset != 0)
+            {
+                // This mode is only supported if start of decompressed data is at offset 0 of decompressed buffer.
+                // If this is unsupported (rarely in this hot path) we go back to 'slow' approach.
+                canFastDecompress = false;
+                goto fallback;
+            }    
+            
+            // Get block index.
+            var blockIndexOffset = extractable.BlockIndex - entry.FirstBlockIndex;
+            var start = chunkSize * blockIndexOffset;
+            var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
+            var length = Math.Min((int)decompSizeInChunk, chunkSize);
+
+            using var outputData = output.GetFileData(start, (uint)length);
+            Compression.Decompress(method, compressedBlock.Data, blockSize, outputData.Data, (int)outputData.DataLength);
+            return;
+        }
+
+        // This is the logic in case of multiple outputs, e.g. if user specifies an Array + File output.
+        // It incurs additional memory copies, which may bottleneck when extraction is done purely in RAM.
         // Decompress the needed bytes.
+        using var extractedBlock = _decompressPool.Rent(extractable.DecompressSize);
         fixed (byte* extractedPtr = extractedBlock.Span)
         {
             // Decompress all.
             Compression.Decompress(method, compressedBlock.Data, blockSize, extractedPtr, extractable.DecompressSize);
             
             // Copy to outputs.
-            var outputs = extractable.Outputs;
             for (var x = 0; x < outputs.Count; x++)
             {
                 var output = outputs[x];
