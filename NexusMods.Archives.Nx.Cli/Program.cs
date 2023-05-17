@@ -154,5 +154,5 @@ void Benchmark(string source, int? threads, int? attempts)
 
     var averageMs = (totalTimeTaken / (float)attempts);
     Console.WriteLine("Average {0:###.00}ms", averageMs);
-    Console.WriteLine("Throughput {0:###.00}GiB/s", (outputs.Sum(x => (long)x.Data.Length) / averageMs / 1048576));
+    Console.WriteLine("Throughput {0:###.00}MB/s", outputs.Sum(x => (long)x.Data.Length) / averageMs / 1000);
 }
