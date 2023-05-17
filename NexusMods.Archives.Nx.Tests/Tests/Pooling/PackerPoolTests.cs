@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Pooling;

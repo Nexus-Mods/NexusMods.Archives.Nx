@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.FileProviders.FileData;
+using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Utilities;
@@ -17,7 +17,7 @@ public sealed class OutputArrayProvider : IOutputDataProvider
 
     /// <inheritdoc />
     public string RelativePath { get; init; }
-    
+
     /// <inheritdoc />
     public FileEntry Entry { get; init; }
 
@@ -32,10 +32,10 @@ public sealed class OutputArrayProvider : IOutputDataProvider
         Entry = entry;
         Data = Polyfills.AllocateUninitializedArray<byte>((int)Entry.DecompressedSize);
     }
-    
+
     /// <inheritdoc />
     public IFileData GetFileData(long start, uint length) => new ArrayFileData(Data, start, length);
-    
+
     /// <inheritdoc />
     public void Dispose() { }
 }

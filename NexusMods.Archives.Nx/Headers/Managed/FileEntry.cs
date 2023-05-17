@@ -34,7 +34,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     ///     [u18] Index of the first block associated with this file.
     /// </summary>
     public int FirstBlockIndex;
-    
+
     /// <summary>
     /// Calculated via <see cref="DecompressedSize"/> divided by Chunk Size.
     /// </summary>

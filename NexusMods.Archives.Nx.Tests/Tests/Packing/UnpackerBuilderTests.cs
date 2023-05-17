@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Moq;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
@@ -35,7 +35,7 @@ public class UnpackerBuilderTests
         // Assert
         result.Settings.MaxNumThreads.Should().Be(maxThreads);
     }
-    
+
     [Fact]
     public void AddFilesWithArrayOutput_ShouldAddCorrectOutputs()
     {
@@ -61,7 +61,7 @@ public class UnpackerBuilderTests
         // Act
         sut.AddFilesWithDiskOutput(sut.GetPathedFileEntries(), tempFolder.FolderPath);
         sut.Extract();
-        
+
         // Assert
         var files = Directory.GetFiles(tempFolder.FolderPath);
         files.Length.Should().BeGreaterThan(0);

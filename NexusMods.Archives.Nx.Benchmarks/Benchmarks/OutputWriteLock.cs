@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 using NexusMods.Archives.Nx.Utilities;

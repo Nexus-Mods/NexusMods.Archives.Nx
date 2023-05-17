@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Interfaces;
@@ -73,7 +73,7 @@ internal static class BlockHelpers
 
         // Advance to next block.
         var lastBlock = builder.GetAndIncrementBlockIndexAtomic();
-        
+
         // Report progress.
         progress?.Report(lastBlock / (float)builder.Toc.Blocks.Length);
     }

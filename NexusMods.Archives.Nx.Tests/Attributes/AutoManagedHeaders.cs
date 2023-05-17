@@ -29,5 +29,6 @@ public class AutoManagedHeadersAttribute : AutoDataAttribute
         });
 
         return ret;
-    }) { }
+    })
+    { }
 }

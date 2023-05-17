@@ -1,4 +1,4 @@
-﻿using System.IO.MemoryMappedFiles;
+using System.IO.MemoryMappedFiles;
 using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
@@ -20,7 +20,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
     /// Full path to the file.
     /// </summary>
     public string FullPath { get; init; }
-    
+
     private MemoryMappedFile? _mappedFile;
     private readonly FileStream _fileStream;
     private bool _isDisposed;
@@ -40,7 +40,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
         // Note: GetFullPath normalizes the path.
         FullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
 
-        trycreate:
+    trycreate:
         try
         {
 #if NET7_0_OR_GREATER
@@ -68,13 +68,13 @@ public sealed class OutputFileProvider : IOutputDataProvider
         if (entry.DecompressedSize > 0)
             _mappedFile = MemoryMappedFile.CreateFromFile(_fileStream, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
     }
-    
+
     /// <inheritdoc />
     public IFileData GetFileData(long start, uint length) => new MemoryMappedOutputFileData(_mappedFile!, start, length);
 
     /// <inheritdoc />
     ~OutputFileProvider() => Dispose();
-    
+
     /// <inheritdoc />
     public void Dispose()
     {

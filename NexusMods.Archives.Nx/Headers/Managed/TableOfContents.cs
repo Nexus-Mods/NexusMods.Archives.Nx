@@ -54,7 +54,7 @@ public class TableOfContents : IEquatable<TableOfContents>
     {
         // Re-add padding if it's missing.
         tocSize = (tocSize + sizeof(NativeFileHeader)).RoundUp4096();
-        
+
         var reader = new LittleEndianReader(dataPtr);
 
         var fileCount = reader.ReadInt();
@@ -176,7 +176,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         writer.Write(Entries.Length); // limited to 1 mil so int is ok
         var blockCount = Blocks.Length; // Upper 18 bits
         var paddingOffset = (tocSize + sizeof(NativeFileHeader)).RoundUp4096() - tocSize; // Next 12 bits.
-        writer.Write((blockCount << 14) | (paddingOffset << 2)); 
+        writer.Write((blockCount << 14) | (paddingOffset << 2));
 
         // Now write out all the files.
         // Now let's write a fast loop like the runtime guys do 💜

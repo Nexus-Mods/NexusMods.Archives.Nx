@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using NetEscapades.EnumGenerators;
 
 namespace NexusMods.Archives.Nx.Enums;

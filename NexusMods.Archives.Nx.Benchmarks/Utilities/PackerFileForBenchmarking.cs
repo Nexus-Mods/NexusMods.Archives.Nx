@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Traits;
 

@@ -1,4 +1,4 @@
-﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Utilities;
@@ -10,7 +10,7 @@ public class PackArchiveToDisk
     public string Directory { get; set; } = @"C:/Users/sewer/Desktop/Sonic Heroes";
     public string OutputPath { get; set; } = @"PackArchiveToDisk.nx";
     public PackerFile[] Files { get; set; } = null!;
-    
+
     [GlobalSetup]
     public void Setup() => Files = FileFinder.GetFiles(Directory).ToArray();
 

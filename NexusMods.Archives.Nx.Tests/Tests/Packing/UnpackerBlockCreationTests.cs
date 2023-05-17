@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Packing;
@@ -20,7 +20,7 @@ public class UnpackerBlockCreationTests
                 RelativePath = "Block0File0",
                 Entry = new FileEntry()
                 {
-                    DecompressedSize = 5, 
+                    DecompressedSize = 5,
                     DecompressedBlockOffset = 0,
                     FirstBlockIndex = 0
                 }
@@ -30,7 +30,7 @@ public class UnpackerBlockCreationTests
                 RelativePath = "Block0File1",
                 Entry = new FileEntry()
                 {
-                    DecompressedSize = 5, 
+                    DecompressedSize = 5,
                     DecompressedBlockOffset = 5,
                     FirstBlockIndex = 0
                 }
@@ -41,7 +41,7 @@ public class UnpackerBlockCreationTests
                 RelativePath = "ChunkedFile0",
                 Entry = new FileEntry()
                 {
-                    DecompressedSize = 20, 
+                    DecompressedSize = 20,
                     DecompressedBlockOffset = 0,
                     FirstBlockIndex = 1
                 }
@@ -52,7 +52,7 @@ public class UnpackerBlockCreationTests
                 RelativePath = "NonSolid0",
                 Entry = new FileEntry()
                 {
-                    DecompressedSize = 5, 
+                    DecompressedSize = 5,
                     DecompressedBlockOffset = 0,
                     FirstBlockIndex = 3
                 }
@@ -71,26 +71,26 @@ public class UnpackerBlockCreationTests
         blocks[0].Outputs[0].RelativePath.Should().Be("Block0File0");
         blocks[0].Outputs[1].RelativePath.Should().Be("Block0File1");
         blocks[0].DecompressSize.Should().Be(10);
-        
+
         // Check Second Block (Chunk Block 0)
         blocks[1].BlockIndex.Should().Be(1);
         blocks[1].Outputs.Count.Should().Be(1);
         blocks[1].Outputs[0].RelativePath.Should().Be("ChunkedFile0");
         blocks[1].DecompressSize.Should().Be(10);
-        
+
         // Check Third Block (Chunk Block 1)
         blocks[2].BlockIndex.Should().Be(2);
         blocks[2].Outputs.Count.Should().Be(1);
         blocks[2].Outputs[0].RelativePath.Should().Be("ChunkedFile0");
         blocks[2].DecompressSize.Should().Be(10);
-        
+
         // Check Last Block (Explicit SOLID Requested)
         blocks[3].BlockIndex.Should().Be(3);
         blocks[3].Outputs.Count.Should().Be(1);
         blocks[3].Outputs[0].RelativePath.Should().Be("NonSolid0");
         blocks[3].DecompressSize.Should().Be(5);
     }
-    
+
     // Test for when size of chunked file size is not divisible by chunk size
     [Fact]
     public void MakeExtractableBlocks_Chunked_WithNonDivisibleFileSize()
@@ -105,7 +105,7 @@ public class UnpackerBlockCreationTests
                 RelativePath = "ChunkedFile0",
                 Entry = new FileEntry()
                 {
-                    DecompressedSize = 15, 
+                    DecompressedSize = 15,
                     DecompressedBlockOffset = 0,
                     FirstBlockIndex = 0
                 }
@@ -123,7 +123,7 @@ public class UnpackerBlockCreationTests
         blocks[0].Outputs.Count.Should().Be(1);
         blocks[0].Outputs[0].RelativePath.Should().Be("ChunkedFile0");
         blocks[0].DecompressSize.Should().Be(10);
-        
+
         // Check Second Block (Chunk Block 1)
         blocks[1].BlockIndex.Should().Be(1);
         blocks[1].Outputs.Count.Should().Be(1);

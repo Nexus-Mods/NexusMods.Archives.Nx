@@ -23,7 +23,7 @@ public unsafe struct LittleEndianWriter
     /// </summary>
     /// <param name="ptr">Pointer to the item behind the writer.</param>
     public LittleEndianWriter(byte* ptr) => Ptr = ptr;
-    
+
     /// <summary>
     ///     Writes a signed 16-bit integer value to the current pointer and advances the pointer.
     /// </summary>
@@ -34,7 +34,7 @@ public unsafe struct LittleEndianWriter
         LittleEndianHelper.Write((short*)Ptr, value);
         Ptr += sizeof(short);
     }
-    
+
     /// <summary>
     ///     Writes an unsigned 16-bit integer value to the current pointer and advances the pointer.
     /// </summary>
@@ -45,7 +45,7 @@ public unsafe struct LittleEndianWriter
         LittleEndianHelper.Write((ushort*)Ptr, value);
         Ptr += sizeof(ushort);
     }
-    
+
     /// <summary>
     ///     Writes an unsigned 32-bit integer value to the current pointer and advances the pointer.
     /// </summary>
@@ -56,7 +56,7 @@ public unsafe struct LittleEndianWriter
         LittleEndianHelper.Write((uint*)Ptr, value);
         Ptr += sizeof(uint);
     }
-    
+
     /// <summary>
     ///     Writes a signed 32-bit integer value to the current pointer and advances the pointer.
     /// </summary>
@@ -67,7 +67,7 @@ public unsafe struct LittleEndianWriter
         LittleEndianHelper.Write((int*)Ptr, value);
         Ptr += sizeof(int);
     }
-    
+
     /// <summary>
     ///     Writes a signed 64-bit integer value to the current pointer and advances the pointer.
     /// </summary>
@@ -78,7 +78,7 @@ public unsafe struct LittleEndianWriter
         LittleEndianHelper.Write((long*)Ptr, value);
         Ptr += sizeof(long);
     }
-    
+
     /// <summary>
     ///     Writes an unsigned 64-bit integer value to the current pointer and advances the pointer.
     /// </summary>
@@ -89,7 +89,7 @@ public unsafe struct LittleEndianWriter
         LittleEndianHelper.Write((ulong*)Ptr, value);
         Ptr += sizeof(ulong);
     }
-    
+
     /// <summary>
     ///     Writes a byte array to the current pointer and advances the pointer.
     /// </summary>

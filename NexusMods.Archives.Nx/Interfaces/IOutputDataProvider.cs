@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Managed;
 
 namespace NexusMods.Archives.Nx.Interfaces;
 
@@ -15,12 +15,12 @@ public interface IOutputDataProvider : IDisposable
     /// </summary>
     // ReSharper disable once UnusedMemberInSuper.Global
     public string RelativePath { get; }
-    
+
     /// <summary>
     /// The entry this provider is for.
     /// </summary>
     public FileEntry Entry { get; }
-    
+
     /// <summary>
     ///     Gets the output data behind this provider.
     /// </summary>

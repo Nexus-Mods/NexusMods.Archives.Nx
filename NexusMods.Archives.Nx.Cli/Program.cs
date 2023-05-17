@@ -88,9 +88,9 @@ void Extract(string source, string target, int? threads)
     Console.WriteLine("Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
 }
 
-void Pack(string source, string target, int? blocksize, int? chunksize, int? zstandardlevel, int? lz4level, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
+void Pack(string source, string target, int? blocksize, int? chunksize, int? zstandardlevel, int? lz4Level, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
 {
-    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], zstandardlevel [{zstandardlevel}], lz4level [{lz4level}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
+    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], zstandardlevel [{zstandardlevel}], lz4level [{lz4Level}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
     
     var builder = new NxPackerBuilder();
     builder.AddFolder(source);
@@ -105,8 +105,8 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
     if (zstandardlevel.HasValue)
         builder.WithZStandardLevel(zstandardlevel.Value);
     
-    if (lz4level.HasValue)
-        builder.WithLZ4Level(lz4level.Value);
+    if (lz4Level.HasValue)
+        builder.WithLZ4Level(lz4Level.Value);
     
     if (solidAlgorithm.HasValue)
         builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);

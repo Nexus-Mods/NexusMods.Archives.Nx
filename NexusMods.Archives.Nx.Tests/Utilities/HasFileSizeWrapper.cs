@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.Traits;
+using NexusMods.Archives.Nx.Traits;
 
 namespace NexusMods.Archives.Nx.Tests.Utilities;
 

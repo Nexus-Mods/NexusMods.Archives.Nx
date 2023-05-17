@@ -1,4 +1,4 @@
-﻿using AutoFixture.Xunit2;
+using AutoFixture.Xunit2;
 
 namespace NexusMods.Archives.Nx.Tests.Attributes;
 

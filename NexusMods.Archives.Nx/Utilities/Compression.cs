@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
 using K4os.Compression.LZ4.Streams;
@@ -70,28 +70,28 @@ internal static class Compression
                 Unsafe.CopyBlockUnaligned(destination, source, (uint)sourceLength);
                 return sourceLength;
             case CompressionPreference.ZStandard:
-            {
-                var result = ZSTD_compress(destination, (nuint)destinationLength, source, (nuint)sourceLength, level);
-                // -70 means destination buffer is too small, in other words, we failed to compress this data.
-                if ((int)result > sourceLength || (int)result == -70) 
-                    goto case CompressionPreference.Copy;
-                
-                var error = ZSTD_isError(result);
-                if (error <= 0)
-                    return (int)result;
-                    
-                var namePtr = (nint)ZSTD_getErrorName(result);
-                var str = Marshal.PtrToStringAnsi(namePtr);
-                throw new InvalidOperationException($"ZStd Compression error: {str}");
-            }
-            case CompressionPreference.Lz4:
-            {
-                var bytes = LZ4Codec.Encode(source, sourceLength, destination, destinationLength, (LZ4Level)level);
-                if (bytes > sourceLength || bytes < 0) // 'negative value if buffer is too small'
-                    goto case CompressionPreference.Copy;
+                {
+                    var result = ZSTD_compress(destination, (nuint)destinationLength, source, (nuint)sourceLength, level);
+                    // -70 means destination buffer is too small, in other words, we failed to compress this data.
+                    if ((int)result > sourceLength || (int)result == -70)
+                        goto case CompressionPreference.Copy;
 
-                return bytes;
-            }
+                    var error = ZSTD_isError(result);
+                    if (error <= 0)
+                        return (int)result;
+
+                    var namePtr = (nint)ZSTD_getErrorName(result);
+                    var str = Marshal.PtrToStringAnsi(namePtr);
+                    throw new InvalidOperationException($"ZStd Compression error: {str}");
+                }
+            case CompressionPreference.Lz4:
+                {
+                    var bytes = LZ4Codec.Encode(source, sourceLength, destination, destinationLength, (LZ4Level)level);
+                    if (bytes > sourceLength || bytes < 0) // 'negative value if buffer is too small'
+                        goto case CompressionPreference.Copy;
+
+                    return bytes;
+                }
 
             default:
                 ThrowHelpers.ThrowUnsupportedCompressionMethod(method);
@@ -117,49 +117,49 @@ internal static class Compression
                 Buffer.MemoryCopy(destination, source, (uint)sourceLength, (uint)sourceLength);
                 return;
             case CompressionPreference.ZStandard:
-            {
-                // Initialize output buffer
-                nuint result;
-                var dStream = ZSTD_createDStream();
-                var outBuf = new ZSTD_outBuffer
                 {
-                    dst = destination,
-                    pos = 0,
-                    size = (nuint)destinationLength
-                };
-                
-                var inBuf = new ZSTD_inBuffer
-                {
-                    src = source,
-                    pos = 0,
-                    size = (nuint)sourceLength
-                };
+                    // Initialize output buffer
+                    nuint result;
+                    var dStream = ZSTD_createDStream();
+                    var outBuf = new ZSTD_outBuffer
+                    {
+                        dst = destination,
+                        pos = 0,
+                        size = (nuint)destinationLength
+                    };
 
-                do
-                {
-                    result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
-                    var error = ZSTD_isError(result);
-                    if (error <= 0) 
-                        continue;
-                    
-                    var namePtr = (nint)ZSTD_getErrorName(result);
-                    var str = Marshal.PtrToStringAnsi(namePtr);
+                    var inBuf = new ZSTD_inBuffer
+                    {
+                        src = source,
+                        pos = 0,
+                        size = (nuint)sourceLength
+                    };
+
+                    do
+                    {
+                        result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
+                        var error = ZSTD_isError(result);
+                        if (error <= 0)
+                            continue;
+
+                        var namePtr = (nint)ZSTD_getErrorName(result);
+                        var str = Marshal.PtrToStringAnsi(namePtr);
+                        ZSTD_freeDStream(dStream);
+                        throw new InvalidOperationException($"ZStd Decompression error: {str}");
+                    }
+                    while (result != 0 || outBuf.pos < (nuint)destinationLength);
                     ZSTD_freeDStream(dStream);
-                    throw new InvalidOperationException($"ZStd Decompression error: {str}");
+                    return;
                 }
-                while (result != 0 || outBuf.pos < (nuint)destinationLength);
-                ZSTD_freeDStream(dStream);
-                return;
-            }
             case CompressionPreference.Lz4:
-            {
-                // Fastest API with minimal alloc.
-                var result = LZ4Codec.Decode(source, sourceLength, destination, destinationLength);
-                if (result < 0)
-                    throw new InvalidOperationException($"LZ4 Decompression error: {result}");
-                
-                return;
-            }
+                {
+                    // Fastest API with minimal alloc.
+                    var result = LZ4Codec.Decode(source, sourceLength, destination, destinationLength);
+                    if (result < 0)
+                        throw new InvalidOperationException($"LZ4 Decompression error: {result}");
+
+                    return;
+                }
 
             default:
                 ThrowHelpers.ThrowUnsupportedCompressionMethod(method);
@@ -208,7 +208,7 @@ internal static class Compression
     {
         return DecompressZStd(compressedDataPtr, compressedSize, (int)ZSTD_findDecompressedSize(compressedDataPtr, (nuint)compressedSize));
     }
-    
+
     /// <summary>
     ///     Decompresses the given data using ZStandard.
     /// </summary>

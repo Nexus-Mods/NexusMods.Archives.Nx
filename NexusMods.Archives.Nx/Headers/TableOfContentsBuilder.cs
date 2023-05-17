@@ -28,7 +28,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     ///     file out of order. This means that we need to know the order of any given string ahead of time.
     /// </remarks>
     public Dictionary<string, int> FileNameToIndexDictionary = null!;
-    
+
     /// <summary>
     ///     Current block in ToC builder.
     /// </summary>
@@ -44,12 +44,12 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     ///     This table of contents contains blocks which can create chunks.
     /// </summary>
     public bool CanCreateChunks;
-    
+
     /// <summary>
     ///     Compressed strings in the StringPool.
     /// </summary>
     private readonly ArrayRentalSlice _poolData;
-    
+
     /// <summary>
     ///     Currently modified file entry.
     /// </summary>

@@ -1,4 +1,4 @@
-﻿using System.IO.Hashing;
+using System.IO.Hashing;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;

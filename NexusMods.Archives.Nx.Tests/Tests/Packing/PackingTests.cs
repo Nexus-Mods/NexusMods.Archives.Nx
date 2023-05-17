@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using AutoFixture.Xunit2;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers.Managed;
@@ -23,7 +23,7 @@ public class PackingTests
         NxPacker.Pack(GetRandomDummyFiles(fixture, 4096, 16384, 32766, out var settings), settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
-        
+
         // Test succeeds if it doesn't throw.
         return new NxUnpacker(streamProvider);
     }
@@ -37,15 +37,15 @@ public class PackingTests
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
-        
+
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
         var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
-        
+
         // Verify data.
         AssertExtracted(extracted);
     }
-    
+
     [Theory]
     [AutoData]
     public void Can_Pack_And_Unpack_WithSolidOnlyBlocks(IFixture fixture)
@@ -56,15 +56,15 @@ public class PackingTests
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
-        
+
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
         var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
-        
+
         // Verify data.
         AssertExtracted(extracted);
     }
-    
+
     [Theory]
     [AutoData]
     public void Can_Pack_And_Unpack_WithChunkedOnlyBlocks(IFixture fixture)
@@ -74,15 +74,15 @@ public class PackingTests
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
-        
+
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
         var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
-        
+
         // Verify data.
         AssertExtracted(extracted);
     }
-    
+
     [Theory]
     [AutoData]
     public void Can_Pack_And_Unpack_WithEmptyFiles(IFixture fixture)
@@ -92,7 +92,7 @@ public class PackingTests
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
-        
+
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
         var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
@@ -100,7 +100,7 @@ public class PackingTests
         // Verify data.
         AssertExtracted(extracted);
     }
-    
+
     [Theory]
     [AutoData]
     public void Can_Pack_And_Unpack_ToDisk(IFixture fixture)
@@ -110,12 +110,12 @@ public class PackingTests
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
-        
+
         // Test succeeds if it doesn't throw.
         using var temporaryFilePath = new TemporaryDirectory();
         var unpacker = new NxUnpacker(streamProvider);
         var extracted = unpacker.ExtractFilesToDisk(unpacker.GetFileEntriesRaw(), temporaryFilePath.FolderPath, new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
-        
+
         // Verify data.
         foreach (var item in extracted)
         {
@@ -160,10 +160,10 @@ public class PackingTests
                 };
             }).OmitAutoProperties();
         });
-        
+
         return fixture.CreateMany<PackerFile>(numFiles).ToArray();
     }
-    
+
     private byte[] MakeDummyFile(int length)
     {
         var result = Polyfills.AllocateUninitializedArray<byte>(length);

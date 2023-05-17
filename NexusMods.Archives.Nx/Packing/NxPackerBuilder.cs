@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
@@ -55,7 +55,7 @@ public class NxPackerBuilder
         Files.Add(file);
         return this;
     }
-    
+
     /// <summary>
     /// Adds a file to be packed.
     /// </summary>
@@ -102,7 +102,7 @@ public class NxPackerBuilder
         Files.Add(file);
         return this;
     }
-    
+
     /// <summary>
     /// Adds a file to be packed.
     /// </summary>
@@ -135,7 +135,7 @@ public class NxPackerBuilder
         file.RelativePath = options.RelativePath;
         file.SolidType = options.SolidType;
     }
-    
+
     /// <summary>
     /// Sets the output (archive) to a stream.
     /// </summary>
@@ -168,7 +168,7 @@ public class NxPackerBuilder
         Settings.BlockSize = blockSize;
         return this;
     }
-    
+
     /// <summary>
     /// Sets the size of large file chunks; range is 4194304 (4 MiB) to 536870912 (512 MiB).
     /// </summary>
@@ -179,7 +179,7 @@ public class NxPackerBuilder
         Settings.ChunkSize = chunkSize;
         return this;
     }
-    
+
     /// <summary>
     /// Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22.
     /// </summary>
@@ -190,7 +190,7 @@ public class NxPackerBuilder
         Settings.ZStandardLevel = zStandardLevel;
         return this;
     }
-    
+
     /// <summary>
     /// Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22.
     /// </summary>
@@ -201,7 +201,7 @@ public class NxPackerBuilder
         Settings.Lz4Level = lz4Level;
         return this;
     }
-    
+
     /// <summary>
     /// Sets the output (archive) to a stream.
     /// </summary>
@@ -213,7 +213,7 @@ public class NxPackerBuilder
         Settings.Output = output;
         return this;
     }
-    
+
     /// <summary>
     /// Sets the compression algorithm used for compressing SOLID blocks.
     /// </summary>
@@ -224,7 +224,7 @@ public class NxPackerBuilder
         Settings.SolidBlockAlgorithm = solidBlockAlgorithm;
         return this;
     }
-    
+
     /// <summary>
     /// Sets the compression algorithm used for chunked files.
     /// </summary>
@@ -267,7 +267,7 @@ public struct AddFileParams
     /// Relative path of the file inside the archive.
     /// </summary>
     public required string RelativePath { get; init; }
-        
+
     /// <summary>
     ///     Preferred algorithm to compress the item with.<br />
     ///     Note: This setting is only honoured if <see cref="SolidPreference.NoSolid" /> is set in <see cref="SolidType" />.
@@ -278,7 +278,7 @@ public struct AddFileParams
     ///     Preference in terms of whether this item should be SOLID or not.
     /// </summary>
     public SolidPreference SolidType { get; set; } = SolidPreference.Default;
-        
+
     /// <summary/>
     [PublicAPI]
     public AddFileParams() { }

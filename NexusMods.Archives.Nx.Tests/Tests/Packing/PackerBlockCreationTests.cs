@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs.Blocks;
@@ -127,7 +127,7 @@ public class PackerBlockCreationTests
         secondItems[0].RelativePath.Should().Be("Block1File0");
         secondItems[1].RelativePath.Should().Be("Block1File1");
     }
-    
+
     [Fact]
     public void MakeBlocks_RespectsNoSolidAndCompressionPreference()
     {

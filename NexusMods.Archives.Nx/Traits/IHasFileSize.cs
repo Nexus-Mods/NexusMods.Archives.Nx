@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Archives.Nx.Traits;
+namespace NexusMods.Archives.Nx.Traits;
 
 /// <summary>
 ///     Used for items which can specify a file size.

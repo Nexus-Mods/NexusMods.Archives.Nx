@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Archives.Nx.Utilities;
+namespace NexusMods.Archives.Nx.Utilities;
 
 /// <summary>
 ///     Math related utilities

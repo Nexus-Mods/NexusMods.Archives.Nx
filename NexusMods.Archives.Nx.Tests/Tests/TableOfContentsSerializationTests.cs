@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;

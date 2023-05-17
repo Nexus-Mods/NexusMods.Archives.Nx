@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -23,7 +23,7 @@ public unsafe struct LittleEndianReader
     /// </summary>
     /// <param name="ptr">The pointer to read from.</param>
     public LittleEndianReader(byte* ptr) => Ptr = ptr;
-    
+
     /// <summary>
     ///     Reads a signed 16-bit integer from the current pointer in Little Endian format and advances the pointer.
     /// </summary>
@@ -75,7 +75,7 @@ public unsafe struct LittleEndianReader
     /*
          Note: See equivalent section in LittleEndianWriter.
     */
-    
+
     /// <summary>
     ///     Reads a signed 16-bit integer from the specified offset in Little Endian format without advancing the pointer.
     /// </summary>
@@ -83,7 +83,7 @@ public unsafe struct LittleEndianReader
     /// <returns>A signed 16-bit integer value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short ReadShortAtOffset(int offset) => LittleEndianHelper.Read((short*)(Ptr + offset));
-    
+
     /// <summary>
     ///     Reads a signed 32-bit integer from the specified offset in Little Endian format without advancing the pointer.
     /// </summary>

@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Tests.Utilities;
 

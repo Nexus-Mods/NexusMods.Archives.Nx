@@ -1,4 +1,4 @@
-﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes;
 using NexusMods.Archives.Nx.Benchmarks.Columns;
 using NexusMods.Archives.Nx.Benchmarks.Utilities;
 using NexusMods.Archives.Nx.Headers;

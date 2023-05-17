@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Archives.Nx.Interfaces;
+namespace NexusMods.Archives.Nx.Interfaces;
 
 /// <summary>
 ///     An interface creating <see cref="IFileData" /> instances.

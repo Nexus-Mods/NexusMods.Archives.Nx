@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Utilities;

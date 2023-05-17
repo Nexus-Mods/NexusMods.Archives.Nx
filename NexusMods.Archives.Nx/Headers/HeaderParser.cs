@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Headers.Native;

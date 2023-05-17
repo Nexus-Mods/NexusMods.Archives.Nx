@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Tests.Attributes;

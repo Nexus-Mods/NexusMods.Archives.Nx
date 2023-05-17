@@ -1,4 +1,4 @@
-﻿using System.IO.MemoryMappedFiles;
+using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
 // ReSharper disable IntroduceOptionalParameters.Global
@@ -28,7 +28,7 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
     public MemoryMappedFileData(string filePath, long start, uint length) : this(filePath, start, length, false) { }
-    
+
     /// <summary>
     ///     Creates file data backed by a memory mapped file.
     /// </summary>
@@ -47,13 +47,13 @@ public sealed class MemoryMappedFileData : IFileData
         {
             var fileMode = readOnly ? FileAccess.Read : FileAccess.ReadWrite;
             var mmfAccess = readOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
-            
+
             var fs = new FileStream(filePath, FileMode.Open, fileMode, FileShare.ReadWrite);
             _mappedFile = MemoryMappedFile.CreateFromFile(fs, null, 0, mmfAccess, HandleInheritability.Inheritable, false);
             InitFromMmf(start, length, readOnly);
             return;
         }
-        
+
         InitEmpty();
     }
 
@@ -64,7 +64,7 @@ public sealed class MemoryMappedFileData : IFileData
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
         DataLength = length;
     }
-    
+
     private unsafe void InitEmpty()
     {
         Data = (byte*)0x0;

@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Archives.Nx.Tests.Utilities;
+namespace NexusMods.Archives.Nx.Tests.Utilities;
 
 /// <summary>
 ///     Backwards compatibility wrappers for older runtimes.

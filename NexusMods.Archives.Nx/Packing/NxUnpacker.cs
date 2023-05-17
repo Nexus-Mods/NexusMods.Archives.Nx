@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
@@ -18,12 +18,12 @@ public class NxUnpacker
     // At Initialization
     private ParsedHeader _nxHeader;
     private IFileDataProvider _dataProvider;
-    
+
     // Current Decompression State
     private IProgress<double>? _progress;
     private int _currentNumBlocks;
     private PackerArrayPool _decompressPool = null!;
-    
+
     /// <summary>
     /// Creates an utility for unpacking archives.
     /// </summary>
@@ -45,7 +45,7 @@ public class NxUnpacker
     /// </remarks>
     /// <returns>All entries from inside the archive.</returns>
     public Span<FileEntry> GetFileEntriesRaw() => _nxHeader.Entries;
-    
+
     /// <summary>
     /// Retrieves all file entries from this archive, with their corresponding relative paths.
     /// </summary>
@@ -62,7 +62,7 @@ public class NxUnpacker
                 FileName = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
             };
         }
-        
+
         return results;
     }
 
@@ -107,10 +107,10 @@ public class NxUnpacker
             var relPath = _nxHeader.Pool[entry.FilePathIndex];
             results.DangerousGetReferenceAt((int)x) = new OutputFileProvider(outputFolder, relPath, entry);
         });
-        
+
         return results;
     }
-    
+
     /// <summary>
     /// Extracts all files from this archive in memory.
     /// </summary>
@@ -123,7 +123,7 @@ public class NxUnpacker
         ExtractFiles(results, settings);
         return results;
     }
-    
+
     /// <summary>
     /// Extracts all files from this archive to disk.
     /// </summary>
@@ -137,7 +137,7 @@ public class NxUnpacker
         ExtractFiles(results, settings);
         return results;
     }
-    
+
     /// <summary>
     /// Extracts all files from this archive.
     /// </summary>
@@ -154,7 +154,7 @@ public class NxUnpacker
         _currentNumBlocks = blocks.Count;
         for (var x = 0; x < _currentNumBlocks; x++)
             Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
-        
+
         sched.Dispose();
         _decompressPool.Dispose(); // Let GC reclaim.
         for (var x = 0; x < outputs.Length; x++)
@@ -169,7 +169,7 @@ public class NxUnpacker
         var offset = _nxHeader.BlockOffsets[blockIndex];
         var blockSize = _nxHeader.Blocks[blockIndex].CompressedSize;
         var method = _nxHeader.BlockCompressions[blockIndex];
-        
+
         using var compressedBlock = _dataProvider.GetFileData(offset, (uint)blockSize);
         var outputs = extractable.Outputs;
         var canFastDecompress = outputs.Count == 1;
@@ -186,8 +186,8 @@ public class NxUnpacker
                 // If this is unsupported (rarely in this hot path) we go back to 'slow' approach.
                 canFastDecompress = false;
                 goto fallback;
-            }    
-            
+            }
+
             // Get block index.
             var blockIndexOffset = extractable.BlockIndex - entry.FirstBlockIndex;
             var start = chunkSize * blockIndexOffset;
@@ -207,23 +207,23 @@ public class NxUnpacker
         {
             // Decompress all.
             Compression.Decompress(method, compressedBlock.Data, blockSize, extractedPtr, extractable.DecompressSize);
-            
+
             // Copy to outputs.
             for (var x = 0; x < outputs.Count; x++)
             {
                 var output = outputs[x];
                 var entry = output.Entry;
-                
+
                 // Get block index.
                 var blockIndexOffset = extractable.BlockIndex - entry.FirstBlockIndex;
                 var start = chunkSize * blockIndexOffset;
                 var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
                 var length = Math.Min((int)decompSizeInChunk, chunkSize);
-                
+
                 using var outputData = output.GetFileData(start, (uint)length);
                 Buffer.MemoryCopy(extractedPtr + entry.DecompressedBlockOffset, outputData.Data, outputData.DataLength, outputData.DataLength);
             }
-            
+
             _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
         }
     }
@@ -235,15 +235,15 @@ public class NxUnpacker
     {
         var result = new List<ExtractableBlock>(outputs.Length);
         var blockDict = new Dictionary<int, ExtractableBlock>(outputs.Length);
-        
+
         for (var x = 0; x < outputs.Length; x++)
         {
             // Slow due to copy to stack, but not that big a deal here.
             var output = outputs[x];
-            var entry  = output.Entry;
+            var entry = output.Entry;
             var chunkCount = entry.GetChunkCount(chunkSize);
             var remainingDecompSize = entry.DecompressedSize;
-            
+
             for (var chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
             {
                 var blockIndex = entry.FirstBlockIndex + chunkIndex;
@@ -269,7 +269,7 @@ public class NxUnpacker
                 remainingDecompSize -= (ulong)chunkSize;
             }
         }
-        
+
         return result;
     }
 
@@ -279,7 +279,7 @@ public class NxUnpacker
         /// Index of block to decompress.
         /// </summary>
         public required int BlockIndex { get; init; }
-        
+
         /// <summary>
         /// Amount of data to decompress in this block.
         /// This is equivalent to largest <see cref="FileEntry.DecompressedBlockOffset"/> + <see cref="FileEntry.DecompressedSize"/> for a file within the block.

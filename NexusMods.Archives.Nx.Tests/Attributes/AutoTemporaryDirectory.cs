@@ -23,5 +23,6 @@ public class AutoFileSystemAttribute : AutoDataAttribute
         ret.Customize<TemporaryDirectory>(composer => composer.FromFactory(() => new TemporaryDirectory()));
         ret.Customize<DummyKnownFileDirectory>(composer => composer.FromFactory(() => new DummyKnownFileDirectory()));
         return ret;
-    }) { }
+    })
+    { }
 }

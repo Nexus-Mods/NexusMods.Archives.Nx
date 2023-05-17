@@ -1,4 +1,4 @@
-﻿using System.Buffers.Binary;
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -142,7 +142,7 @@ internal static unsafe class LittleEndianHelper
 
         *address = BinaryPrimitives.ReverseEndianness(value);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint AsLittleEndian(this uint value)
     {

@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
 
 namespace NexusMods.Archives.Nx.Tests.Utilities;

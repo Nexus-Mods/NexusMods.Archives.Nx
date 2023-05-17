@@ -1,4 +1,4 @@
-﻿using AutoFixture;
+using AutoFixture;
 using AutoFixture.Kernel;
 using AutoFixture.Xunit2;
 using JetBrains.Annotations;

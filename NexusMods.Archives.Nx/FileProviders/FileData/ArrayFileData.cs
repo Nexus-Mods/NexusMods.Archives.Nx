@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using NexusMods.Archives.Nx.Interfaces;
 
 namespace NexusMods.Archives.Nx.FileProviders.FileData;
@@ -39,7 +39,7 @@ public sealed unsafe class ArrayFileData : IFileData
     {
         if (_disposed)
             return;
-        
+
         _disposed = true;
         _handle.Free();
         GC.SuppressFinalize(this);

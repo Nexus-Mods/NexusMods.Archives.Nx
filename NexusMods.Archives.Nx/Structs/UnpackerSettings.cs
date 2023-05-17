@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Structs;
@@ -18,7 +18,7 @@ public class UnpackerSettings
     ///     Maximum number of threads allowed.
     /// </summary>
     public int MaxNumThreads { get; set; } = Environment.ProcessorCount;
-    
+
     /// <summary>
     ///     Sanitizes settings to acceptable values if they are out of range or undefined.
     /// </summary>

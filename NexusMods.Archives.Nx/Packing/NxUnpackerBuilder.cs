@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
@@ -27,7 +27,7 @@ public class NxUnpackerBuilder
     /// Contains the files to be extracted with their corresponding outputs.
     /// </summary>
     public List<IOutputDataProvider> Outputs { get; private set; } = new();
-    
+
     /// <summary>
     /// The unpacker to use.
     /// </summary>
@@ -50,7 +50,7 @@ public class NxUnpackerBuilder
     /// </summary>
     /// <returns>All file entries and their corresponding file names from inside the archive.</returns>
     public PathedFileEntry[] GetPathedFileEntries() => Unpacker.GetPathedFileEntries();
-    
+
     /// <summary>
     /// Sets the output (archive) to a stream.
     /// </summary>
@@ -72,7 +72,7 @@ public class NxUnpackerBuilder
         Settings.MaxNumThreads = maxNumThreads;
         return this;
     }
-    
+
     /// <summary>
     /// Extracts all files from this archive to memory.
     /// </summary>
@@ -90,7 +90,7 @@ public class NxUnpackerBuilder
     {
         return AddFilesWithArrayOutput(ToSpan(files), out results);
     }
-    
+
     /// <summary>
     /// Extracts all files from this archive to memory.
     /// </summary>
@@ -121,7 +121,7 @@ public class NxUnpackerBuilder
         Outputs.AddRange(Unpacker.MakeDiskOutputProviders(ToSpan(files), outputFolder));
         return this;
     }
-    
+
     /// <summary>
     /// Extracts all files from this archive to disk.
     /// </summary>
@@ -132,7 +132,7 @@ public class NxUnpackerBuilder
         Outputs.AddRange(Unpacker.MakeDiskOutputProviders(files, outputFolder));
         return this;
     }
-    
+
     /// <summary>
     /// Extracts the data.
     /// </summary>
@@ -143,13 +143,13 @@ public class NxUnpackerBuilder
         Unpacker.ExtractFiles(outputs, Settings);
         return outputs;
     }
-    
+
     private Span<FileEntry> ToSpan(PathedFileEntry[] files)
     {
         var result = Polyfills.AllocateUninitializedArray<FileEntry>(files.Length);
         for (var x = 0; x < result.Length; x++)
             result[x] = files.DangerousGetReferenceAt(x).Entry;
-        
+
         return result;
     }
 }

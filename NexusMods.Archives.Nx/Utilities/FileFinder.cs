@@ -33,7 +33,7 @@ public static class FileFinder
         });
 #endif
     }
-    
+
 #if NETSTANDARD2_0
     /// <summary>
     ///     Retrieves all packable files from within a given directory.

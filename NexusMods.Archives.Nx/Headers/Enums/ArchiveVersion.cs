@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Managed;
 
 namespace NexusMods.Archives.Nx.Headers.Enums;
 

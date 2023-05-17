@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 
 namespace NexusMods.Archives.Nx.Tests.Utilities;
 

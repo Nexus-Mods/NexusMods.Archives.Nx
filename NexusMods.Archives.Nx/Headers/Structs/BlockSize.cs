@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace NexusMods.Archives.Nx.Headers.Structs;
 

@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -82,7 +82,7 @@ public class PackerSettings
 
         BlockSize = Polyfills.RoundUpToPowerOf2NoOverflow(BlockSize) - 1;
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
-        
+
         BlockSize = Polyfills.Clamp(BlockSize, 32767, 67108863);
         ChunkSize = Polyfills.Clamp(ChunkSize, 4194304, 536870912);
         if (ChunkSize <= BlockSize)

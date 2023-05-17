@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Structs;
 
@@ -31,14 +31,14 @@ public class PackerSettingsTests
         settings.Sanitize();
         settings.BlockSize.Should().Be(expected);
     }
-    
+
     [Theory]
     // Regular Values
     [InlineData(32767, 4194303)] // BlockSize is max and ChunkSize is just below minimum
     [InlineData(67108863, 67108864)] // BlockSize is max and ChunkSize is just above it
     [InlineData(32767, 4194304)] // BlockSize is min and ChunkSize is min
     [InlineData(67108862, 67108863)] // BlockSize and ChunkSize are max - 1
-    
+
     // BlockSize > ChunkSize
     [InlineData(67108863, 4194304)] // BlockSize is max and ChunkSize is min
     [InlineData(4194305, 4194304)] // BlockSize is min + 1 and ChunkSize is min

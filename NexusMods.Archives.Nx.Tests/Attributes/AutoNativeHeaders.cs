@@ -40,7 +40,8 @@ public class AutoNativeHeadersAttribute : AutoDataAttribute
         ret.Customize<NativeFileEntryV0>(composer => WithRandomizeHeader(randomizeHeader, composer));
         ret.Customize<NativeFileEntryV1>(composer => WithRandomizeHeader(randomizeHeader, composer));
         return ret;
-    }) { }
+    })
+    { }
 
     private static ISpecimenBuilder WithRandomizeHeader<T>(bool randomizeHeader, ICustomizationComposer<T> composer)
         where T : new()

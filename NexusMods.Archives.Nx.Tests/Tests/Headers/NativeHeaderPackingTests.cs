@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Tests.Attributes;
 using NexusMods.Archives.Nx.Tests.Utilities;
@@ -25,16 +25,16 @@ public class NativeHeaderPackingTests
     public void VersionAndBlockSizeCanBePacked(NativeFileHeader header)
     {
         foreach (var currentVersion in Permutations.GetBitPackingOverlapTestValues(4))
-        foreach (var currentBlockSize in Permutations.GetBitPackingOverlapTestValues(4))
-            PackingTestHelpers.TestPackedProperties(
-                ref header,
-                (ref NativeFileHeader instance, long value) => instance.Version = (byte)value,
-                (ref NativeFileHeader instance) => instance.Version,
-                (ref NativeFileHeader instance, long value) => instance.BlockSize = (byte)value,
-                (ref NativeFileHeader instance) => instance.BlockSize,
-                currentVersion,
-                currentBlockSize
-            );
+            foreach (var currentBlockSize in Permutations.GetBitPackingOverlapTestValues(4))
+                PackingTestHelpers.TestPackedProperties(
+                    ref header,
+                    (ref NativeFileHeader instance, long value) => instance.Version = (byte)value,
+                    (ref NativeFileHeader instance) => instance.Version,
+                    (ref NativeFileHeader instance, long value) => instance.BlockSize = (byte)value,
+                    (ref NativeFileHeader instance) => instance.BlockSize,
+                    currentVersion,
+                    currentBlockSize
+                );
     }
 
     [Theory]
@@ -62,16 +62,16 @@ public class NativeHeaderPackingTests
     {
         // Note: This method tests all valid values. 65536 total loop iterations.
         foreach (var currentChunkSize in Permutations.GetBitPackingOverlapTestValues(3))
-        foreach (var currentPageCount in Permutations.GetBitPackingOverlapTestValues(13))
-            PackingTestHelpers.TestPackedProperties(
-                ref header,
-                (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
-                (ref NativeFileHeader instance) => instance.ChunkSize,
-                (ref NativeFileHeader instance, long value) => instance.HeaderPageCount = (ushort)value,
-                (ref NativeFileHeader instance) => instance.HeaderPageCount,
-                currentChunkSize,
-                currentPageCount
-            );
+            foreach (var currentPageCount in Permutations.GetBitPackingOverlapTestValues(13))
+                PackingTestHelpers.TestPackedProperties(
+                    ref header,
+                    (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
+                    (ref NativeFileHeader instance) => instance.ChunkSize,
+                    (ref NativeFileHeader instance, long value) => instance.HeaderPageCount = (ushort)value,
+                    (ref NativeFileHeader instance) => instance.HeaderPageCount,
+                    currentChunkSize,
+                    currentPageCount
+                );
     }
 
     [Theory]

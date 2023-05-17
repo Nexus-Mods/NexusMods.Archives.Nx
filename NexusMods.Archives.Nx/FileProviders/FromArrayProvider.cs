@@ -1,4 +1,4 @@
-﻿using NexusMods.Archives.Nx.FileProviders.FileData;
+using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Interfaces;
 
 namespace NexusMods.Archives.Nx.FileProviders;

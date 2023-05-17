@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 #if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
 #endif

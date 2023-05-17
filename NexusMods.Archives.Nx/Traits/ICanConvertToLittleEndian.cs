@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Archives.Nx.Traits;
+namespace NexusMods.Archives.Nx.Traits;
 
 /// <summary>
 ///     For structures that can convert to Little Endian.

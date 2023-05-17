@@ -16,7 +16,7 @@ public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
     /// </summary>
     // ReSharper disable once UnusedMember.Global
     internal const int SizeBytes = 8;
-    
+
     internal long Data;
 
     /// <summary>
@@ -75,7 +75,7 @@ public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
         entry.FilePathIndex = (int)((Data >> 18) & 0xFFFFF); // Extract the next 20 bits
         entry.FirstBlockIndex = (int)(Data & 0x3FFFF); // Extract the next 18 bits (lower bits)
     }
-    
+
     /// <summary>
     /// Determines if two instances of <see cref="OffsetPathIndexTuple"/> are equal.
     /// </summary>
@@ -83,7 +83,7 @@ public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
     /// <param name="right">The right-hand side of the comparison.</param>
     /// <returns>True if the instances are equal, otherwise False.</returns>
     public static bool operator ==(OffsetPathIndexTuple left, OffsetPathIndexTuple right) => left.Equals(right);
-    
+
     /// <summary>
     /// Determines if two instances of <see cref="OffsetPathIndexTuple"/> are not equal.
     /// </summary>

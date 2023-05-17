@@ -68,8 +68,8 @@ public class PackerBuilderTests
         // Assert
         result.Should().NotBeNull();
     }
-    
-        [Fact]
+
+    [Fact]
     public void WithProgress_ShouldSetProgress()
     {
         // Arrange
@@ -88,7 +88,7 @@ public class PackerBuilderTests
     {
         // Arrange
         var sut = new NxPackerBuilder();
-        int maxNumThreads = 4;
+        var maxNumThreads = 4;
 
         // Act
         sut.WithMaxNumThreads(maxNumThreads);
@@ -102,7 +102,7 @@ public class PackerBuilderTests
     {
         // Arrange
         var sut = new NxPackerBuilder();
-        int blockSize = 32767;
+        var blockSize = 32767;
 
         // Act
         sut.WithBlockSize(blockSize);
@@ -116,7 +116,7 @@ public class PackerBuilderTests
     {
         // Arrange
         var sut = new NxPackerBuilder();
-        int chunkSize = 4194304;
+        var chunkSize = 4194304;
 
         // Act
         sut.WithChunkSize(chunkSize);
@@ -130,7 +130,7 @@ public class PackerBuilderTests
     {
         // Arrange
         var sut = new NxPackerBuilder();
-        int zStandardLevel = 1;
+        var zStandardLevel = 1;
 
         // Act
         sut.WithZStandardLevel(zStandardLevel);
@@ -144,7 +144,7 @@ public class PackerBuilderTests
     {
         // Arrange
         var sut = new NxPackerBuilder();
-        int lz4Level = 1;
+        var lz4Level = 1;
 
         // Act
         sut.WithLZ4Level(lz4Level);
@@ -194,7 +194,7 @@ public class PackerBuilderTests
         // Assert
         sut.Settings.ChunkedFileAlgorithm.Should().Be(chunkedFileAlgorithm);
     }
-    
+
     [Fact]
     public void AddFile_FromPath_ShouldSetCorrectFileSize()
     {

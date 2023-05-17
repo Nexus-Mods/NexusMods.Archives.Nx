@@ -1,4 +1,4 @@
-﻿using System.IO.MemoryMappedFiles;
+using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
 // ReSharper disable IntroduceOptionalParameters.Global
@@ -19,7 +19,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
 
     private MemoryMappedViewAccessor? _mappedFileView;
     private bool _disposed;
-    
+
     /// <summary>
     ///     Creates file data backed by a memory mapped file.
     /// </summary>
@@ -36,7 +36,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
             DataLength = length;
             return;
         }
-        
+
         InitEmpty();
     }
 

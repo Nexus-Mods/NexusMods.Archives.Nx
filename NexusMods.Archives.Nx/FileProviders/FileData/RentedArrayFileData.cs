@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -30,10 +30,10 @@ public sealed unsafe class RentedArrayFileData : IFileData
         Data = (byte*)_handle.AddrOfPinnedObject();
         DataLength = (nuint)data.Length;
     }
-    
+
     /// <inheritdoc />
     ~RentedArrayFileData() => Dispose();
-    
+
     /// <inheritdoc />
     public void Dispose()
     {

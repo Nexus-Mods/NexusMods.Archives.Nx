@@ -137,7 +137,7 @@ public struct StringPool
 
         return items;
     }
-    
+
     /// <summary>
     ///     Unpacks strings from a given pool.
     /// </summary>
@@ -151,7 +151,7 @@ public struct StringPool
         fixed (byte* poolSpanPtr = poolSpan)
             return Unpack(poolSpanPtr, poolSpan.Length, 0);
     }
-    
+
     /// <summary>
     ///     Unpacks strings from a given pool.
     /// </summary>

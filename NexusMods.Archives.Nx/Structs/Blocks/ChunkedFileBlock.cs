@@ -1,4 +1,4 @@
-﻿using System.IO.Hashing;
+using System.IO.Hashing;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
@@ -63,7 +63,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     ///     File associated with this chunked block.
     /// </summary>
     public T File { get; init; } = default!;
-    
+
     /// <summary>
     ///     Instance of the Microsoft xxHash64 hasher.
     /// </summary>
