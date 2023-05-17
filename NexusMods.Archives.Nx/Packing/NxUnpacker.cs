@@ -21,7 +21,8 @@ public class NxUnpacker
     // Current Decompression State
     private IProgress<double>? _progress;
     private int _currentNumBlocks;
-
+    private PackerArrayPool _decompressPool = null!;
+    
     /// <summary>
     /// Creates an utility for unpacking archives.
     /// </summary>
@@ -148,11 +149,13 @@ public class NxUnpacker
         using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
         var blocks = MakeExtractableBlocks(outputs, _nxHeader.Header.ChunkSizeBytes);
 
+        _decompressPool = new PackerArrayPool(settings.MaxNumThreads, _nxHeader.Header.ChunkSizeBytes);
         _currentNumBlocks = blocks.Count;
         for (var x = 0; x < _currentNumBlocks; x++)
             Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
         
         sched.Dispose();
+        _decompressPool.Dispose(); // Let GC reclaim.
         for (var x = 0; x < outputs.Length; x++)
             outputs[x].Dispose();
     }
@@ -166,7 +169,7 @@ public class NxUnpacker
         var blockSize = _nxHeader.Blocks[blockIndex].CompressedSize;
         var method = _nxHeader.BlockCompressions[blockIndex];
         
-        using var extractedBlock = new ArrayRental(extractable.DecompressSize);
+        using var extractedBlock = _decompressPool.Rent(extractable.DecompressSize);
         using var compressedBlock = _dataProvider.GetFileData(offset, (uint)blockSize);
         
         // Decompress the needed bytes.
