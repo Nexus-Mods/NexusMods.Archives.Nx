@@ -54,7 +54,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
                 Options = FileOptions.SequentialScan
             });
 #else
-            _fileStream = new FileStream(FullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 0);
+            _fileStream = new FileStream(FullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             _fileStream.SetLength((long)entry.DecompressedSize);
 #endif
         }
