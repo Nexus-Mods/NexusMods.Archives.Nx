@@ -63,7 +63,7 @@ jobs:
       - name: "Setup SDKs & Components"
         uses: Nexus-Mods/NexusMods.Archives.Nx/.github/actions/setup-sdks-components@main
       - name: Build Library
-        run: dotnet build -c Release
+        run: dotnet build -c Release ./NexusMods.Archives.Nx/NexusMods.Archives.Nx.csproj
       - name: "Install ReportGenerator"
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
       - name: "Download Coverage Artifacts"
