@@ -33,6 +33,7 @@ public class PackerSettings
     /// <summary>
     ///     Size of SOLID blocks.
     ///     Range is 32767 to 67108863 (64 MiB).
+    ///     Must be smaller than <see cref="ChunkSize"/>.
     /// </summary>
     public int BlockSize { get; set; } = 1048575;
 
@@ -81,9 +82,12 @@ public class PackerSettings
 
         BlockSize = Polyfills.RoundUpToPowerOf2NoOverflow(BlockSize) - 1;
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
-
+        
         BlockSize = Polyfills.Clamp(BlockSize, 32767, 67108863);
         ChunkSize = Polyfills.Clamp(ChunkSize, 4194304, 536870912);
+        if (ChunkSize <= BlockSize)
+            ChunkSize = BlockSize + 1;
+
         ZStandardLevel = Polyfills.Clamp(ZStandardLevel, 1, 22);
         Lz4Level = Polyfills.Clamp(Lz4Level, 1, 12);
         MaxNumThreads = Polyfills.Clamp(MaxNumThreads, 1, int.MaxValue);

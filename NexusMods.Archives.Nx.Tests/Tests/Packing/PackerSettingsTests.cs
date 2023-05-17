@@ -11,10 +11,10 @@ public class PackerSettingsTests
     [InlineData(int.MaxValue, 536870912)]
     [InlineData(4194303, 4194304)]
     [InlineData(int.MinValue, 4194304)]
-    public void ChunkSize_IsClamped(int value, int expected)
+    public void ChunkSize_IsClamped(int chunkSize, int expected)
     {
         var settings = new PackerSettings { Output = Stream.Null };
-        settings.ChunkSize = value;
+        settings.ChunkSize = chunkSize;
         settings.Sanitize();
         settings.ChunkSize.Should().Be(expected);
     }
@@ -30,6 +30,26 @@ public class PackerSettingsTests
         settings.BlockSize = value;
         settings.Sanitize();
         settings.BlockSize.Should().Be(expected);
+    }
+    
+    [Theory]
+    // Regular Values
+    [InlineData(32767, 4194303)] // BlockSize is max and ChunkSize is just below minimum
+    [InlineData(67108863, 67108864)] // BlockSize is max and ChunkSize is just above it
+    [InlineData(32767, 4194304)] // BlockSize is min and ChunkSize is min
+    [InlineData(67108862, 67108863)] // BlockSize and ChunkSize are max - 1
+    
+    // BlockSize > ChunkSize
+    [InlineData(67108863, 4194304)] // BlockSize is max and ChunkSize is min
+    [InlineData(4194305, 4194304)] // BlockSize is min + 1 and ChunkSize is min
+    [InlineData(67108863, 67108862)] // BlockSize is max and ChunkSize is max - 1
+    public void ChunkSize_MustBeGreaterThanBlockSize(int blockSize, int chunkSize)
+    {
+        var settings = new PackerSettings { Output = Stream.Null };
+        settings.BlockSize = blockSize;
+        settings.ChunkSize = chunkSize;
+        settings.Sanitize();
+        settings.ChunkSize.Should().BeGreaterThan(settings.BlockSize);
     }
 
     [Theory]
