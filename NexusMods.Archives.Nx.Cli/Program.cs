@@ -117,7 +117,6 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
 
-    // TODO: Implement the packing logic here.
     var packingTimeTaken = Stopwatch.StartNew();
 
     // Progress Reporting.
@@ -130,8 +129,10 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
             builder.WithProgress(progress);
             builder.Build();
         });
-    
-    Console.WriteLine("Packed in {0}ms", packingTimeTaken.ElapsedMilliseconds);
+
+    var ms = packingTimeTaken.ElapsedMilliseconds;
+    Console.WriteLine("Packed in {0}ms", ms);
+    Console.WriteLine("Throughput {0:###.00}MiB/s", builder.Files.Sum(x => x.FileSize) / (float)ms / 1024F);
 }
 
 void Benchmark(string source, int? threads, int? attempts)
@@ -164,5 +165,5 @@ void Benchmark(string source, int? threads, int? attempts)
 
     var averageMs = (totalTimeTaken / (float)attempts);
     Console.WriteLine("Average {0:###.00}ms", averageMs);
-    Console.WriteLine("Throughput {0:###.00}MB/s", outputs.Sum(x => (long)x.Data.Length) / averageMs / 1000);
+    Console.WriteLine("Throughput {0:###.00}GiB/s", outputs.Sum(x => (long)x.Data.Length) / averageMs / 1048576F);
 }
