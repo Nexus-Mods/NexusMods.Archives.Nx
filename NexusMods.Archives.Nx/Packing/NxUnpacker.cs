@@ -147,15 +147,25 @@ public class NxUnpacker
     {
         settings.Sanitize();
         _progress = settings.Progress;
-        using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
+        
         var blocks = MakeExtractableBlocks(outputs, _nxHeader.Header.ChunkSizeBytes);
-
         _decompressPool = new PackerArrayPool(settings.MaxNumThreads, _nxHeader.Header.ChunkSizeBytes);
         _currentNumBlocks = blocks.Count;
-        for (var x = 0; x < _currentNumBlocks; x++)
-            Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
+        if (settings.MaxNumThreads > 1)
+        {
+            using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
 
-        sched.Dispose();
+            for (var x = 0; x < _currentNumBlocks; x++)
+                Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
+            
+            sched.Dispose();
+        }
+        else
+        {
+            foreach (var block in blocks)
+                ExtractBlock(block);
+        }
+        
         _decompressPool.Dispose(); // Let GC reclaim.
         for (var x = 0; x < outputs.Length; x++)
             outputs[x].Dispose();
