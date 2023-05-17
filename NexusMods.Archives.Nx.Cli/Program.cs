@@ -143,6 +143,16 @@ void Benchmark(string source, int? threads, int? attempts)
         builder.WithMaxNumThreads(threads.Value);
 
     long totalTimeTaken = 0;
+    
+    // Warmup, get that JIT to promote all the way to max tier.
+    // With .NET 8, and R2R, this might take 2 (* 40) executions.
+    for (var x = 0; x < 80; x++)
+    {
+        var unpackingTimeTaken = Stopwatch.StartNew();
+        builder.Extract();
+        Console.WriteLine("[Warmup] Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
+    }
+    
     attempts = attempts.GetValueOrDefault(25);
     for (var x = 0; x < attempts; x++)
     {
