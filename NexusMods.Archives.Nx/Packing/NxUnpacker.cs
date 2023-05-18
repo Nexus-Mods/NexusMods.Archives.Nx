@@ -199,9 +199,9 @@ public class NxUnpacker
 
             // Get block index.
             var blockIndexOffset = extractable.BlockIndex - entry.FirstBlockIndex;
-            var start = chunkSize * blockIndexOffset;
+            var start = (long)chunkSize * blockIndexOffset;
             var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
-            var length = Math.Min((int)decompSizeInChunk, chunkSize);
+            var length = Math.Min((long)decompSizeInChunk, chunkSize);
 
             using var outputData = output.GetFileData(start, (uint)length);
             Compression.Decompress(method, compressedBlock.Data, blockSize, outputData.Data, (int)outputData.DataLength);
@@ -225,9 +225,9 @@ public class NxUnpacker
 
                 // Get block index.
                 var blockIndexOffset = extractable.BlockIndex - entry.FirstBlockIndex;
-                var start = chunkSize * blockIndexOffset;
+                var start = (long)chunkSize * blockIndexOffset;
                 var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
-                var length = Math.Min((int)decompSizeInChunk, chunkSize);
+                var length = Math.Min((long)decompSizeInChunk, chunkSize);
 
                 using var outputData = output.GetFileData(start, (uint)length);
                 Buffer.MemoryCopy(extractedPtr + entry.DecompressedBlockOffset, outputData.Data, outputData.DataLength, outputData.DataLength);
