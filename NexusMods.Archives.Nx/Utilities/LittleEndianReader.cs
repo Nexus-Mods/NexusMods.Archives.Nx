@@ -19,7 +19,7 @@ public unsafe struct LittleEndianReader
     public byte* Ptr;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="LittleEndianReader"/> struct with the given pointer.
+    ///     Initializes a new instance of the <see cref="LittleEndianReader" /> struct with the given pointer.
     /// </summary>
     /// <param name="ptr">The pointer to read from.</param>
     public LittleEndianReader(byte* ptr) => Ptr = ptr;

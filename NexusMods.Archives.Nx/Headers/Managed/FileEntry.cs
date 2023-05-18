@@ -36,7 +36,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     public int FirstBlockIndex;
 
     /// <summary>
-    /// Calculated via <see cref="DecompressedSize"/> divided by Chunk Size.
+    ///     Calculated via <see cref="DecompressedSize" /> divided by Chunk Size.
     /// </summary>
     /// <param name="chunkSizeBytes">Size of single chunk in archive.</param>
     public int GetChunkCount(int chunkSizeBytes)

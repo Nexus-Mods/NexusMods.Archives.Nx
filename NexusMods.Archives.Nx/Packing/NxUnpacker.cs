@@ -1,4 +1,3 @@
-using System.Text;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
@@ -25,7 +24,7 @@ public class NxUnpacker
     private PackerArrayPool _decompressPool = null!;
 
     /// <summary>
-    /// Creates an utility for unpacking archives.
+    ///     Creates an utility for unpacking archives.
     /// </summary>
     /// <param name="provider">Provides access to the underlying .nx archive.</param>
     /// <param name="hasLotsOfFiles">
@@ -38,7 +37,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Retrieves all file entries from this archive.
+    ///     Retrieves all file entries from this archive.
     /// </summary>
     /// <remarks>
     ///     Do not directly modify the returned span. Make a copy.
@@ -47,7 +46,7 @@ public class NxUnpacker
     public Span<FileEntry> GetFileEntriesRaw() => _nxHeader.Entries;
 
     /// <summary>
-    /// Retrieves all file entries from this archive, with their corresponding relative paths.
+    ///     Retrieves all file entries from this archive, with their corresponding relative paths.
     /// </summary>
     /// <returns>All file entries and their corresponding file names from inside the archive.</returns>
     public PathedFileEntry[] GetPathedFileEntries()
@@ -56,7 +55,7 @@ public class NxUnpacker
         for (var x = 0; x < results.Length; x++)
         {
             ref var entry = ref _nxHeader.Entries.DangerousGetReferenceAt(x);
-            results[x] = new PathedFileEntry()
+            results[x] = new PathedFileEntry
             {
                 Entry = entry,
                 FileName = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
@@ -67,14 +66,14 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Retrieves a file path for a given entry.
+    ///     Retrieves a file path for a given entry.
     /// </summary>
     /// <param name="entry">The entry for which to get the archived file path.</param>
     /// <returns>The archived file path.</returns>
     public string GetFilePath(FileEntry entry) => _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex);
 
     /// <summary>
-    /// Extracts all files from this archive in memory.
+    ///     Extracts all files from this archive in memory.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     public OutputArrayProvider[] MakeArrayOutputProviders(Span<FileEntry> files)
@@ -92,7 +91,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Extracts all files from this archive to disk.
+    ///     Extracts all files from this archive to disk.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="outputFolder">Folder to output items to.</param>
@@ -112,7 +111,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Extracts all files from this archive in memory.
+    ///     Extracts all files from this archive in memory.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="settings">The settings for the unpacker.</param>
@@ -125,7 +124,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Extracts all files from this archive to disk.
+    ///     Extracts all files from this archive to disk.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="outputFolder">Folder to output items to.</param>
@@ -139,7 +138,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Extracts all files from this archive.
+    ///     Extracts all files from this archive.
     /// </summary>
     /// <param name="outputs">The entries to be extracted.</param>
     /// <param name="settings">The settings for the unpacker.</param>
@@ -147,7 +146,7 @@ public class NxUnpacker
     {
         settings.Sanitize();
         _progress = settings.Progress;
-        
+
         var blocks = MakeExtractableBlocks(outputs, _nxHeader.Header.ChunkSizeBytes);
         _decompressPool = new PackerArrayPool(settings.MaxNumThreads, _nxHeader.Header.ChunkSizeBytes);
         _currentNumBlocks = blocks.Count;
@@ -157,7 +156,7 @@ public class NxUnpacker
 
             for (var x = 0; x < _currentNumBlocks; x++)
                 Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
-            
+
             sched.Dispose();
         }
         else
@@ -165,7 +164,7 @@ public class NxUnpacker
             foreach (var block in blocks)
                 ExtractBlock(block);
         }
-        
+
         _decompressPool.Dispose(); // Let GC reclaim.
         for (var x = 0; x < outputs.Length; x++)
             outputs[x].Dispose();
@@ -239,7 +238,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    /// Groups blocks for extraction based on the <see cref="FileEntry.FirstBlockIndex"/> of the files.
+    ///     Groups blocks for extraction based on the <see cref="FileEntry.FirstBlockIndex" /> of the files.
     /// </summary>
     internal static List<ExtractableBlock> MakeExtractableBlocks(IOutputDataProvider[] outputs, int chunkSize)
     {
@@ -259,7 +258,7 @@ public class NxUnpacker
                 var blockIndex = entry.FirstBlockIndex + chunkIndex;
                 if (!blockDict.TryGetValue(blockIndex, out var block))
                 {
-                    block = new ExtractableBlock()
+                    block = new ExtractableBlock
                     {
                         BlockIndex = blockIndex,
                         Outputs = new List<IOutputDataProvider> { output },
@@ -286,36 +285,37 @@ public class NxUnpacker
     internal class ExtractableBlock
     {
         /// <summary>
-        /// Index of block to decompress.
+        ///     Index of block to decompress.
         /// </summary>
         public required int BlockIndex { get; init; }
 
         /// <summary>
-        /// Amount of data to decompress in this block.
-        /// This is equivalent to largest <see cref="FileEntry.DecompressedBlockOffset"/> + <see cref="FileEntry.DecompressedSize"/> for a file within the block.
+        ///     Amount of data to decompress in this block.
+        ///     This is equivalent to largest <see cref="FileEntry.DecompressedBlockOffset" /> +
+        ///     <see cref="FileEntry.DecompressedSize" /> for a file within the block.
         /// </summary>
         public required int DecompressSize { get; set; }
 
         /// <summary>
-        /// The files being output to disk.
+        ///     The files being output to disk.
         /// </summary>
         public required List<IOutputDataProvider> Outputs { get; init; }
     }
 }
 
 /// <summary>
-/// Represents a tuple between <see cref="FileEntry"/> and the name of the corresponding entry.
+///     Represents a tuple between <see cref="FileEntry" /> and the name of the corresponding entry.
 /// </summary>
 [PublicAPI]
 public class PathedFileEntry
 {
     /// <summary>
-    /// Attaches a file entry to a name.
+    ///     Attaches a file entry to a name.
     /// </summary>
     public FileEntry Entry { get; init; }
 
     /// <summary>
-    /// Name of the file in question.
+    ///     Name of the file in question.
     /// </summary>
     public required string FileName { get; init; }
 }

@@ -1,6 +1,7 @@
 using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
+
 // ReSharper disable IntroduceOptionalParameters.Global
 
 namespace NexusMods.Archives.Nx.FileProviders.FileData;

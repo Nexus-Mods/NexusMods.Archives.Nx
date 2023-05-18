@@ -22,7 +22,7 @@ public sealed class OutputArrayProvider : IOutputDataProvider
     public FileEntry Entry { get; init; }
 
     /// <summary>
-    /// Initializes outputting a file to an array.
+    ///     Initializes outputting a file to an array.
     /// </summary>
     /// <param name="relativePath">Relative path of the file.</param>
     /// <param name="entry">The entry from the archive.</param>

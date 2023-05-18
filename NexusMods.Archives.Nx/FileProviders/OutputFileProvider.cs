@@ -17,16 +17,16 @@ public sealed class OutputFileProvider : IOutputDataProvider
     public FileEntry Entry { get; init; }
 
     /// <summary>
-    /// Full path to the file.
+    ///     Full path to the file.
     /// </summary>
     public string FullPath { get; init; }
 
-    private MemoryMappedFile? _mappedFile;
+    private readonly MemoryMappedFile? _mappedFile;
     private readonly FileStream _fileStream;
     private bool _isDisposed;
 
     /// <summary>
-    /// Creates a provider for outputting to a file.
+    ///     Creates a provider for outputting to a file.
     /// </summary>
     /// <param name="outputFolder">Folder to output data to.</param>
     /// <param name="relativePath">The relative path of the file.</param>
@@ -66,7 +66,8 @@ public sealed class OutputFileProvider : IOutputDataProvider
         }
 
         if (entry.DecompressedSize > 0)
-            _mappedFile = MemoryMappedFile.CreateFromFile(_fileStream, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, true);
+            _mappedFile = MemoryMappedFile.CreateFromFile(_fileStream, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite,
+                HandleInheritability.None, true);
     }
 
     /// <inheritdoc />

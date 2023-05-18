@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
+
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace NexusMods.Archives.Nx.Utilities;
@@ -85,11 +86,9 @@ internal static class SpanExtensions
     ///     This can be the original <paramref name="data" /> buffer if required.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer)
-    {
+    public static void Replace(this Span<char> data, char oldValue, char newValue, Span<char> buffer) =>
         // char is not supported by Vector; but ushort is.
         Replace(data.CastFast<char, ushort>(), oldValue, newValue, buffer.CastFast<char, ushort>()).CastFast<ushort, char>();
-    }
 
     /// <summary>
     ///     Replaces the occurrences of one value with another in a span.

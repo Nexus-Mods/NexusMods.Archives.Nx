@@ -33,7 +33,7 @@ public class PackerSettings
     /// <summary>
     ///     Size of SOLID blocks.
     ///     Range is 32767 to 67108863 (64 MiB).
-    ///     Must be smaller than <see cref="ChunkSize"/>.
+    ///     Must be smaller than <see cref="ChunkSize" />.
     /// </summary>
     public int BlockSize { get; set; } = 1048575;
 
@@ -45,17 +45,15 @@ public class PackerSettings
 
     /// <summary>
     ///     Compression level to use for SOLID data.
-    ///
-    ///     ZStandard has Range -5 - 22.<br/>
-    ///     LZ4 has Range: 1 - 12.<br/>
+    ///     ZStandard has Range -5 - 22.<br />
+    ///     LZ4 has Range: 1 - 12.<br />
     /// </summary>
     public int SolidCompressionLevel { get; set; } = 16;
 
     /// <summary>
     ///     Compression level to use for chunked data.
-    ///
-    ///     ZStandard has Range -5 - 22.<br/>
-    ///     LZ4 has Range: 1 - 12.<br/>
+    ///     ZStandard has Range -5 - 22.<br />
+    ///     LZ4 has Range: 1 - 12.<br />
     /// </summary>
     public int ChunkedCompressionLevel { get; set; } = 9;
 

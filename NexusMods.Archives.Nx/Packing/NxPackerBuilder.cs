@@ -9,13 +9,13 @@ using NexusMods.Archives.Nx.Utilities;
 namespace NexusMods.Archives.Nx.Packing;
 
 /// <summary>
-/// High level API for packing archives.
+///     High level API for packing archives.
 /// </summary>
 [PublicAPI]
 public class NxPackerBuilder
 {
     /// <summary>
-    /// Settings for the packer.
+    ///     Settings for the packer.
     /// </summary>
     public PackerSettings Settings { get; private set; } = new()
     {
@@ -23,12 +23,12 @@ public class NxPackerBuilder
     };
 
     /// <summary>
-    /// List of files to pack.
+    ///     List of files to pack.
     /// </summary>
     public List<PackerFile> Files { get; private set; } = new();
 
     /// <summary>
-    /// Adds all files under given folder to the output.
+    ///     Adds all files under given folder to the output.
     /// </summary>
     /// <param name="folder">The folder to add items from.</param>
     /// <returns>The builder.</returns>
@@ -39,14 +39,14 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Adds a file to be packed.
+    ///     Adds a file to be packed.
     /// </summary>
     /// <param name="options">The options for this file.</param>
     /// <param name="data">The raw data to compress.</param>
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(byte[] data, AddFileParams options)
     {
-        var file = new PackerFile()
+        var file = new PackerFile
         {
             FileSize = data.Length,
             FileDataProvider = new FromArrayProvider { Data = data }
@@ -58,7 +58,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Adds a file to be packed.
+    ///     Adds a file to be packed.
     /// </summary>
     /// <param name="options">The options for this file.</param>
     /// <param name="stream">
@@ -69,7 +69,7 @@ public class NxPackerBuilder
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(Stream stream, AddFileParams options)
     {
-        var file = new PackerFile()
+        var file = new PackerFile
         {
             FileSize = stream.Length - stream.Position,
             FileDataProvider = new FromStreamProvider(stream)
@@ -81,7 +81,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Adds a file to be packed.
+    ///     Adds a file to be packed.
     /// </summary>
     /// <param name="length">Length of data at current stream position.</param>
     /// <param name="options">The options for this file.</param>
@@ -93,7 +93,7 @@ public class NxPackerBuilder
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(Stream stream, long length, AddFileParams options)
     {
-        var file = new PackerFile()
+        var file = new PackerFile
         {
             FileSize = length,
             FileDataProvider = new FromStreamProvider(stream)
@@ -105,7 +105,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Adds a file to be packed.
+    ///     Adds a file to be packed.
     /// </summary>
     /// <param name="filePath">Path of the file in question.</param>
     /// <param name="options">The options for this file.</param>
@@ -114,10 +114,10 @@ public class NxPackerBuilder
     {
         // Sanitize.
         filePath = Path.GetFullPath(filePath);
-        var file = new PackerFile()
+        var file = new PackerFile
         {
             FileSize = new FileInfo(filePath).Length,
-            FileDataProvider = new FromDirectoryDataProvider()
+            FileDataProvider = new FromDirectoryDataProvider
             {
                 Directory = Path.GetDirectoryName(filePath)!,
                 RelativePath = Path.GetFileName(filePath)
@@ -138,7 +138,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the output (archive) to a stream.
+    ///     Sets the output (archive) to a stream.
     /// </summary>
     /// <param name="progress">The callback to send the current state to.</param>
     /// <returns>The builder.</returns>
@@ -149,7 +149,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the maximum number of threads allowed for the operation.
+    ///     Sets the maximum number of threads allowed for the operation.
     /// </summary>
     /// <param name="maxNumThreads">Maximum number of threads to use.</param>
     /// <returns>The builder.</returns>
@@ -160,7 +160,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the size of SOLID blocks; range 32767 to 67108863 (64 MiB).
+    ///     Sets the size of SOLID blocks; range 32767 to 67108863 (64 MiB).
     /// </summary>
     /// <param name="blockSize">Size of SOLID Block to use.</param>
     /// <returns>The builder.</returns>
@@ -171,7 +171,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the size of large file chunks; range is 4194304 (4 MiB) to 536870912 (512 MiB).
+    ///     Sets the size of large file chunks; range is 4194304 (4 MiB) to 536870912 (512 MiB).
     /// </summary>
     /// <param name="chunkSize">Size of large file chunks.</param>
     /// <returns>The builder.</returns>
@@ -182,9 +182,9 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the compression level to use for SOLID data.
-    /// ZStandard has Range -5 - 22.<br/>
-    /// LZ4 has Range: 1 - 12.<br/>
+    ///     Sets the compression level to use for SOLID data.
+    ///     ZStandard has Range -5 - 22.<br />
+    ///     LZ4 has Range: 1 - 12.<br />
     /// </summary>
     /// <param name="level">Level of compression.</param>
     /// <returns>The builder.</returns>
@@ -195,9 +195,9 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the compression level to use for Chunked data.
-    /// ZStandard has Range -5 - 22.<br/>
-    /// LZ4 has Range: 1 - 12.<br/>
+    ///     Sets the compression level to use for Chunked data.
+    ///     ZStandard has Range -5 - 22.<br />
+    ///     LZ4 has Range: 1 - 12.<br />
     /// </summary>
     /// <param name="level">Level of compression.</param>
     /// <returns>The builder.</returns>
@@ -208,7 +208,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the output (archive) to a stream.
+    ///     Sets the output (archive) to a stream.
     /// </summary>
     /// <param name="output">The output to place the packed archive into.</param>
     /// <returns>The builder.</returns>
@@ -220,7 +220,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the compression preset.
+    ///     Sets the compression preset.
     /// </summary>
     /// <param name="preset">The preset to apply.</param>
     /// <returns>The builder.</returns>
@@ -243,7 +243,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the compression algorithm used for compressing SOLID blocks.
+    ///     Sets the compression algorithm used for compressing SOLID blocks.
     /// </summary>
     /// <param name="solidBlockAlgorithm">The algorithm to use for SOLID blocks.</param>
     /// <returns>The builder.</returns>
@@ -254,7 +254,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Sets the compression algorithm used for chunked files.
+    ///     Sets the compression algorithm used for chunked files.
     /// </summary>
     /// <param name="chunkedFileAlgorithm">The algorithm to use for chunked files.</param>
     /// <returns>The builder.</returns>
@@ -265,7 +265,7 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Builds the archive in the configured destination.
+    ///     Builds the archive in the configured destination.
     /// </summary>
     /// <returns>The output stream.</returns>
     public Stream Build(bool disposeOutput = true)
@@ -287,12 +287,12 @@ public class NxPackerBuilder
 }
 
 /// <summary>
-/// Parameters used for adding a file.
+///     Parameters used for adding a file.
 /// </summary>
 public struct AddFileParams
 {
     /// <summary>
-    /// Relative path of the file inside the archive.
+    ///     Relative path of the file inside the archive.
     /// </summary>
     public required string RelativePath { get; init; }
 
@@ -307,24 +307,24 @@ public struct AddFileParams
     /// </summary>
     public SolidPreference SolidType { get; set; } = SolidPreference.Default;
 
-    /// <summary/>
+    /// <summary />
     [PublicAPI]
     public AddFileParams() { }
 }
 
 /// <summary>
-/// The preset to apply.
+///     The preset to apply.
 /// </summary>
 public enum PackerPreset
 {
     /// <summary>
-    /// This preset prioritises file size for long term archival.
+    ///     This preset prioritises file size for long term archival.
     /// </summary>
     Default,
-    
+
     /// <summary>
-    /// This preset prioritises decompression speed for SOLID blocks.
-    /// Intended for applications such as the Nexus App.
+    ///     This preset prioritises decompression speed for SOLID blocks.
+    ///     Intended for applications such as the Nexus App.
     /// </summary>
     RandomAccess
 }

@@ -62,7 +62,7 @@ public class OutOfPackerPoolArraysException : Exception
 public class TocVersionNotSupportedException : NotSupportedException
 {
     /// <summary>
-    /// Version of the archive that is not supported.
+    ///     Version of the archive that is not supported.
     /// </summary>
     public ArchiveVersion Version { get; }
 

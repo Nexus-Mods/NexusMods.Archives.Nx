@@ -19,7 +19,7 @@ public unsafe struct LittleEndianWriter
     public byte* Ptr;
 
     /// <summary>
-    /// Creates a simple wrapper around a pointer that writes in Little Endian.
+    ///     Creates a simple wrapper around a pointer that writes in Little Endian.
     /// </summary>
     /// <param name="ptr">Pointer to the item behind the writer.</param>
     public LittleEndianWriter(byte* ptr) => Ptr = ptr;

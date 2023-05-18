@@ -1,6 +1,7 @@
 using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
+
 // ReSharper disable IntroduceOptionalParameters.Global
 
 namespace NexusMods.Archives.Nx.FileProviders.FileData;
@@ -11,15 +12,10 @@ namespace NexusMods.Archives.Nx.FileProviders.FileData;
 [PublicAPI]
 public sealed class MemoryMappedFileData : IFileData
 {
-    /// <inheritdoc />
-    public unsafe byte* Data { get; private set; }
-
-    /// <inheritdoc />
-    public nuint DataLength { get; private set; }
+    private bool _disposed;
 
     private MemoryMappedFile? _mappedFile;
     private MemoryMappedViewAccessor? _mappedFileView;
-    private bool _disposed;
 
     /// <summary>
     ///     Creates file data backed by a memory mapped file.
@@ -57,6 +53,24 @@ public sealed class MemoryMappedFileData : IFileData
         InitEmpty();
     }
 
+    /// <inheritdoc />
+    public unsafe byte* Data { get; private set; }
+
+    /// <inheritdoc />
+    public nuint DataLength { get; private set; }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        _mappedFile?.Dispose();
+        _mappedFileView?.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
     private unsafe void InitFromMmf(long start, uint length, bool isReadOnly = false)
     {
         var access = isReadOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
@@ -75,16 +89,4 @@ public sealed class MemoryMappedFileData : IFileData
 
     /// <inheritdoc />
     ~MemoryMappedFileData() => Dispose();
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-
-        _disposed = true;
-        _mappedFile?.Dispose();
-        _mappedFileView?.Dispose();
-        GC.SuppressFinalize(this);
-    }
 }

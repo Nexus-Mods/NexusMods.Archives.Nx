@@ -8,28 +8,28 @@ using NexusMods.Archives.Nx.Utilities;
 namespace NexusMods.Archives.Nx.Packing;
 
 /// <summary>
-/// Constructs the building operation.
+///     Constructs the building operation.
 /// </summary>
 [PublicAPI]
 public class NxUnpackerBuilder
 {
     /// <summary>
-    /// The unpacker behind the operation.
+    ///     The unpacker behind the operation.
     /// </summary>
     public NxUnpacker Unpacker { get; private set; }
 
     /// <summary>
-    /// Settings for the unpacker.
+    ///     Settings for the unpacker.
     /// </summary>
     public UnpackerSettings Settings { get; private set; } = new();
 
     /// <summary>
-    /// Contains the files to be extracted with their corresponding outputs.
+    ///     Contains the files to be extracted with their corresponding outputs.
     /// </summary>
     public List<IOutputDataProvider> Outputs { get; private set; } = new();
 
     /// <summary>
-    /// The unpacker to use.
+    ///     The unpacker to use.
     /// </summary>
     /// <param name="provider">Provides access to the underlying .nx archive.</param>
     /// <param name="hasLotsOfFiles">
@@ -38,7 +38,7 @@ public class NxUnpackerBuilder
     public NxUnpackerBuilder(IFileDataProvider provider, bool hasLotsOfFiles = false) => Unpacker = new NxUnpacker(provider, hasLotsOfFiles);
 
     /// <summary>
-    /// Retrieves all file entries from this archive.
+    ///     Retrieves all file entries from this archive.
     /// </summary>
     /// <remarks>
     ///     Do not directly modify the returned span. Make a copy.
@@ -46,13 +46,13 @@ public class NxUnpackerBuilder
     public Span<FileEntry> GetFileEntriesRaw() => Unpacker.GetFileEntriesRaw();
 
     /// <summary>
-    /// Retrieves all file entries from this archive, with their corresponding relative paths.
+    ///     Retrieves all file entries from this archive, with their corresponding relative paths.
     /// </summary>
     /// <returns>All file entries and their corresponding file names from inside the archive.</returns>
     public PathedFileEntry[] GetPathedFileEntries() => Unpacker.GetPathedFileEntries();
 
     /// <summary>
-    /// Sets the output (archive) to a stream.
+    ///     Sets the output (archive) to a stream.
     /// </summary>
     /// <param name="progress">The callback to send the current state to.</param>
     /// <returns>The builder.</returns>
@@ -63,7 +63,7 @@ public class NxUnpackerBuilder
     }
 
     /// <summary>
-    /// Sets the maximum number of threads allowed for the operation.
+    ///     Sets the maximum number of threads allowed for the operation.
     /// </summary>
     /// <param name="maxNumThreads">Maximum number of threads to use.</param>
     /// <returns>The builder.</returns>
@@ -74,31 +74,29 @@ public class NxUnpackerBuilder
     }
 
     /// <summary>
-    /// Extracts all files from this archive to memory.
+    ///     Extracts all files from this archive to memory.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="results">
     ///     The created outputs.
-    ///     Upon completion of the extraction (via <see cref="Extract"/> method), the extracted
-    ///     data will sit inside <see cref="OutputArrayProvider.Data"/>.
+    ///     Upon completion of the extraction (via <see cref="Extract" /> method), the extracted
+    ///     data will sit inside <see cref="OutputArrayProvider.Data" />.
     /// </param>
     /// <returns>This item.</returns>
     /// <remarks>
     ///     In order to get the extracted items, you will need to.
     /// </remarks>
-    public NxUnpackerBuilder AddFilesWithArrayOutput(PathedFileEntry[] files, out OutputArrayProvider[] results)
-    {
-        return AddFilesWithArrayOutput(ToSpan(files), out results);
-    }
+    public NxUnpackerBuilder AddFilesWithArrayOutput(PathedFileEntry[] files, out OutputArrayProvider[] results) =>
+        AddFilesWithArrayOutput(ToSpan(files), out results);
 
     /// <summary>
-    /// Extracts all files from this archive to memory.
+    ///     Extracts all files from this archive to memory.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="results">
     ///     The created outputs.
-    ///     Upon completion of the extraction (via <see cref="Extract"/> method), the extracted
-    ///     data will sit inside <see cref="OutputArrayProvider.Data"/>.
+    ///     Upon completion of the extraction (via <see cref="Extract" /> method), the extracted
+    ///     data will sit inside <see cref="OutputArrayProvider.Data" />.
     /// </param>
     /// <returns>This item.</returns>
     /// <remarks>
@@ -112,7 +110,7 @@ public class NxUnpackerBuilder
     }
 
     /// <summary>
-    /// Extracts all files from this archive to disk.
+    ///     Extracts all files from this archive to disk.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="outputFolder">Folder to output items to.</param>
@@ -123,7 +121,7 @@ public class NxUnpackerBuilder
     }
 
     /// <summary>
-    /// Extracts all files from this archive to disk.
+    ///     Extracts all files from this archive to disk.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="outputFolder">Folder to output items to.</param>
@@ -134,7 +132,7 @@ public class NxUnpackerBuilder
     }
 
     /// <summary>
-    /// Extracts the data.
+    ///     Extracts the data.
     /// </summary>
     /// <returns>The outputs to which results were written to.</returns>
     public IOutputDataProvider[] Extract()

@@ -66,9 +66,11 @@ public static class HeaderParser
     /// <param name="data">Pointer to header data.</param>
     /// <param name="dataSize">Number of bytes available at <paramref name="data" />.</param>
     /// <returns>
-    ///     A result with <see cref="HeaderParserResult.Header"/> not null if parsed, else <see cref="HeaderParserResult.Header"/> is null
-    ///     and you should call this method again with a larger <paramref name="dataSize"/>. The required number of bytes is specified in
-    ///     <see cref="HeaderParserResult.HeaderSize"/>.
+    ///     A result with <see cref="HeaderParserResult.Header" /> not null if parsed, else
+    ///     <see cref="HeaderParserResult.Header" /> is null
+    ///     and you should call this method again with a larger <paramref name="dataSize" />. The required number of bytes is
+    ///     specified in
+    ///     <see cref="HeaderParserResult.HeaderSize" />.
     /// </returns>
     /// <exception cref="NotANexusArchiveException">Not a Nexus Archive.</exception>
     public static unsafe HeaderParserResult TryParseHeader(byte* data, int dataSize)

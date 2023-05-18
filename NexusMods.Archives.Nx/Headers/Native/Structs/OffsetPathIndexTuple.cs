@@ -12,7 +12,7 @@ namespace NexusMods.Archives.Nx.Headers.Native.Structs;
 public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
 {
     /// <summary>
-    /// Size of this structure, in bytes.
+    ///     Size of this structure, in bytes.
     /// </summary>
     // ReSharper disable once UnusedMember.Global
     internal const int SizeBytes = 8;
@@ -77,7 +77,7 @@ public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
     }
 
     /// <summary>
-    /// Determines if two instances of <see cref="OffsetPathIndexTuple"/> are equal.
+    ///     Determines if two instances of <see cref="OffsetPathIndexTuple" /> are equal.
     /// </summary>
     /// <param name="left">The left-hand side of the comparison.</param>
     /// <param name="right">The right-hand side of the comparison.</param>
@@ -85,7 +85,7 @@ public struct OffsetPathIndexTuple : IEquatable<OffsetPathIndexTuple>
     public static bool operator ==(OffsetPathIndexTuple left, OffsetPathIndexTuple right) => left.Equals(right);
 
     /// <summary>
-    /// Determines if two instances of <see cref="OffsetPathIndexTuple"/> are not equal.
+    ///     Determines if two instances of <see cref="OffsetPathIndexTuple" /> are not equal.
     /// </summary>
     /// <param name="left">The left-hand side of the comparison.</param>
     /// <param name="right">The right-hand side of the comparison.</param>

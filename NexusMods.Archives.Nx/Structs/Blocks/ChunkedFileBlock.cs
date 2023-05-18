@@ -67,7 +67,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     /// <summary>
     ///     Instance of the Microsoft xxHash64 hasher.
     /// </summary>
-    private XxHash64 _hash = new();
+    private readonly XxHash64 _hash = new();
 
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.

@@ -4,7 +4,7 @@ using NexusMods.Archives.Nx.Utilities;
 namespace NexusMods.Archives.Nx.Structs;
 
 /// <summary>
-/// Allows you to modify unpacker behaviour.
+///     Allows you to modify unpacker behaviour.
 /// </summary>
 [PublicAPI]
 public class UnpackerSettings

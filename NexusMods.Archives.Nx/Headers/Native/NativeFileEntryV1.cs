@@ -83,7 +83,7 @@ public struct NativeFileEntryV1 : INativeFileEntry, IEquatable<NativeFileEntryV1
     }
 
     /// <summary>
-    /// Determines if two instances of <see cref="NativeFileEntryV1"/> are equal.
+    ///     Determines if two instances of <see cref="NativeFileEntryV1" /> are equal.
     /// </summary>
     /// <param name="left">The left-hand side of the comparison.</param>
     /// <param name="right">The right-hand side of the comparison.</param>
@@ -91,7 +91,7 @@ public struct NativeFileEntryV1 : INativeFileEntry, IEquatable<NativeFileEntryV1
     public static bool operator ==(NativeFileEntryV1 left, NativeFileEntryV1 right) => left.Equals(right);
 
     /// <summary>
-    /// Determines if two instances of <see cref="NativeFileEntryV1"/> are not equal.
+    ///     Determines if two instances of <see cref="NativeFileEntryV1" /> are not equal.
     /// </summary>
     /// <param name="left">The left-hand side of the comparison.</param>
     /// <param name="right">The right-hand side of the comparison.</param>
