@@ -55,8 +55,8 @@ public class PackerSettingsTests
     [Theory]
     [InlineData(23, 22)]
     [InlineData(int.MaxValue, 22)]
-    [InlineData(0, 1)]
-    [InlineData(int.MinValue, 1)]
+    [InlineData(0, 0)]
+    [InlineData(int.MinValue, -5)]
     public void ZStandardLevel_IsClamped(int value, int expected)
     {
         var settings = new PackerSettings { Output = Stream.Null };

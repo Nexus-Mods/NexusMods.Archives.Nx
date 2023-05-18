@@ -105,7 +105,7 @@ public class PackerSettings
     private int ClampCompression(int level, CompressionPreference preference) => preference switch
     {
         CompressionPreference.Copy => 0,
-        CompressionPreference.ZStandard => Polyfills.Clamp(level, 1, 22),
+        CompressionPreference.ZStandard => Polyfills.Clamp(level, -5, 22),
         CompressionPreference.Lz4 => Polyfills.Clamp(level, 1, 12),
         _ => throw new ArgumentOutOfRangeException(nameof(preference), preference, null)
     };
