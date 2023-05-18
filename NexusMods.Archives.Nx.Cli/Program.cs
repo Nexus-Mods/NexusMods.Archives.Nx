@@ -129,12 +129,14 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
             var packTask = ctx.AddTask("[green]Packing Files[/]");
             var progress = new Progress<double>(d => packTask.Value = d * 100);
             builder.WithProgress(progress);
-            builder.Build();
+            builder.Build(false);
         });
 
     var ms = packingTimeTaken.ElapsedMilliseconds;
     Console.WriteLine("Packed in {0}ms", ms);
     Console.WriteLine("Throughput {0:###.00}MiB/s", builder.Files.Sum(x => x.FileSize) / (float)ms / 1024F);
+    Console.WriteLine("Size {0} Bytes", builder.Settings.Output.Length);
+    builder.Settings.Output.Dispose();
 }
 
 void Benchmark(string source, int? threads, int? attempts)
