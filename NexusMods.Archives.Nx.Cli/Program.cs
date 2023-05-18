@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
@@ -6,10 +6,12 @@ using System.Diagnostics;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Structs;
 using Spectre.Console;
 
 // Common Options
-var maxNumThreads = new Option<int?>("--threads", () => null, "Number of threads to spawn (values <= 0 mean default).");
+var defaultPackerSettings = new PackerSettings() { Output = null! };
+var maxNumThreads = new Option<int?>("--threads", () => defaultPackerSettings.MaxNumThreads, "Number of threads to spawn (values <= 0 mean default).");
 
 // Extract Command
 var extractCommand = new Command("extract", "Extract files from an archive")
@@ -25,7 +27,7 @@ extractCommand.Handler = CommandHandler.Create<string, string, int?>(Extract);
 var benchmarkCommand = new Command("benchmark", "Extracts a file in-memory, benchmarking the operation. Make sure you have enough RAM for 2 copies!")
 {
     new Option<string>("--source", "Archive to benchmark extracting.") { IsRequired = true },
-    new Option<int?>("--attempts", () => null, "Number of decompression operations to do. (Default: 25)"),
+    new Option<int?>("--attempts", () => 25, "Number of decompression operations to do."),
     maxNumThreads
 };
 
@@ -36,13 +38,13 @@ var packCommand = new Command("pack", "Pack files to an archive.")
 {
     new Option<string>("--source", "[Required] Source folder to pack files from.") { IsRequired = true },
     new Option<string>("--target", "[Required] Target location to place packed archive to.") { IsRequired = true },
-    new Option<int?>("--blocksize", () => null,
+    new Option<int?>("--blocksize", () => defaultPackerSettings.BlockSize,
         "Size of SOLID blocks. Range is 32767 to 67108863 (64 MiB). This is a power of 2 (minus one) and must be smaller than chunk size."),
-    new Option<int?>("--chunksize", () => null, "Size of large file chunks. Range is 4194304 (4 MiB) to 536870912 (512 MiB)."),
-    new Option<int?>("--zstandardlevel", () => null, "Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22."),
-    new Option<int?>("--lz4level", () => null, "Compression level to use for LZ4 if LZ4 is used. Range: 1 - 12."),
-    new Option<CompressionPreference?>("--solid-algorithm", () => null, "Compression algorithm used for compressing SOLID blocks."),
-    new Option<CompressionPreference?>("--chunked-algorithm", () => null, "Compression algorithm used for compressing chunked files."),
+    new Option<int?>("--chunksize", () => defaultPackerSettings.ChunkSize, "Size of large file chunks. Range is 4194304 (4 MiB) to 536870912 (512 MiB)."),
+    new Option<int?>("--solidlevel", () => defaultPackerSettings.SolidCompressionLevel, "Compression level to use for SOLID data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
+    new Option<int?>("--chunkedlevel", () => defaultPackerSettings.ChunkedCompressionLevel, "Compression level to use for chunks of large data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
+    new Option<CompressionPreference?>("--solid-algorithm", () => defaultPackerSettings.SolidBlockAlgorithm, "Compression algorithm used for compressing SOLID blocks."),
+    new Option<CompressionPreference?>("--chunked-algorithm", () => defaultPackerSettings.ChunkedFileAlgorithm, "Compression algorithm used for compressing chunked files."),
     maxNumThreads
 };
 
@@ -88,9 +90,9 @@ void Extract(string source, string target, int? threads)
     Console.WriteLine("Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
 }
 
-void Pack(string source, string target, int? blocksize, int? chunksize, int? zstandardlevel, int? lz4Level, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
+void Pack(string source, string target, int? blocksize, int? chunksize, int? solidLevel, int? chunkedLevel, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
 {
-    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], zstandardlevel [{zstandardlevel}], lz4level [{lz4Level}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
+    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], solidLevel [{solidLevel}], chunkedLevel [{chunkedLevel}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
     
     var builder = new NxPackerBuilder();
     builder.AddFolder(source);
@@ -102,11 +104,11 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
     if (chunksize.HasValue)
         builder.WithChunkSize(chunksize.Value);
 
-    if (zstandardlevel.HasValue)
-        builder.WithZStandardLevel(zstandardlevel.Value);
+    if (solidLevel.HasValue)
+        builder.WithSolidCompressionLevel(solidLevel.Value);
     
-    if (lz4Level.HasValue)
-        builder.WithLZ4Level(lz4Level.Value);
+    if (chunkedLevel.HasValue)
+        builder.WithChunkedLevel(chunkedLevel.Value);
     
     if (solidAlgorithm.HasValue)
         builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
@@ -117,7 +119,6 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
 
-    // TODO: Implement the packing logic here.
     var packingTimeTaken = Stopwatch.StartNew();
 
     // Progress Reporting.
@@ -128,10 +129,14 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
             var packTask = ctx.AddTask("[green]Packing Files[/]");
             var progress = new Progress<double>(d => packTask.Value = d * 100);
             builder.WithProgress(progress);
-            builder.Build();
+            builder.Build(false);
         });
-    
-    Console.WriteLine("Packed in {0}ms", packingTimeTaken.ElapsedMilliseconds);
+
+    var ms = packingTimeTaken.ElapsedMilliseconds;
+    Console.WriteLine("Packed in {0}ms", ms);
+    Console.WriteLine("Throughput {0:###.00}MiB/s", builder.Files.Sum(x => x.FileSize) / (float)ms / 1024F);
+    Console.WriteLine("Size {0} Bytes", builder.Settings.Output.Length);
+    builder.Settings.Output.Dispose();
 }
 
 void Benchmark(string source, int? threads, int? attempts)
@@ -143,6 +148,16 @@ void Benchmark(string source, int? threads, int? attempts)
         builder.WithMaxNumThreads(threads.Value);
 
     long totalTimeTaken = 0;
+    
+    // Warmup, get that JIT to promote all the way to max tier.
+    // With .NET 8, and R2R, this might take 2 (* 40) executions.
+    for (var x = 0; x < 80; x++)
+    {
+        var unpackingTimeTaken = Stopwatch.StartNew();
+        builder.Extract();
+        Console.WriteLine("[Warmup] Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
+    }
+    
     attempts = attempts.GetValueOrDefault(25);
     for (var x = 0; x < attempts; x++)
     {
@@ -154,5 +169,5 @@ void Benchmark(string source, int? threads, int? attempts)
 
     var averageMs = (totalTimeTaken / (float)attempts);
     Console.WriteLine("Average {0:###.00}ms", averageMs);
-    Console.WriteLine("Throughput {0:###.00}GiB/s", (outputs.Sum(x => (long)x.Data.Length) / averageMs / 1048576));
+    Console.WriteLine("Throughput {0:###.00}GiB/s", outputs.Sum(x => (long)x.Data.Length) / averageMs / 1048576F);
 }

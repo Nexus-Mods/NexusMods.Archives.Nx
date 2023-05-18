@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
@@ -181,24 +182,28 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22.
+    /// Sets the compression level to use for SOLID data.
+    /// ZStandard has Range -5 - 22.<br/>
+    /// LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    /// <param name="zStandardLevel">Level of ZStandard compression.</param>
+    /// <param name="level">Level of compression.</param>
     /// <returns>The builder.</returns>
-    public NxPackerBuilder WithZStandardLevel(int zStandardLevel)
+    public NxPackerBuilder WithSolidCompressionLevel(int level)
     {
-        Settings.ZStandardLevel = zStandardLevel;
+        Settings.SolidCompressionLevel = level;
         return this;
     }
 
     /// <summary>
-    /// Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22.
+    /// Sets the compression level to use for Chunked data.
+    /// ZStandard has Range -5 - 22.<br/>
+    /// LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    /// <param name="lz4Level">Level of ZStandard compression.</param>
+    /// <param name="level">Level of compression.</param>
     /// <returns>The builder.</returns>
-    public NxPackerBuilder WithLZ4Level(int lz4Level)
+    public NxPackerBuilder WithChunkedLevel(int level)
     {
-        Settings.Lz4Level = lz4Level;
+        Settings.ChunkedCompressionLevel = level;
         return this;
     }
 
@@ -211,6 +216,29 @@ public class NxPackerBuilder
     {
         DisposeExistingStream();
         Settings.Output = output;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the compression preset.
+    /// </summary>
+    /// <param name="preset">The preset to apply.</param>
+    /// <returns>The builder.</returns>
+    [ExcludeFromCodeCoverage] // This can change between versions.
+    public NxPackerBuilder WithPreset(PackerPreset preset)
+    {
+        switch (preset)
+        {
+            case PackerPreset.Default:
+                Settings.SolidCompressionLevel = 16;
+                Settings.ChunkedCompressionLevel = 9;
+                break;
+            case PackerPreset.RandomAccess:
+                Settings.SolidCompressionLevel = -1;
+                Settings.ChunkedCompressionLevel = 9;
+                break;
+        }
+
         return this;
     }
 
@@ -282,4 +310,21 @@ public struct AddFileParams
     /// <summary/>
     [PublicAPI]
     public AddFileParams() { }
+}
+
+/// <summary>
+/// The preset to apply.
+/// </summary>
+public enum PackerPreset
+{
+    /// <summary>
+    /// This preset prioritises file size for long term archival.
+    /// </summary>
+    Default,
+    
+    /// <summary>
+    /// This preset prioritises decompression speed for SOLID blocks.
+    /// Intended for applications such as the Nexus App.
+    /// </summary>
+    RandomAccess
 }

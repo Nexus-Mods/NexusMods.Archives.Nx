@@ -33,7 +33,7 @@ internal record ChunkedFileBlock<T>
         {
             // Compress the block
             using var data = State.File.FileDataProvider.GetFileData(StartOffset, (uint)ChunkSize);
-            var compressed = BlockHelpers.Compress(Compression, settings.GetCompressionLevel(Compression), data, allocationPtr, allocSpan.Length,
+            var compressed = BlockHelpers.Compress(Compression, settings.ChunkedCompressionLevel, data, allocationPtr, allocSpan.Length,
                 out var asCopy);
             State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex, new Span<byte>(data.Data, (int)data.DataLength),
                 asCopy);

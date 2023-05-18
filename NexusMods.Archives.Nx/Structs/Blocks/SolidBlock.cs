@@ -82,7 +82,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
             fixed (byte* compressedPtr = compressedSpan)
             {
                 ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
-                blockSize.CompressedSize = Utilities.Compression.Compress(Compression, settings.GetCompressionLevel(Compression), decompressedPtr,
+                blockSize.CompressedSize = Utilities.Compression.Compress(Compression, settings.SolidCompressionLevel, decompressedPtr,
                     decompressedBlockOffset, compressedPtr, compressedAlloc.Array.Length, out var asCopy);
 
                 ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);

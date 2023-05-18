@@ -16,8 +16,8 @@ builder.WithOutput(new FileStream(target, FileMode.Create, FileAccess.ReadWrite)
 // Set some settings
 if (blocksize.HasValue) builder.WithBlockSize(blocksize.Value);
 if (chunksize.HasValue) builder.WithBlockSize(chunksize.Value);
-if (zstandardlevel.HasValue) builder.WithZStandardLevel(zstandardlevel.Value);
-if (lz4level.HasValue) builder.WithLZ4Level(lz4level.Value);
+if (solidLevel.HasValue) builder.WithSolidCompressionLevel(solidLevel.Value);
+if (chunkedLevel.HasValue) builder.WithChunkedLevel(chunkedLevel.Value);
 if (solidAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
 if (chunkedAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(chunkedAlgorithm.Value);
 if (threads.HasValue) builder.WithMaxNumThreads(threads.Value);
