@@ -75,8 +75,8 @@ public class UnpackerBuilderTests
         var options = new AddFileParams { RelativePath = "NexusMods.Archives.Nx.Tests.dll" };
 
         // Act
-        sut.WithZStandardLevel(1);
-        sut.WithLZ4Level(1);
+        sut.WithSolidCompressionLevel(1);
+        sut.WithChunkedLevel(1);
         sut.AddFile(filePath, options);
         var result = sut.Build(false);
         result.Position = 0;

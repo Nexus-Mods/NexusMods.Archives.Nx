@@ -44,21 +44,25 @@ public class PackerSettings
     public int ChunkSize { get; set; } = 16777216;
 
     /// <summary>
-    ///     Compression level to use for ZStandard if ZStandard is used.
-    ///     Range: 1 - 22.
+    ///     Compression level to use for SOLID data.
+    ///
+    ///     ZStandard has Range -5 - 22.<br/>
+    ///     LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    public int ZStandardLevel { get; set; } = 16;
+    public int SolidCompressionLevel { get; set; } = 16;
 
     /// <summary>
-    ///     Compression level to use for LZ4 if LZ4 is used.
-    ///     Range: 1 - 12.
+    ///     Compression level to use for chunked data.
+    ///
+    ///     ZStandard has Range -5 - 22.<br/>
+    ///     LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    public int Lz4Level { get; set; } = 12;
+    public int ChunkedCompressionLevel { get; set; } = 9;
 
     /// <summary>
     ///     Compression algorithm used for compressing SOLID blocks.
     /// </summary>
-    public CompressionPreference SolidBlockAlgorithm { get; set; } = CompressionPreference.Lz4;
+    public CompressionPreference SolidBlockAlgorithm { get; set; } = CompressionPreference.ZStandard;
 
     /// <summary>
     ///     Compression algorithm used for compressing chunked files.
@@ -71,7 +75,7 @@ public class PackerSettings
     public void Sanitize()
     {
         if (SolidBlockAlgorithm == CompressionPreference.NoPreference || !CompressionPreferenceExtensions.IsDefined(SolidBlockAlgorithm))
-            SolidBlockAlgorithm = CompressionPreference.Lz4;
+            SolidBlockAlgorithm = CompressionPreference.ZStandard;
 
         if (ChunkedFileAlgorithm == CompressionPreference.NoPreference || !CompressionPreferenceExtensions.IsDefined(ChunkedFileAlgorithm))
             ChunkedFileAlgorithm = CompressionPreference.ZStandard;
@@ -88,8 +92,8 @@ public class PackerSettings
         if (ChunkSize <= BlockSize)
             ChunkSize = BlockSize + 1;
 
-        ZStandardLevel = Polyfills.Clamp(ZStandardLevel, 1, 22);
-        Lz4Level = Polyfills.Clamp(Lz4Level, 1, 12);
+        SolidCompressionLevel = ClampCompression(SolidCompressionLevel, SolidBlockAlgorithm);
+        ChunkedCompressionLevel = ClampCompression(ChunkedCompressionLevel, ChunkedFileAlgorithm);
         MaxNumThreads = Polyfills.Clamp(MaxNumThreads, 1, int.MaxValue);
     }
 
@@ -98,11 +102,11 @@ public class PackerSettings
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">Compression algorithm used is unsupported.</exception>
     // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
-    public int GetCompressionLevel(CompressionPreference preference) => preference switch
+    private int ClampCompression(int level, CompressionPreference preference) => preference switch
     {
         CompressionPreference.Copy => 0,
-        CompressionPreference.ZStandard => ZStandardLevel,
-        CompressionPreference.Lz4 => Lz4Level,
+        CompressionPreference.ZStandard => Polyfills.Clamp(level, 1, 22),
+        CompressionPreference.Lz4 => Polyfills.Clamp(level, 1, 12),
         _ => throw new ArgumentOutOfRangeException(nameof(preference), preference, null)
     };
 }

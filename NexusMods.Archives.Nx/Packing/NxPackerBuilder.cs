@@ -181,24 +181,28 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    /// Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22.
+    /// Sets the compression level to use for SOLID data.
+    /// ZStandard has Range -5 - 22.<br/>
+    /// LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    /// <param name="zStandardLevel">Level of ZStandard compression.</param>
+    /// <param name="level">Level of compression.</param>
     /// <returns>The builder.</returns>
-    public NxPackerBuilder WithZStandardLevel(int zStandardLevel)
+    public NxPackerBuilder WithSolidCompressionLevel(int level)
     {
-        Settings.ZStandardLevel = zStandardLevel;
+        Settings.SolidCompressionLevel = level;
         return this;
     }
 
     /// <summary>
-    /// Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22.
+    /// Sets the compression level to use for Chunked data.
+    /// ZStandard has Range -5 - 22.<br/>
+    /// LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    /// <param name="lz4Level">Level of ZStandard compression.</param>
+    /// <param name="level">Level of compression.</param>
     /// <returns>The builder.</returns>
-    public NxPackerBuilder WithLZ4Level(int lz4Level)
+    public NxPackerBuilder WithChunkedLevel(int level)
     {
-        Settings.Lz4Level = lz4Level;
+        Settings.ChunkedCompressionLevel = level;
         return this;
     }
 

@@ -60,9 +60,9 @@ public class PackerSettingsTests
     public void ZStandardLevel_IsClamped(int value, int expected)
     {
         var settings = new PackerSettings { Output = Stream.Null };
-        settings.ZStandardLevel = value;
+        settings.SolidCompressionLevel = value;
         settings.Sanitize();
-        settings.ZStandardLevel.Should().Be(expected);
+        settings.SolidCompressionLevel.Should().Be(expected);
     }
 
     [Theory]
@@ -72,10 +72,14 @@ public class PackerSettingsTests
     [InlineData(int.MinValue, 1)]
     public void LZ4Level_IsClamped(int value, int expected)
     {
-        var settings = new PackerSettings { Output = Stream.Null };
-        settings.Lz4Level = value;
+        var settings = new PackerSettings
+        {
+            Output = Stream.Null,
+            ChunkedFileAlgorithm = CompressionPreference.Lz4
+        };
+        settings.ChunkedCompressionLevel = value;
         settings.Sanitize();
-        settings.Lz4Level.Should().Be(expected);
+        settings.ChunkedCompressionLevel.Should().Be(expected);
     }
 
     [Theory]
@@ -91,8 +95,8 @@ public class PackerSettingsTests
     }
 
     [Theory]
-    [InlineData(CompressionPreference.NoPreference, CompressionPreference.Lz4)] // default value
-    [InlineData(unchecked((CompressionPreference)(-2)), CompressionPreference.Lz4)] // default value
+    [InlineData(CompressionPreference.NoPreference, CompressionPreference.ZStandard)] // default value
+    [InlineData(unchecked((CompressionPreference)(-2)), CompressionPreference.ZStandard)] // default value
     [InlineData(CompressionPreference.Lz4, CompressionPreference.Lz4)]
     [InlineData(CompressionPreference.ZStandard, CompressionPreference.ZStandard)]
     public void SolidBlockAlgorithm_IsClamped(CompressionPreference value, CompressionPreference expected)

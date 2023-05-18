@@ -126,17 +126,17 @@ public class PackerBuilderTests
     }
 
     [Fact]
-    public void WithZStandardLevel_ShouldSetZStandardLevel()
+    public void WithSolidLevel_ShouldSetSolidLevel()
     {
         // Arrange
         var sut = new NxPackerBuilder();
         var zStandardLevel = 1;
 
         // Act
-        sut.WithZStandardLevel(zStandardLevel);
+        sut.WithSolidCompressionLevel(zStandardLevel);
 
         // Assert
-        sut.Settings.ZStandardLevel.Should().Be(zStandardLevel);
+        sut.Settings.SolidCompressionLevel.Should().Be(zStandardLevel);
     }
 
     [Fact]
@@ -147,10 +147,10 @@ public class PackerBuilderTests
         var lz4Level = 1;
 
         // Act
-        sut.WithLZ4Level(lz4Level);
+        sut.WithChunkedLevel(lz4Level);
 
         // Assert
-        sut.Settings.Lz4Level.Should().Be(lz4Level);
+        sut.Settings.ChunkedCompressionLevel.Should().Be(lz4Level);
     }
 
     [Fact]

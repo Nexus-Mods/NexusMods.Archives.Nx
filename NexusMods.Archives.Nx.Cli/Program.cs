@@ -41,8 +41,8 @@ var packCommand = new Command("pack", "Pack files to an archive.")
     new Option<int?>("--blocksize", () => defaultPackerSettings.BlockSize,
         "Size of SOLID blocks. Range is 32767 to 67108863 (64 MiB). This is a power of 2 (minus one) and must be smaller than chunk size."),
     new Option<int?>("--chunksize", () => defaultPackerSettings.ChunkSize, "Size of large file chunks. Range is 4194304 (4 MiB) to 536870912 (512 MiB)."),
-    new Option<int?>("--zstandardlevel", () => defaultPackerSettings.ZStandardLevel, "Compression level to use for ZStandard if ZStandard is used. Range: 1 - 22."),
-    new Option<int?>("--lz4level", () => defaultPackerSettings.Lz4Level, "Compression level to use for LZ4 if LZ4 is used. Range: 1 - 12."),
+    new Option<int?>("--solidlevel", () => defaultPackerSettings.SolidCompressionLevel, "Compression level to use for SOLID data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
+    new Option<int?>("--chunkedlevel", () => defaultPackerSettings.ChunkedCompressionLevel, "Compression level to use for chunks of large data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
     new Option<CompressionPreference?>("--solid-algorithm", () => defaultPackerSettings.SolidBlockAlgorithm, "Compression algorithm used for compressing SOLID blocks."),
     new Option<CompressionPreference?>("--chunked-algorithm", () => defaultPackerSettings.ChunkedFileAlgorithm, "Compression algorithm used for compressing chunked files."),
     maxNumThreads
@@ -90,9 +90,9 @@ void Extract(string source, string target, int? threads)
     Console.WriteLine("Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
 }
 
-void Pack(string source, string target, int? blocksize, int? chunksize, int? zstandardlevel, int? lz4Level, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
+void Pack(string source, string target, int? blocksize, int? chunksize, int? solidLevel, int? chunkedLevel, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
 {
-    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], zstandardlevel [{zstandardlevel}], lz4level [{lz4Level}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
+    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], solidLevel [{solidLevel}], chunkedLevel [{chunkedLevel}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
     
     var builder = new NxPackerBuilder();
     builder.AddFolder(source);
@@ -104,11 +104,11 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? zst
     if (chunksize.HasValue)
         builder.WithChunkSize(chunksize.Value);
 
-    if (zstandardlevel.HasValue)
-        builder.WithZStandardLevel(zstandardlevel.Value);
+    if (solidLevel.HasValue)
+        builder.WithSolidCompressionLevel(solidLevel.Value);
     
-    if (lz4Level.HasValue)
-        builder.WithLZ4Level(lz4Level.Value);
+    if (chunkedLevel.HasValue)
+        builder.WithChunkedLevel(chunkedLevel.Value);
     
     if (solidAlgorithm.HasValue)
         builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
