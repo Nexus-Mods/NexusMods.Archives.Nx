@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
@@ -219,6 +220,29 @@ public class NxPackerBuilder
     }
 
     /// <summary>
+    /// Sets the compression preset.
+    /// </summary>
+    /// <param name="preset">The preset to apply.</param>
+    /// <returns>The builder.</returns>
+    [ExcludeFromCodeCoverage] // This can change between versions.
+    public NxPackerBuilder WithPreset(PackerPreset preset)
+    {
+        switch (preset)
+        {
+            case PackerPreset.Default:
+                Settings.SolidCompressionLevel = 16;
+                Settings.ChunkedCompressionLevel = 9;
+                break;
+            case PackerPreset.RandomAccess:
+                Settings.SolidCompressionLevel = -1;
+                Settings.ChunkedCompressionLevel = 9;
+                break;
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Sets the compression algorithm used for compressing SOLID blocks.
     /// </summary>
     /// <param name="solidBlockAlgorithm">The algorithm to use for SOLID blocks.</param>
@@ -286,4 +310,21 @@ public struct AddFileParams
     /// <summary/>
     [PublicAPI]
     public AddFileParams() { }
+}
+
+/// <summary>
+/// The preset to apply.
+/// </summary>
+public enum PackerPreset
+{
+    /// <summary>
+    /// This preset prioritises file size for long term archival.
+    /// </summary>
+    Default,
+    
+    /// <summary>
+    /// This preset prioritises decompression speed for SOLID blocks.
+    /// Intended for applications such as the Nexus App.
+    /// </summary>
+    RandomAccess
 }
