@@ -82,7 +82,7 @@ struct FileEntryV0
 struct FileEntryV1 
 {
     uint64 Hash <comment="xxHash64">;
-    uint32 DecompressedSize;
+    uint64 DecompressedSize;
     uint64 DecompressedBlockOffset : 26;
     uint64 FilePathIndex : 20;
     uint64 FirstBlockIndex : 18;
