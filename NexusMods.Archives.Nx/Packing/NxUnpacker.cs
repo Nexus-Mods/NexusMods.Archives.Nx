@@ -205,6 +205,7 @@ public class NxUnpacker
 
             using var outputData = output.GetFileData(start, (uint)length);
             Compression.Decompress(method, compressedBlock.Data, blockSize, outputData.Data, (int)outputData.DataLength);
+            _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
             return;
         }
 
