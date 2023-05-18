@@ -21,7 +21,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="SharpZstd.Interop" Version="1.5.2-beta2"/>
+        <PackageReference Include="SharpZstd.Interop" Version="1.5.5-beta1"/>
         <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1"/>
         <PackageReference Include="System.IO.Hashing" Version="8.0.0-preview.3.23174.8"/>
     </ItemGroup>
