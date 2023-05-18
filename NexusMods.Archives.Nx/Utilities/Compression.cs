@@ -114,7 +114,7 @@ internal static class Compression
         switch (method)
         {
             case CompressionPreference.Copy:
-                Buffer.MemoryCopy(destination, source, (uint)sourceLength, (uint)sourceLength);
+                Buffer.MemoryCopy(source, destination, (uint)sourceLength, (uint)sourceLength);
                 return;
             case CompressionPreference.ZStandard:
             {
