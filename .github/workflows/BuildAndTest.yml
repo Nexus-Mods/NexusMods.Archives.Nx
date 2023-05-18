@@ -1,7 +1,7 @@
 name: Build, Test and Publish
 on:
   push:
-    branches: [ main, ci-cd ]
+    branches: [ main, ci-cd, feature/* ]
     tags:
       - '*'
   pull_request:
