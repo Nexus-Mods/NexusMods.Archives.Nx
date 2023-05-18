@@ -56,7 +56,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     public void WriteAsV0(ref LittleEndianWriter writer)
     {
         writer.WriteAtOffset(Hash, 0);
-        writer.WriteAtOffset((int)DecompressedSize, 8);
+        writer.WriteAtOffset((uint)DecompressedSize, 8);
         writer.WriteAtOffset(new OffsetPathIndexTuple(DecompressedBlockOffset, FilePathIndex, FirstBlockIndex).Data, 12);
         writer.Seek(NativeFileEntryV0.SizeBytes);
     }
@@ -82,7 +82,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     public void FromReaderV0(ref LittleEndianReader reader)
     {
         Hash = reader.ReadUlongAtOffset(0);
-        DecompressedSize = (ulong)reader.ReadIntAtOffset(8);
+        DecompressedSize = reader.ReadUIntAtOffset(8);
         var packed = new OffsetPathIndexTuple(reader.ReadLongAtOffset(12));
         packed.CopyTo(ref this);
         reader.Seek(NativeFileEntryV0.SizeBytes);

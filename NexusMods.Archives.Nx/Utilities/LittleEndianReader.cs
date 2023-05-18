@@ -93,6 +93,14 @@ public unsafe struct LittleEndianReader
     public int ReadIntAtOffset(int offset) => LittleEndianHelper.Read((int*)(Ptr + offset));
 
     /// <summary>
+    ///     Reads a signed 32-bit integer from the specified offset in Little Endian format without advancing the pointer.
+    /// </summary>
+    /// <param name="offset">The offset in bytes from the current pointer.</param>
+    /// <returns>A signed 32-bit integer value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint ReadUIntAtOffset(int offset) => LittleEndianHelper.Read((uint*)(Ptr + offset));
+    
+    /// <summary>
     ///     Reads a signed 64-bit integer from the specified offset in Little Endian format without advancing the pointer.
     /// </summary>
     /// <param name="offset">The offset in bytes from the current pointer.</param>
