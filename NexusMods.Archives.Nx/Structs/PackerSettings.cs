@@ -49,7 +49,7 @@ public class PackerSettings
     ///     ZStandard has Range -5 - 22.<br/>
     ///     LZ4 has Range: 1 - 12.<br/>
     /// </summary>
-    public int SolidCompressionLevel { get; set; } = -1;
+    public int SolidCompressionLevel { get; set; } = 16;
 
     /// <summary>
     ///     Compression level to use for chunked data.
