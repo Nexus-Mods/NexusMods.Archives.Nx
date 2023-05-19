@@ -113,9 +113,15 @@ runs:
       if: ${{ inputs.is-release == 'true' }}
       run: |
         $items = Get-ChildItem -Path "${{ inputs.nupkg-glob }}" -Recurse
-        $items += Get-ChildItem -Path "${{ inputs.snupkg-glob }}" -Recurse
         Foreach ($item in $items)
         {
-            Write-Host "Pushing $item"
+            Write-Host "Pushing Package $item"
+            dotnet nuget push "$item" -k "${{ inputs.nuget-key }}" -s "https://api.nuget.org/v3/index.json" --skip-duplicate
+        }
+        
+        $items = Get-ChildItem -Path "${{ inputs.snupkg-glob }}" -Recurse
+        Foreach ($item in $items)
+        {
+            Write-Host "Pushing Symbol Package $item"
             dotnet nuget push "$item" -k "${{ inputs.nuget-key }}" -s "https://api.nuget.org/v3/index.json" --skip-duplicate
         }
