@@ -15,6 +15,11 @@ inputs:
     description: 'Glob pattern for NuGet packages'
     required: false
     default: './src/*.nupkg'
+    
+  snupkg-glob: # id of input
+    description: 'Glob pattern for NuGet symbol packages'
+    required: false
+    default: './src/*.snupkg'
 
   nuget-key: # id of input
     description: 'Key used to upload packages to nuget.org'
@@ -43,6 +48,7 @@ runs:
         echo "code-coverage-path: ${{ inputs.code-coverage-path }}"
         echo "changelog-path: ${{ inputs.changelog-path }}"
         echo "nupkg-glob: ${{ inputs.nupkg-glob }}"
+        echo "snupkg-glob: ${{ inputs.snupkg-glob }}"
         echo "changelog-template: ${{ inputs.changelog-template }}"
         echo "is-release: ${{ inputs.is-release }}"
         echo "release-tag: ${{ inputs.release-tag }}"
@@ -79,6 +85,7 @@ runs:
         # A file, directory or wildcard pattern that describes what to upload
         path: |
           ${{ inputs.nupkg-glob }}
+          ${{ inputs.snupkg-glob }}
 
     - name: Upload Changelog Artifact
       uses: actions/upload-artifact@v3
@@ -98,6 +105,7 @@ runs:
         # Newline-delimited list of path globs for asset files to upload
         files: |
           ${{ inputs.nupkg-glob }}
+          ${{ inputs.snupkg-glob }}
           ${{ inputs.changelog-path }}
 
     - name: Upload to NuGet (on Tag)
@@ -105,6 +113,7 @@ runs:
       if: ${{ inputs.is-release == 'true' }}
       run: |
         $items = Get-ChildItem -Path "${{ inputs.nupkg-glob }}" -Recurse
+        $items += Get-ChildItem -Path "${{ inputs.snupkg-glob }}" -Recurse
         Foreach ($item in $items)
         {
             Write-Host "Pushing $item"
