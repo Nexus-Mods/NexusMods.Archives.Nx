@@ -1,0 +1,3172 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://nexus-mods.github.io/NexusMods.Archives.Nx/Benchmarks/">
+      
+      
+        <link rel="prev" href="../Usage/">
+      
+      
+        <link rel="next" href="../Library/About/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Benchmarks - Nexus NX Archive Library</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../Nexus/Stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="nexus-slate" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#benchmarks" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Nexus NX Archive Library" class="md-header__button md-logo" aria-label="Nexus NX Archive Library" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nexus NX Archive Library
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Benchmarks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Nexus-Mods/NexusMods.Archives.Nx" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Nexus-Mods/NexusMods.Archives.Nx
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Nexus NX Archive Library" class="md-nav__button md-logo" aria-label="Nexus NX Archive Library" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Nexus NX Archive Library
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Nexus-Mods/NexusMods.Archives.Nx" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Nexus-Mods/NexusMods.Archives.Nx
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Benchmarks
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Benchmarks
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-data-sets" class="md-nav__link">
+    Common Data Sets
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Data Sets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#textures" class="md-nav__link">
+    Textures
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-files" class="md-nav__link">
+    Log Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lightly-compressed-files" class="md-nav__link">
+    Lightly Compressed Files
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-size-logs" class="md-nav__link">
+    Block Size (Logs)
+  </a>
+  
+    <nav class="md-nav" aria-label="Block Size (Logs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-size-recompressed-files" class="md-nav__link">
+    Block Size (Recompressed Files)
+  </a>
+  
+    <nav class="md-nav" aria-label="Block Size (Recompressed Files)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_1" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_1" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chunk-size-textures" class="md-nav__link">
+    Chunk Size (Textures)
+  </a>
+  
+    <nav class="md-nav" aria-label="Chunk Size (Textures)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_2" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_2" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#thread-scaling-packing" class="md-nav__link">
+    Thread Scaling: Packing
+  </a>
+  
+    <nav class="md-nav" aria-label="Thread Scaling: Packing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_3" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_3" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#thread-scaling-extraction" class="md-nav__link">
+    Thread Scaling: Extraction
+  </a>
+  
+    <nav class="md-nav" aria-label="Thread Scaling: Extraction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_4" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_4" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#presets" class="md-nav__link">
+    Presets
+  </a>
+  
+    <nav class="md-nav" aria-label="Presets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fastrandom-access-preset" class="md-nav__link">
+    Fast/Random Access Preset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archivalupload-preset" class="md-nav__link">
+    Archival/Upload Preset
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-common-archiving-solutions" class="md-nav__link">
+    Comparison to Common Archiving Solutions
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison to Common Archiving Solutions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compression-scripts" class="md-nav__link">
+    Compression Scripts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpacking-scripts" class="md-nav__link">
+    Unpacking Scripts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#textures_1" class="md-nav__link">
+    Textures
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" tabindex="0" aria-expanded="false">
+          API Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          API Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/About/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_2" tabindex="0" aria-expanded="false">
+          Headers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Headers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          Headers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Headers/About/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Headers/HeaderParser/" class="md-nav__link">
+        HeaderParser
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Headers/StringPool/" class="md-nav__link">
+        StringPool
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_3" tabindex="0" aria-expanded="false">
+          File Providers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="File Providers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          File Providers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/About/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/Interfaces/" class="md-nav__link">
+        Interfaces
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_3_3" type="checkbox" id="__nav_4_3_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_3_3" tabindex="0" aria-expanded="false">
+          FileData
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="FileData" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          FileData
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/FileData/ArrayFileData/" class="md-nav__link">
+        ArrayFileData
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/FileData/MemoryMappedFileData/" class="md-nav__link">
+        MemoryMappedFileData
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/FileData/RentedArrayFileData/" class="md-nav__link">
+        RentedArrayFileData
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_3_4" type="checkbox" id="__nav_4_3_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_3_4" tabindex="0" aria-expanded="false">
+          Inputs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Inputs" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_3_4">
+          <span class="md-nav__icon md-icon"></span>
+          Inputs
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/Inputs/FromArrayProvider/" class="md-nav__link">
+        FromArrayProvider
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/Inputs/FromDirectoryDataProvider/" class="md-nav__link">
+        FromDirectoryDataProvider
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/Inputs/FromStreamProvider/" class="md-nav__link">
+        FromStreamProvider
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_3_5" type="checkbox" id="__nav_4_3_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_3_5" tabindex="0" aria-expanded="false">
+          Outputs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Outputs" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_3_5">
+          <span class="md-nav__icon md-icon"></span>
+          Outputs
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/Outputs/OutputArrayProvider/" class="md-nav__link">
+        OutputArrayProvider
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/FileProviders/Outputs/OutputFileProvider/" class="md-nav__link">
+        OutputFileProvider
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_4" tabindex="0" aria-expanded="false">
+          Traits
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Traits" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          Traits
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/About/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/ICanConvertToLittleEndian/" class="md-nav__link">
+        ICanConvertToLittleEndian
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/ICanProvideFileData/" class="md-nav__link">
+        ICanProvideFileData
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/IHasCompressionPreference/" class="md-nav__link">
+        IHasCompressionPreference
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/IHasFileSize/" class="md-nav__link">
+        IHasFileSize
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/IHasRelativePath/" class="md-nav__link">
+        IHasRelativePath
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Traits/IHasSolidType/" class="md-nav__link">
+        IHasSolidType
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4_5" tabindex="0" aria-expanded="false">
+          Utilities
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Utilities" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          Utilities
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Utilities/ArrayRental/" class="md-nav__link">
+        ArrayRental
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Utilities/FileFinder/" class="md-nav__link">
+        FileFinder
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Utilities/LittleEndianReader/" class="md-nav__link">
+        LittleEndianReader
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Library/Utilities/LittleEndianWriter/" class="md-nav__link">
+        LittleEndianWriter
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Contributing/" class="md-nav__link">
+        Contributing to Library
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          Format Specification
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Format Specification" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Format Specification
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Specification/Overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Specification/File-Header/" class="md-nav__link">
+        Header
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Specification/Table-Of-Contents/" class="md-nav__link">
+        Table of Contents (TOC)
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Specification/Implementation-Details/" class="md-nav__link">
+        Algorithm Implementation
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Contributing-Locally/" class="md-nav__link">
+        Contributing To Wiki
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-data-sets" class="md-nav__link">
+    Common Data Sets
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Data Sets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#textures" class="md-nav__link">
+    Textures
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-files" class="md-nav__link">
+    Log Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lightly-compressed-files" class="md-nav__link">
+    Lightly Compressed Files
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-size-logs" class="md-nav__link">
+    Block Size (Logs)
+  </a>
+  
+    <nav class="md-nav" aria-label="Block Size (Logs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-size-recompressed-files" class="md-nav__link">
+    Block Size (Recompressed Files)
+  </a>
+  
+    <nav class="md-nav" aria-label="Block Size (Recompressed Files)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_1" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_1" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chunk-size-textures" class="md-nav__link">
+    Chunk Size (Textures)
+  </a>
+  
+    <nav class="md-nav" aria-label="Chunk Size (Textures)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_2" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_2" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#thread-scaling-packing" class="md-nav__link">
+    Thread Scaling: Packing
+  </a>
+  
+    <nav class="md-nav" aria-label="Thread Scaling: Packing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_3" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_3" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#thread-scaling-extraction" class="md-nav__link">
+    Thread Scaling: Extraction
+  </a>
+  
+    <nav class="md-nav" aria-label="Thread Scaling: Extraction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#zstandard-only_4" class="md-nav__link">
+    ZStandard Only
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lz4-only_4" class="md-nav__link">
+    LZ4 Only
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#presets" class="md-nav__link">
+    Presets
+  </a>
+  
+    <nav class="md-nav" aria-label="Presets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fastrandom-access-preset" class="md-nav__link">
+    Fast/Random Access Preset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archivalupload-preset" class="md-nav__link">
+    Archival/Upload Preset
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-to-common-archiving-solutions" class="md-nav__link">
+    Comparison to Common Archiving Solutions
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison to Common Archiving Solutions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compression-scripts" class="md-nav__link">
+    Compression Scripts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unpacking-scripts" class="md-nav__link">
+    Unpacking Scripts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#textures_1" class="md-nav__link">
+    Textures
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+
+<h1 id="benchmarks">Benchmarks</h1>
+<div class="admonition tip">
+<p class="admonition-title">Coming Soon (TM)</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Spoiler: This bottlenecks any NVMe 😀</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>All tests were executed in the following environment:<br />
+- <code>Library Version</code>: 0.3.0-preview (17th May 2023)<br />
+- <code>zstd version</code>: 1.5.2 (MSVC)<br />
+- <code>lz4 version</code>: <a href="https://github.com/MiloszKrajewski/K4os.Compression.LZ4">K4os.Compression.LZ4 1.3.5</a><br />
+- <code>CPU</code>: AMD Ryzen 9 5900X (12C/24T)<br />
+- <code>RAM</code>: 32GB DDR4-3000 (16-17-17-35)<br />
+- <code>OS</code>: Windows 11 22H2 (Build 22621)<br />
+- <code>Storage</code>: Samsung 980 Pro 1TB (NVMe) [PCI-E 3.0 x4]  </p>
+</div>
+<h2 id="common-data-sets">Common Data Sets</h2>
+<div class="admonition tip">
+<p class="admonition-title">These are the data sets which are used in multiple benchmarks below.</p>
+</div>
+<h3 id="textures">Textures</h3>
+<div class="admonition tip">
+<p class="admonition-title"><a href="https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id=249831&amp;game_id=1704">Test Data: Skyrim 202X 8.6 Update</a></p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">This dataset primarily consists of mostly DDS BC7 textures, with max dimension of <code>*1024</code> to <code>*8192</code> with a total size of 2.11GB</p>
+</div>
+<p>Texture overhauls in games make a majority of mods which large file sizes out there.<br />
+Therefore, having a good compression ratio on this data set is important.  </p>
+<h3 id="log-files">Log Files</h3>
+<div class="admonition tip">
+<p class="admonition-title"><a href="../R2Logs.nx">Available Here</a></p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">This dataset consists of 189 <a href="https://reloaded-project.github.io/Reloaded-II/">Reloaded-II Logs</a> from end users, across various games, with a total size of 12.4MiB</p>
+</div>
+<h3 id="lightly-compressed-files">Lightly Compressed Files</h3>
+<div class="admonition info">
+<p class="admonition-title">This dataset consists of every <code>.one</code> archive from the 2004 Release of Sonic Heroes, with non-English files removed (168 MiB total).</p>
+</div>
+<p>Sometimes mods have to ship using games' native compression and/or formats; in which case, they are not very highly compressible,
+as the data is already compressed.  </p>
+<p>Many older games and some remasters of older games, use custom compression. This compression is usually some variant of basic LZ77.
+In this case, we test on data compressed using <a href="https://github.com/Sewer56/dlang-prs">SEGA's PRS Compression Scheme</a>, based on
+LZ77 with Run Length Encoding [RLE]. This was a common compression scheme in many SEGA games over ~15 or so years.  </p>
+<p>This data set was thrown in as a bonus, to see what happens!</p>
+<h2 id="block-size-logs">Block Size (Logs)</h2>
+<div class="admonition info">
+<p class="admonition-title">Investigates the effect of block size on large files with repeating patterns.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title"><a href="#log-files">Test Data: Log Files</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">This test was not in-memory, thus throughput is limited by NVMe bottlenecks. Throughput is provided for reference only.</p>
+</div>
+<h3 id="zstandard-only">ZStandard Only</h3>
+<p>Applied level applies to both <code>chunked</code> and <code>solid</code> compression levels.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>32767</td>
+<td>1,150,976</td>
+<td>1.778</td>
+<td>239.74MiB/s</td>
+<td>1.944</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>65535</td>
+<td>1,077,248</td>
+<td>1.665</td>
+<td>226.90MiB/s</td>
+<td>1.839</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>131071</td>
+<td>970,752</td>
+<td>1.500</td>
+<td>215.36MiB/s</td>
+<td>1.746</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>262143</td>
+<td>872,448</td>
+<td>1.348</td>
+<td>186.86MiB/s</td>
+<td>1.515</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>524287</td>
+<td>770,048</td>
+<td>1.190</td>
+<td>169.42MiB/s</td>
+<td>1.373</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>1048575</td>
+<td>708,608</td>
+<td>1.095</td>
+<td>153.09MiB/s</td>
+<td>1.241</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>2097151</td>
+<td>667,648</td>
+<td>1.032</td>
+<td>153.09MiB/s</td>
+<td>1.241</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>4194303</td>
+<td>659,456</td>
+<td>1.019</td>
+<td>136.63MiB/s</td>
+<td>1.107</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>8388607</td>
+<td>647,168</td>
+<td>1.000</td>
+<td>123.36MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>32767</td>
+<td>909,312</td>
+<td>2.220</td>
+<td>204.94MiB/s</td>
+<td>2.032</td>
+</tr>
+<tr>
+<td>9</td>
+<td>65535</td>
+<td>819,200</td>
+<td>2.001</td>
+<td>192.52MiB/s</td>
+<td>1.908</td>
+</tr>
+<tr>
+<td>9</td>
+<td>131071</td>
+<td>733,184</td>
+<td>1.790</td>
+<td>186.86MiB/s</td>
+<td>1.852</td>
+</tr>
+<tr>
+<td>9</td>
+<td>262143</td>
+<td>630,784</td>
+<td>1.541</td>
+<td>181.52MiB/s</td>
+<td>1.800</td>
+</tr>
+<tr>
+<td>9</td>
+<td>524287</td>
+<td>548,864</td>
+<td>1.340</td>
+<td>167.19MiB/s</td>
+<td>1.658</td>
+</tr>
+<tr>
+<td>9</td>
+<td>1048575</td>
+<td>495,616</td>
+<td>1.210</td>
+<td>156.87MiB/s</td>
+<td>1.556</td>
+</tr>
+<tr>
+<td>9</td>
+<td>2097151</td>
+<td>442,368</td>
+<td>1.080</td>
+<td>149.49MiB/s</td>
+<td>1.482</td>
+</tr>
+<tr>
+<td>9</td>
+<td>4194303</td>
+<td>413,696</td>
+<td>1.010</td>
+<td>127.06MiB/s</td>
+<td>1.259</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8388607</td>
+<td>409,600</td>
+<td>1.000</td>
+<td>100.84MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16</td>
+<td>32767</td>
+<td>884,736</td>
+<td>2.180</td>
+<td>71.38MiB/s</td>
+<td>2.754</td>
+</tr>
+<tr>
+<td>16</td>
+<td>65535</td>
+<td>790,528</td>
+<td>1.949</td>
+<td>69.43MiB/s</td>
+<td>2.677</td>
+</tr>
+<tr>
+<td>16</td>
+<td>131071</td>
+<td>712,704</td>
+<td>1.756</td>
+<td>64.50MiB/s</td>
+<td>2.486</td>
+</tr>
+<tr>
+<td>16</td>
+<td>262143</td>
+<td>598,016</td>
+<td>1.474</td>
+<td>52.72MiB/s</td>
+<td>2.034</td>
+</tr>
+<tr>
+<td>16</td>
+<td>524287</td>
+<td>548,864</td>
+<td>1.353</td>
+<td>90.12MiB/s</td>
+<td>3.476</td>
+</tr>
+<tr>
+<td>16</td>
+<td>1048575</td>
+<td>491,520</td>
+<td>1.212</td>
+<td>76.09MiB/s</td>
+<td>2.934</td>
+</tr>
+<tr>
+<td>16</td>
+<td>2097151</td>
+<td>442,368</td>
+<td>1.091</td>
+<td>64.50MiB/s</td>
+<td>2.486</td>
+</tr>
+<tr>
+<td>16</td>
+<td>4194303</td>
+<td>413,696</td>
+<td>1.020</td>
+<td>44.27MiB/s</td>
+<td>1.708</td>
+</tr>
+<tr>
+<td>16</td>
+<td>8388607</td>
+<td>405,504</td>
+<td>1.000</td>
+<td>25.93MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<p>Level 16 doesn't yield much improvement; lower levels are already good with repeating data.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22</td>
+<td>131071</td>
+<td>696,320</td>
+<td>2.072</td>
+<td>15.55MiB/s</td>
+<td>3.945</td>
+</tr>
+<tr>
+<td>22</td>
+<td>524287</td>
+<td>512,000</td>
+<td>1.525</td>
+<td>17.97MiB/s</td>
+<td>4.561</td>
+</tr>
+<tr>
+<td>22</td>
+<td>1048575</td>
+<td>438,272</td>
+<td>1.305</td>
+<td>18.23MiB/s</td>
+<td>4.626</td>
+</tr>
+<tr>
+<td>22</td>
+<td>8388607</td>
+<td>335,872</td>
+<td>1.000</td>
+<td>3.94MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<p>Level 22 excels at large blocks due to larger window size, but that's too slow.</p>
+<h3 id="lz4-only">LZ4 Only</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td>32767</td>
+<td>1,159,168</td>
+<td>1.490</td>
+<td>158.83MiB/s</td>
+<td>4.326</td>
+</tr>
+<tr>
+<td>12</td>
+<td>65535</td>
+<td>1,069,056</td>
+<td>1.373</td>
+<td>153.09MiB/s</td>
+<td>4.169</td>
+</tr>
+<tr>
+<td>12</td>
+<td>131071</td>
+<td>983,040</td>
+<td>1.263</td>
+<td>138.11MiB/s</td>
+<td>3.764</td>
+</tr>
+<tr>
+<td>12</td>
+<td>262143</td>
+<td>913,408</td>
+<td>1.174</td>
+<td>125.81MiB/s</td>
+<td>3.428</td>
+</tr>
+<tr>
+<td>12</td>
+<td>524287</td>
+<td>839,680</td>
+<td>1.079</td>
+<td>112.45MiB/s</td>
+<td>3.064</td>
+</tr>
+<tr>
+<td>12</td>
+<td>1048575</td>
+<td>806,912</td>
+<td>1.037</td>
+<td>116.57MiB/s</td>
+<td>3.176</td>
+</tr>
+<tr>
+<td>12</td>
+<td>2097151</td>
+<td>786,432</td>
+<td>1.011</td>
+<td>92.75MiB/s</td>
+<td>2.526</td>
+</tr>
+<tr>
+<td>12</td>
+<td>4194303</td>
+<td>786,432</td>
+<td>1.011</td>
+<td>68.31MiB/s</td>
+<td>1.860</td>
+</tr>
+<tr>
+<td>12</td>
+<td>8388607</td>
+<td>778,240</td>
+<td>1.000</td>
+<td>36.72MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="block-size-recompressed-files">Block Size (Recompressed Files)</h2>
+<div class="admonition info">
+<p class="admonition-title">Investigates the effect of block size on already lightly compressed data (w/ uncompressed headers).</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title"><a href="#lightly-compressed-files">Test Data: Lightly Compressed Files</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">This test was not in-memory, thus throughput may be subject to NVMe bottlenecks.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">ZStd 1.5.4 and above have large improvements for uncompressible data handling performance; but only 1.5.2 was available at time of testing.</p>
+</div>
+<h3 id="zstandard-only_1">ZStandard Only</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>32767</td>
+<td>139,653,120</td>
+<td>1.355</td>
+<td>163.88MiB/s</td>
+<td>1.068</td>
+</tr>
+<tr>
+<td>9</td>
+<td>65535</td>
+<td>139,575,296</td>
+<td>1.354</td>
+<td>163.77MiB/s</td>
+<td>1.068</td>
+</tr>
+<tr>
+<td>9</td>
+<td>262143</td>
+<td>136,527,872</td>
+<td>1.321</td>
+<td>162.61MiB/s</td>
+<td>1.060</td>
+</tr>
+<tr>
+<td>9</td>
+<td>524287</td>
+<td>135,581,696</td>
+<td>1.314</td>
+<td>160.95MiB/s</td>
+<td>1.049</td>
+</tr>
+<tr>
+<td>9</td>
+<td>1048575</td>
+<td>129,404,928</td>
+<td>1.253</td>
+<td>153.41MiB/s</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>9</td>
+<td>2097151</td>
+<td>122,429,440</td>
+<td>1.186</td>
+<td>174.43MiB/s</td>
+<td>1.137</td>
+</tr>
+<tr>
+<td>9</td>
+<td>4194303</td>
+<td>113,074,176</td>
+<td>1.092</td>
+<td>193.88MiB/s</td>
+<td>1.264</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8388607</td>
+<td>105,893,888</td>
+<td>1.000</td>
+<td>209.17MiB/s</td>
+<td>1.363</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16</td>
+<td>32767</td>
+<td>137,244,672</td>
+<td>1.323</td>
+<td>103.38MiB/s</td>
+<td>1.064</td>
+</tr>
+<tr>
+<td>16</td>
+<td>262143</td>
+<td>134,094,848</td>
+<td>1.291</td>
+<td>102.71MiB/s</td>
+<td>1.058</td>
+</tr>
+<tr>
+<td>16</td>
+<td>1048575</td>
+<td>127,381,504</td>
+<td>1.227</td>
+<td>99.98MiB/s</td>
+<td>1.029</td>
+</tr>
+<tr>
+<td>16</td>
+<td>4194303</td>
+<td>111,185,920</td>
+<td>1.071</td>
+<td>102.58MiB/s</td>
+<td>1.056</td>
+</tr>
+<tr>
+<td>16</td>
+<td>8388607</td>
+<td>103,788,544</td>
+<td>1.000</td>
+<td>97.13MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Throughput</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>8388607</td>
+<td>154,382,336</td>
+<td>1297.30MiB/s</td>
+</tr>
+</tbody>
+</table>
+<p>It seems ZStd can improve on existing LZ77-only compression schemes, in cases where Huffman coding is available.  </p>
+<p>This is why only levels <code>&gt; -1</code> show improvement.  </p>
+<h3 id="lz4-only_1">LZ4 Only</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Block Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td>32767</td>
+<td>155,537,408</td>
+<td>1.021</td>
+<td>319.52MiB/s</td>
+<td>1.146</td>
+</tr>
+<tr>
+<td>12</td>
+<td>262143</td>
+<td>153,378,816</td>
+<td>1.007</td>
+<td>340.32MiB/s</td>
+<td>1.221</td>
+</tr>
+<tr>
+<td>12</td>
+<td>1048575</td>
+<td>152,670,208</td>
+<td>1.003</td>
+<td>371.06MiB/s</td>
+<td>1.331</td>
+</tr>
+<tr>
+<td>12</td>
+<td>4194303</td>
+<td>152,317,952</td>
+<td>1.000</td>
+<td>343.02MiB/s</td>
+<td>1.231</td>
+</tr>
+<tr>
+<td>12</td>
+<td>8388607</td>
+<td>152,264,704</td>
+<td>1.000</td>
+<td>278.74MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<h2 id="chunk-size-textures">Chunk Size (Textures)</h2>
+<div class="admonition info">
+<p class="admonition-title">Investigates the effect of chunk size on large, well compressible files.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title"><a href="#textures">Test Data: Texture</a></p>
+</div>
+<h3 id="zstandard-only_2">ZStandard Only</h3>
+<p>Note: Due to intricacies of ZStd, Chunk Size 1MiB is left out from results as it produces the same output as 4MiB.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Chunk Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>4194304</td>
+<td>2,211,012,608</td>
+<td>1.0003</td>
+<td>1554.50MiB/s</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>8388608</td>
+<td>2,210,525,184</td>
+<td>1.0001</td>
+<td>1738.17MiB/s</td>
+<td>1.118</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>16777216</td>
+<td>2,210,295,808</td>
+<td>1.000</td>
+<td>1900.24MiB/s</td>
+<td>1.222</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Chunk Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>4194304</td>
+<td>1,802,686,464</td>
+<td>1.009</td>
+<td>142.77MiB/s</td>
+<td>1.061</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8388608</td>
+<td>1,791,832,064</td>
+<td>1.003</td>
+<td>134.58MiB/s</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>9</td>
+<td>16777216</td>
+<td>1,786,757,120</td>
+<td>1.000</td>
+<td>143.72MiB/s</td>
+<td>1.068</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Chunk Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16</td>
+<td>4194304</td>
+<td>1,784,340,480</td>
+<td>1.014</td>
+<td>73.38MiB/s</td>
+<td>1.233</td>
+</tr>
+<tr>
+<td>16</td>
+<td>8388608</td>
+<td>1,767,153,664</td>
+<td>1.005</td>
+<td>66.71MiB/s</td>
+<td>1.121</td>
+</tr>
+<tr>
+<td>16</td>
+<td>16777216</td>
+<td>1,759,150,080</td>
+<td>1.000</td>
+<td>59.52MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Chunk Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22</td>
+<td>4194304</td>
+<td>1,769,832,448</td>
+<td>1.023</td>
+<td>50.76MiB/s</td>
+<td>1.565</td>
+</tr>
+<tr>
+<td>22</td>
+<td>8388608</td>
+<td>1,747,853,312</td>
+<td>1.010</td>
+<td>42.33MiB/s</td>
+<td>1.304</td>
+</tr>
+<tr>
+<td>22</td>
+<td>16777216</td>
+<td>1,730,514,944</td>
+<td>1.000</td>
+<td>32.45MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lz4-only_2">LZ4 Only</h3>
+<div class="admonition tip">
+<p class="admonition-title">LZ4 will have some niche applications; this is one of them. Fast texture loading.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Chunk Size</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td>4194304</td>
+<td>2,013,491,200</td>
+<td>1.001</td>
+<td>364.04MiB/s</td>
+<td>1.103</td>
+</tr>
+<tr>
+<td>12</td>
+<td>8388608</td>
+<td>2,012,303,360</td>
+<td>1.000</td>
+<td>357.71MiB/s</td>
+<td>1.084</td>
+</tr>
+<tr>
+<td>12</td>
+<td>16777216</td>
+<td>2,011,750,400</td>
+<td>1.000</td>
+<td>330.12MiB/s</td>
+<td>1.000</td>
+</tr>
+</tbody>
+</table>
+<p>LZ4 does a huge sacrifice of file size for decompression speeds.<br />
+Depending on use case; this might be okay, but for longer term archiving ZStd Level 9+ is preferred.  </p>
+<h2 id="thread-scaling-packing">Thread Scaling: Packing</h2>
+<div class="admonition tip">
+<p class="admonition-title"><a href="#textures">Test Data: Texture</a></p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Files were packed with 16MB Chunk Size, Chunk Size did not seem to have an effect on compression speed.</p>
+</div>
+<h3 id="zstandard-only_3">ZStandard Only</h3>
+<div class="admonition info">
+<p class="admonition-title">Packing Speed with ZStd Only, Compression Level</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Native ZStd library used, speeds are within margin of error on all runtimes.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Thread Count</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>1</td>
+<td>567.11MiB/s</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>2</td>
+<td>904.47MiB/s</td>
+<td>1.595</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>3</td>
+<td>1190.45MiB/s</td>
+<td>2.099</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>4</td>
+<td>1308.24MiB/s</td>
+<td>2.306</td>
+</tr>
+</tbody>
+</table>
+<p>I (Sewer) cannot test more than 4 threads on my system due to I/O bottlenecks, but I expect the scaling to continue linearly.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Thread Count</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>1</td>
+<td>60.22MiB/s</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>9</td>
+<td>2</td>
+<td>92.33MiB/s</td>
+<td>1.53</td>
+</tr>
+<tr>
+<td>9</td>
+<td>3</td>
+<td>117.53MiB/s</td>
+<td>1.95</td>
+</tr>
+<tr>
+<td>9</td>
+<td>4</td>
+<td>134.76MiB/s</td>
+<td>2.24</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8</td>
+<td>179.55MiB/s</td>
+<td>2.98</td>
+</tr>
+<tr>
+<td>9</td>
+<td>12</td>
+<td>172.57MiB/s</td>
+<td>2.86</td>
+</tr>
+<tr>
+<td>9</td>
+<td>24 (SMT)</td>
+<td>142.57MiB/s</td>
+<td>2.37</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Thread Count</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16</td>
+<td>1</td>
+<td>8.79MiB/s</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>16</td>
+<td>2</td>
+<td>13.49MiB/s</td>
+<td>1.53</td>
+</tr>
+<tr>
+<td>16</td>
+<td>3</td>
+<td>18.70MiB/s</td>
+<td>2.13</td>
+</tr>
+<tr>
+<td>16</td>
+<td>4</td>
+<td>22.45MiB/s</td>
+<td>2.56</td>
+</tr>
+<tr>
+<td>16</td>
+<td>8</td>
+<td>37.25MiB/s</td>
+<td>4.24</td>
+</tr>
+<tr>
+<td>16</td>
+<td>12</td>
+<td>46.25MiB/s</td>
+<td>5.26</td>
+</tr>
+<tr>
+<td>16</td>
+<td>24 (SMT)</td>
+<td>59.71MiB/s</td>
+<td>6.79</td>
+</tr>
+</tbody>
+</table>
+<h3 id="lz4-only_3">LZ4 Only</h3>
+<div class="admonition info">
+<p class="admonition-title">Packing Speed with LZ4 Only, Compression Level 12</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Thread Count</th>
+<th>Throughput</th>
+<th>Ratio (Throughput)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>32.00 MiB/s</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>2</td>
+<td>52.94 MiB/s</td>
+<td>1.65</td>
+</tr>
+<tr>
+<td>3</td>
+<td>82.22 MiB/s</td>
+<td>2.57</td>
+</tr>
+<tr>
+<td>4</td>
+<td>102.72 MiB/s</td>
+<td>3.21</td>
+</tr>
+<tr>
+<td>8</td>
+<td>192.76 MiB/s</td>
+<td>6.02</td>
+</tr>
+<tr>
+<td>12</td>
+<td>256.30 MiB/s</td>
+<td>8.01</td>
+</tr>
+<tr>
+<td>24 (SMT)</td>
+<td>346.98 MiB/s</td>
+<td>10.84</td>
+</tr>
+</tbody>
+</table>
+<p>Scaling for LZ4 is mostly linear with real core count.</p>
+<h2 id="thread-scaling-extraction">Thread Scaling: Extraction</h2>
+<div class="admonition note">
+<p class="admonition-title">All benchmarks under this section are in-memory; due to exceeding speeds achievable by consumer grade NVMe.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Due to the layout of archive format; the nature of test data (i.e. many small files vs big files) has no effect on performance. (Outside of the standard FileSystem/Storage inefficiencies if writing many small files to disk).</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title"><a href="#textures">Test Data: Texture</a></p>
+</div>
+<p>Some reference speeds:</p>
+<table>
+<thead>
+<tr>
+<th>Compression Method</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>memcpy</td>
+<td>~16.62 GiB/s</td>
+</tr>
+<tr>
+<td>lz4 1.9.2 (native), 1 thread, [lzbench]</td>
+<td>~4.204 GiB/s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="zstandard-only_4">ZStandard Only</h3>
+<div class="admonition info">
+<p class="admonition-title">Decompression Speed when Extracting with ZStandard Only</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Files were packed with 16MB Chunk Size, and ZStd Level 16</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Native ZStd library used, speeds are within margin of error on all runtimes.</p>
+</div>
+<p>.NET 7 / 8 Preview 3</p>
+<table>
+<thead>
+<tr>
+<th>Thread Count</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~1.01 GiB/s</td>
+</tr>
+<tr>
+<td>2</td>
+<td>~1.99 GiB/s</td>
+</tr>
+<tr>
+<td>3</td>
+<td>~2.87 GiB/s</td>
+</tr>
+<tr>
+<td>4</td>
+<td>~3.70 GiB/s</td>
+</tr>
+<tr>
+<td>6</td>
+<td>~5.15 GiB/s</td>
+</tr>
+<tr>
+<td>8</td>
+<td>~6.35 GiB/s</td>
+</tr>
+<tr>
+<td>10</td>
+<td>~7.38 GiB/s</td>
+</tr>
+<tr>
+<td>12</td>
+<td>~7.81 GiB/s</td>
+</tr>
+<tr>
+<td>24</td>
+<td>~7.19 GiB/s ‼️</td>
+</tr>
+</tbody>
+</table>
+<p>Observed dropoff with hyperthreading, presumably due to cache inefficiency.<br />
+Ideally we could detect real core count; but this is hard; it is deliberately abstracted.</p>
+<h3 id="lz4-only_4">LZ4 Only</h3>
+<div class="admonition info">
+<p class="admonition-title">Decompression Speed when Extracting with LZ4 Only</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Files were packed with 16MB Chunk Size, and LZ4 Level 12</p>
+</div>
+<p>.NET 7</p>
+<table>
+<thead>
+<tr>
+<th>Thread Count</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~2.83 GiB/s</td>
+</tr>
+<tr>
+<td>2</td>
+<td>~5.56 GiB/s</td>
+</tr>
+<tr>
+<td>3</td>
+<td>~8.09 GiB/s</td>
+</tr>
+<tr>
+<td>4</td>
+<td>~10.00 GiB/s</td>
+</tr>
+<tr>
+<td>6+</td>
+<td>~11.63 GiB/s</td>
+</tr>
+</tbody>
+</table>
+<p>.NET 8 Preview 3</p>
+<table>
+<thead>
+<tr>
+<th>Thread Count</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~3.82 GiB/s</td>
+</tr>
+<tr>
+<td>2</td>
+<td>~7.36 GiB/s</td>
+</tr>
+<tr>
+<td>3</td>
+<td>~10.41 GiB/s</td>
+</tr>
+<tr>
+<td>4+</td>
+<td>~11.72 GiB/s</td>
+</tr>
+<tr>
+<td>8+</td>
+<td>~12.10 GiB/s</td>
+</tr>
+</tbody>
+</table>
+<p>.NET 8 Preview 3 NativeAOT</p>
+<table>
+<thead>
+<tr>
+<th>Thread Count</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~3.26 GiB/s</td>
+</tr>
+<tr>
+<td>2</td>
+<td>~6.33 GiB/s</td>
+</tr>
+<tr>
+<td>3</td>
+<td>~9.20 GiB/s</td>
+</tr>
+<tr>
+<td>4</td>
+<td>~11.09 GiB/s</td>
+</tr>
+<tr>
+<td>6+</td>
+<td>~11.93 GiB/s</td>
+</tr>
+</tbody>
+</table>
+<h2 id="presets">Presets</h2>
+<p>The following presets have been created...</p>
+<h3 id="fastrandom-access-preset">Fast/Random Access Preset</h3>
+<div class="admonition info">
+<p class="admonition-title">This preset is designed for optimising random access, and intended in use when low latency previews are needed such as in the <a href="https://github.com/Nexus-Mods/NexusMods.App">Nexus App</a>.</p>
+</div>
+<ul>
+<li><code>Solid Algorithm: ZStandard</code>  </li>
+<li><code>Chunked Algorithm: ZStandard</code>  </li>
+<li><code>Solid Compression Level: -1</code>  </li>
+<li><code>Chunked Compression Level: 9</code>  </li>
+</ul>
+<h3 id="archivalupload-preset">Archival/Upload Preset</h3>
+<div class="admonition info">
+<p class="admonition-title">This preset is designed for all other use cases. Providing a fair balance for all other use cases.</p>
+</div>
+<ul>
+<li><code>Solid Algorithm: ZStandard</code>  </li>
+<li><code>Chunked Algorithm: ZStandard</code>  </li>
+<li><code>Solid Compression Level: 16</code>  </li>
+<li><code>Chunked Compression Level: 9</code>  </li>
+</ul>
+<h2 id="comparison-to-common-archiving-solutions">Comparison to Common Archiving Solutions</h2>
+<div class="admonition info">
+<p class="admonition-title">Tests here were ran on .NET 8 Preview 3 NativeAOT, there aren't currently any significant differences here between runtimes.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">All tests were ran under optimal thread count/best case scenario.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">NX is entirely I/O bottlenecked here (on PCI-E 3.0 drive). Therefore in-memory benchmarks are also provided.</p>
+</div>
+<h3 id="compression-scripts">Compression Scripts</h3>
+<p>Zip (Maximum):
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;7z.exe&quot;</span> a -tzip -mtp=0 -mm=Deflate -mmt=on -mx7 -mfb=64 -mpass=3 -bb0 -bse0 -bsp2 -mtc=on -mta=on <span class="s2">&quot;output&quot;</span> <span class="s2">&quot;input&quot;</span> 
+</code></pre></div></p>
+<p>Zip (Maximum, Optimized):<br />
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;7z.exe&quot;</span> a -tzip -mtp=0 -mm=Deflate -mmt=on -mx7 -mfb=64 -mpass=1 -bb0 -bse0 -bsp2 -mtc=on -mta=on <span class="s2">&quot;output&quot;</span> <span class="s2">&quot;input&quot;</span> 
+</code></pre></div></p>
+<p>7z (Normal):
+<div class="highlight"><pre><span></span><code>7z.exe<span class="s2">&quot; a -t7z -m0=LZMA2 -mmt=on -mx5 -md=16m -mfb=32 -ms=4g -mqs=on -sccUTF-8 -bb0 -bse0 -bsp2 -mtc=on -mta=on &quot;</span>output<span class="s2">&quot; &quot;</span>input<span class="s2">&quot; </span>
+</code></pre></div></p>
+<p>7z (Ultra):
+<div class="highlight"><pre><span></span><code>7z.exe<span class="s2">&quot; a -t7z -m0=LZMA2 -mmt=on -mx9 -md=64m -mfb=64 -ms=16g -mqs=on -sccUTF-8 -bb0 -bse0 -bsp2 -mtc=on -mta=on &quot;</span>output<span class="s2">&quot; &quot;</span>input<span class="s2">&quot; </span>
+</code></pre></div></p>
+<p>Nx (Archival Preset):
+<div class="highlight"><pre><span></span><code>NexusMods.Archives.Nx.Cli.exe pack --source <span class="s2">&quot;input&quot;</span> --target <span class="s2">&quot;output&quot;</span> --solid-algorithm ZStandard --chunked-algorithm ZStandard --solidlevel 16 --chunkedlevel 9
+</code></pre></div></p>
+<p>Nx (Random Access Preset):
+<div class="highlight"><pre><span></span><code>NexusMods.Archives.Nx.Cli.exe pack --source <span class="s2">&quot;input&quot;</span> --target <span class="s2">&quot;output&quot;</span> --solid-algorithm ZStandard --chunked-algorithm ZStandard --solidlevel -1 --chunkedlevel 9
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Zip (Optimized) cannot be set via GUI, only via CMD parameter.</p>
+</div>
+<h3 id="unpacking-scripts">Unpacking Scripts</h3>
+<p>7z/Zip:<br />
+<div class="highlight"><pre><span></span><code>7z.exe<span class="s2">&quot; x -aos &quot;</span>-ooutput<span class="s2">&quot; -bb0 -bse0 -bsp2 -pdefault -sccUTF-8 -snz &quot;</span>input<span class="s2">&quot;</span>
+</code></pre></div></p>
+<p>Nx:  </p>
+<div class="highlight"><pre><span></span><code>./NexusMods.Archives.Nx.Cli.exe extract --source input --target <span class="s2">&quot;output&quot;</span>
+</code></pre></div>
+<h3 id="textures_1">Textures</h3>
+<div class="admonition tip">
+<p class="admonition-title"><a href="#textures">Test Data: Texture</a></p>
+</div>
+<p>Packing:  </p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Time Taken</th>
+<th>Ratio (Time)</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zip (Maximum)</td>
+<td>17.385s</td>
+<td>2.34</td>
+<td>1,957,310,894</td>
+<td>1.24</td>
+</tr>
+<tr>
+<td>Zip (Optimized)</td>
+<td>7.443s</td>
+<td>1.00</td>
+<td>1,961,872,315</td>
+<td>1.25</td>
+</tr>
+<tr>
+<td>7z (Normal)</td>
+<td>73.572s</td>
+<td>9.88</td>
+<td>1,616,082,220</td>
+<td>1.03</td>
+</tr>
+<tr>
+<td>7z (Ultra)</td>
+<td>120.746s</td>
+<td>16.23</td>
+<td>1,570,741,070</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>Nx (Random Access, 12T)</td>
+<td>12.909s</td>
+<td>1.73</td>
+<td>1,787,568,128</td>
+<td>1.14</td>
+</tr>
+<tr>
+<td>Nx (Archival, 12T)</td>
+<td>12.955s</td>
+<td>1.74</td>
+<td>1,786,634,240</td>
+<td>1.14</td>
+</tr>
+</tbody>
+</table>
+<p>Unpacking: </p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Time Taken</th>
+<th>Ratio (Time)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zip</td>
+<td>13.857s</td>
+<td>50.76</td>
+</tr>
+<tr>
+<td>7z (Ultra)</td>
+<td>6.238s</td>
+<td>22.86</td>
+</tr>
+<tr>
+<td>7z (Normal)</td>
+<td>3.705s</td>
+<td>13.57</td>
+</tr>
+<tr>
+<td>Nx (12T)</td>
+<td>1.172s</td>
+<td>4.29</td>
+</tr>
+<tr>
+<td>Nx [In-Memory] (12T)</td>
+<td>0.273s</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<h3 id="logs">Logs</h3>
+<p>Packing:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Time Taken</th>
+<th>Ratio (Time)</th>
+<th>Size</th>
+<th>Ratio (Size)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zip (Maximum)</td>
+<td>0.149s</td>
+<td>2.07</td>
+<td>758,928</td>
+<td>2.18</td>
+</tr>
+<tr>
+<td>Zip (Optimized)</td>
+<td>0.115s</td>
+<td>1.60</td>
+<td>768,374</td>
+<td>2.21</td>
+</tr>
+<tr>
+<td>7z (Normal)</td>
+<td>0.297s</td>
+<td>4.13</td>
+<td>378,780</td>
+<td>1.09</td>
+</tr>
+<tr>
+<td>7z (Ultra)</td>
+<td>0.545s</td>
+<td>7.57</td>
+<td>347,574</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>Nx (Archival, 12T)</td>
+<td>0.194s</td>
+<td>2.69</td>
+<td>491,520</td>
+<td>1.41</td>
+</tr>
+<tr>
+<td>Nx (Random Access, 12T)</td>
+<td>0.072s</td>
+<td>1.00</td>
+<td>708,608</td>
+<td>2.04</td>
+</tr>
+</tbody>
+</table>
+<p>Unpacking:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Time Taken</th>
+<th>Ratio (Time)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zip</td>
+<td>0.214s</td>
+<td>167.19</td>
+</tr>
+<tr>
+<td>7z (Ultra)</td>
+<td>0.225s</td>
+<td>175.78</td>
+</tr>
+<tr>
+<td>7z (Normal)</td>
+<td>0.267s</td>
+<td>208.59</td>
+</tr>
+<tr>
+<td>Nx (Random Access)</td>
+<td>0.127s</td>
+<td>99.22</td>
+</tr>
+<tr>
+<td>Nx (Archival)</td>
+<td>0.127s</td>
+<td>99.22</td>
+</tr>
+<tr>
+<td>Nx (Random Access) [In-Memory] (1T)</td>
+<td>0.00304s</td>
+<td>2.38</td>
+</tr>
+<tr>
+<td>Nx (Archival) [In-Memory] (1T)</td>
+<td>0.00300s</td>
+<td>2.34</td>
+</tr>
+<tr>
+<td>Nx (Random Access) [In-Memory] (4T)</td>
+<td>0.0016s</td>
+<td>1.25</td>
+</tr>
+<tr>
+<td>Nx (Archival) [In-Memory] (4T)</td>
+<td>0.00128s</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Extraction is I/O bottlenecked; Windows is slow to create small files.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Random Access mode is not faster here due to nature of data set. For larger compressed blocks however, it achieves ~3.5x speed.</p>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/Nexus-Mods" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/TheSewer56" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant"], "search": "../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

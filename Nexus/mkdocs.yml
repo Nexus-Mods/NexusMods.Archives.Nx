@@ -1,0 +1,57 @@
+site_name: Nexus NX MkDocs Theme
+site_url: https://github.com/Nexus-Mods/NexusMods.MkDocsMaterial.Themes.Next
+
+repo_name: Nexus-Mods/NexusMods.MkDocsMaterial.Themes.Next
+repo_url: https://github.com/Nexus-Mods/NexusMods.MkDocsMaterial.Themes.Next
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Nexus-Mods
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/NexusSites
+
+extra_css:
+  - Stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - tables
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tasklist
+  - def_list
+  - meta
+  - md_in_html
+  - attr_list
+  - footnotes
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+theme:
+  name: material
+  palette:
+    scheme: nexus-slate
+  features:
+    - navigation.instant
+   
+plugins:
+  - search
+  - redirects:
+      redirect_maps:
+        'index.md': 'Pages/index.md'
+
+nav:
+  - Home: Pages/index.md
+  - Contributing: Pages/contributing.md
+  - Testing Zone: Pages/testing-zone.md
+    
+index: Pages/index.md
