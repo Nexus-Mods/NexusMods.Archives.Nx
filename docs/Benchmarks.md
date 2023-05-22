@@ -9,7 +9,7 @@
     All tests were executed in the following environment:  
     - `Library Version`: 0.3.0-preview (17th May 2023)  
     - `zstd version`: 1.5.2 (MSVC)  
-    - `lz4 version`: [K4os.Compression.LZ4 1.3.5](https://github.com/MiloszKrajewski/K4os.Compression.LZ4)
+    - `lz4 version`: [K4os.Compression.LZ4 1.3.5](https://github.com/MiloszKrajewski/K4os.Compression.LZ4)  
     - `CPU`: AMD Ryzen 9 5900X (12C/24T)  
     - `RAM`: 32GB DDR4-3000 (16-17-17-35)  
     - `OS`: Windows 11 22H2 (Build 22621)  
