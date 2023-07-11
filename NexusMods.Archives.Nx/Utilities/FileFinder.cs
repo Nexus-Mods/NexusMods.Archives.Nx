@@ -17,12 +17,17 @@ public static class FileFinder
     ///     Retrieves all packable files from within a given directory.
     /// </summary>
     /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
+    public static List<PackerFile> GetFiles(string directoryPath) => GetFiles(directoryPath, SearchOption.AllDirectories);
+
+    /// <summary>
+    ///     Retrieves all packable files from within a given directory.
+    /// </summary>
+    /// <param name="directoryPath">The relative or absolute path to the directory to search.</param>
     /// <param name="searchOption">
     ///     One of the enumeration values that specifies whether the search operation
     ///     should include all subdirectories or only the current directory.
     /// </param>
-    public static List<PackerFile> GetFiles(string directoryPath, SearchOption searchOption =
-        SearchOption.AllDirectories)
+    public static List<PackerFile> GetFiles(string directoryPath, SearchOption searchOption)
     {
 #if NETSTANDARD2_0
         return GetFilesOld(directoryPath, SearchOption.AllDirectories);

@@ -378,5 +378,6 @@ static NexusMods.Archives.Nx.Headers.StringPool.Unpack(byte* poolPtr, int compre
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan) -> string![]!
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan, int fileCountHint) -> string![]!
 static NexusMods.Archives.Nx.Packing.NxPacker.Pack(NexusMods.Archives.Nx.Structs.PackerFile![]! files, NexusMods.Archives.Nx.Structs.PackerSettings! settings) -> void
+static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.EnumerationOptions! options) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
-static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.SearchOption searchOption = System.IO.SearchOption.AllDirectories) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
+static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.SearchOption searchOption) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
