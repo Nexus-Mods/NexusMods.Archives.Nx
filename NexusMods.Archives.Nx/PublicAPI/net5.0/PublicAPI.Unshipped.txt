@@ -1,4 +1,5 @@
-﻿const NexusMods.Archives.Nx.Headers.StringPool.MaxCompressedSize = 33550336 -> int
+﻿const NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.Length = 4 -> int
+const NexusMods.Archives.Nx.Headers.StringPool.MaxCompressedSize = 33550336 -> int
 NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Enums.CompressionPreference.Copy = 0 -> NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Enums.CompressionPreference.Lz4 = 2 -> NexusMods.Archives.Nx.Enums.CompressionPreference
@@ -362,6 +363,20 @@ override NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.Equals(object? o
 override NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.GetHashCode() -> int
 override NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.Equals(object? obj) -> bool
 override NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.GetHashCode() -> int
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.GetNames() -> string![]!
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.GetValues() -> NexusMods.Archives.Nx.Enums.CompressionPreference[]!
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(in System.ReadOnlySpan<char> name) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(in System.ReadOnlySpan<char> name, bool allowMatchingMetadataAttribute) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(string! name) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(string! name, bool allowMatchingMetadataAttribute) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.ToStringFast(this NexusMods.Archives.Nx.Enums.CompressionPreference value) -> string!
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference result, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
 static NexusMods.Archives.Nx.Headers.HeaderParser.ParseHeader(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> NexusMods.Archives.Nx.Headers.Managed.ParsedHeader!
 static NexusMods.Archives.Nx.Headers.HeaderParser.TryParseHeader(byte* data, int dataSize) -> NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult
 static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> T!
