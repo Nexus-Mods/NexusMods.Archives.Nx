@@ -106,7 +106,7 @@ NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Pool.get -> string![]!
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Pool.init -> void
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.PoolSize.get -> int
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.PoolSize.init -> void
-NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Serialize(byte* dataPtr, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version, System.Span<byte> stringPoolData) -> int
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Serialize(byte* dataPtr, int tocOffset, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version, System.Span<byte> stringPoolData) -> int
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.TableOfContents() -> void
 NexusMods.Archives.Nx.Headers.Native.INativeFileEntry
 NexusMods.Archives.Nx.Headers.Native.INativeFileEntry.CopyFrom(in NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
@@ -374,7 +374,7 @@ static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(stri
 static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
 static NexusMods.Archives.Nx.Headers.HeaderParser.ParseHeader(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> NexusMods.Archives.Nx.Headers.Managed.ParsedHeader!
 static NexusMods.Archives.Nx.Headers.HeaderParser.TryParseHeader(byte* data, int dataSize) -> NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult
-static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> T!
+static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr, int tocOffset, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> T!
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.operator !=(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 right) -> bool
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.operator ==(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 right) -> bool
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.operator !=(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1 right) -> bool
