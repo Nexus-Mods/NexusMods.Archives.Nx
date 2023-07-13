@@ -1,4 +1,4 @@
-﻿# Table of Contents (TOC)
+# Table of Contents (TOC)
 
 - `u32`: FileCount [[limited to 1 million due to FilePathIndex](./File-Header.md#versionvariant)]
 - `u18`: BlockCount
@@ -63,17 +63,25 @@ Size: `3 bits` (0-7)
 
     Stores the amount of padding that was applied to the table during serialization.  
 
-This is needed to calculate the end position of the [String Pool](#string-pool) without using more space in ToC.  
+This is needed to calculate the end position of the [String Pool](#string-pool) without using more space in ToC.
 
-This value is encoded as: 
+This value is encoded as:
+
 ```csharp
 // FileHeader is just the 8 byte header.
-var paddingOffset = (tocSize + sizeof(FileHeader)).RoundUp4096() - tocSize;
+// tocOffset is offset of the ToC from the start of the file.
+tocOffset %= 4096;
+var paddingOffset = (tocSize + sizeof(FileHeader)).RoundUp4096() - tocSize - tocOffset;
 ```
 
 And decoded as:
 
 ```csharp
+tocOffset %= 4096;
+
+// blockCountAndPoolSize is packed value in header
+var paddingOffset = ((blockCountAndPoolSize >> 2) & 0xFFF) + (tocOffset);
+
 tocSize = (tocSize + sizeof(FileHeader)).RoundUp4096();
 var paddingSize = tocSize - paddingOffset;
 ```

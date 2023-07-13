@@ -67,7 +67,7 @@ public static class NxPacker
             // Write headers.
             stream.Seek(0, SeekOrigin.Begin);
             NativeFileHeader.Init((NativeFileHeader*)headerDataPtr, toc.Version, settings.BlockSize, settings.ChunkSize, headerData.Length);
-            toc.Build(headerDataPtr + sizeof(NativeFileHeader), tocSize);
+            toc.Build(headerDataPtr + sizeof(NativeFileHeader), sizeof(NativeFileHeader), tocSize);
             stream.Write(headerData, 0, headerData.Length);
         }
     }
