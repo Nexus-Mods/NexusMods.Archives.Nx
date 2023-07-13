@@ -62,7 +62,7 @@ public class ParsingTableOfContents
     {
         fixed (byte* dataPtr = PrebuiltData)
         {
-            return TableOfContents.Deserialize<TableOfContents>(dataPtr, PrebuiltData.Length, Builder.Version);
+            return TableOfContents.Deserialize<TableOfContents>(dataPtr, 0, PrebuiltData.Length, Builder.Version);
         }
     }
 
@@ -95,7 +95,7 @@ public class ParsingTableOfContents
         PrebuiltData = new byte[tocSize];
         fixed (byte* dataPtr = PrebuiltData)
         {
-            return Builder.Build(dataPtr, tocSize);
+            return Builder.Build(dataPtr, 0, tocSize);
         }
     }
 }

@@ -145,12 +145,13 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// <summary>
     ///     Serializes the ToC to allow reading from binary.
     /// </summary>
-    /// <param name="dataPtr">Memory where to serialize to.</param>
-    /// <param name="tocSize">Size of table of contents.</param>
+    /// <param name="dataPtr">Address of the table of contents.</param>
+    /// <param name="offsetInFile">Offset of the table of contents in the .nx file.</param>
+    /// <param name="tocSize">Size of table of contents..</param>
     /// <returns>Number of bytes written.</returns>
     /// <remarks>
     ///     To determine needed size of <paramref name="dataPtr" /> and <paramref name="tocSize" />, call
     ///     <see cref="CalculateTableSize" />.
     /// </remarks>
-    public unsafe int Build(byte* dataPtr, int tocSize) => Toc.Serialize(dataPtr, tocSize, Version, _poolData.Span);
+    public unsafe int Build(byte* dataPtr, int offsetInFile, int tocSize) => Toc.Serialize(dataPtr, offsetInFile, tocSize, Version, _poolData.Span);
 }
