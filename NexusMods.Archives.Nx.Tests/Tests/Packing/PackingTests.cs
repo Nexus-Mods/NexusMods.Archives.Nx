@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using NexusMods.Archives.Nx.FileProviders;
@@ -6,6 +5,7 @@ using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
+using Xunit.Abstractions;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
@@ -15,6 +15,13 @@ namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 /// </summary>
 public class PackingTests
 {
+    // Specifically set to 1 for repro-ing the corruption bug with archive headers.
+    private readonly Random _rnd = new(1);
+
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public PackingTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+
     [Theory]
     [AutoData]
     public NxUnpacker Can_Pack_And_Parse_Baseline(IFixture fixture)
@@ -193,26 +200,57 @@ public class PackingTests
     }
 
     [Theory]
-    [InlineAutoData(1024, 1024)]
-    public void StressTest_ZStdCorruptionBug(int fileCount, int maxSize, IFixture fixture)
+    [AutoData]
+    public void StressTest_ZStdCorruptionBug(IFixture fixture)
     {
         // Repro for ZStandard corruption bug when using levels >= 14.
-        for (var x = 0; x < 1000; x++)
+        var minSize = 1024;
+        var maxSize = 1024 * 1024 * 2;
+        var totalFiles = 0;
+        long totalBytes = 0;
+
+        for (var numFiles = 100; numFiles < 4096; numFiles += 1)
         {
-            // Act
-            var files = GetRandomDummyFiles(fixture, fileCount, maxSize, maxSize, out var settings);
-            NxPacker.Pack(files, settings);
-            settings.Output.Position = 0;
-            var streamProvider = new FromStreamProvider(settings.Output);
+            if (numFiles % 10 == 0)
+            {
+                _testOutputHelper.WriteLine(
+                    $"Count | Last Packed Num Files: {numFiles} | Total GB: {(totalBytes / 1000.0 / 1000.0 / 1000.0):#.00} | Total Files: {totalFiles}");
+            }
 
-            // Test succeeds if it doesn't throw.
-            var unpacker = new NxUnpacker(streamProvider);
-            var extracted =
-                unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
-                    new UnpackerSettings { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+            for (var x = 0; x < 20; x++)
+            {
+                // Act
+                var files = GetRandomDummyFiles(fixture, numFiles, minSize, maxSize, out var settings);
+                
+                NxPacker.Pack(files, settings);
+                settings.Output.Position = 0;
+                var streamProvider = new FromStreamProvider(settings.Output);
 
-            // Verify data.
-            AssertExtracted(extracted);
+                try
+                {
+                    // Test succeeds if it doesn't throw.
+                    var unpacker = new NxUnpacker(streamProvider);
+                    var extracted =
+                        unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
+                            new UnpackerSettings { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+
+                    // Verify data.
+                    AssertExtracted(extracted);
+
+                    foreach (var item in extracted)
+                    {
+                        totalBytes += item.Data.Length;
+                        totalFiles += numFiles;
+                    }
+                }
+                catch (Exception)
+                {
+                    _testOutputHelper.WriteLine($"{numFiles}, {x}");
+                    settings.Output.Position = 0;
+                    File.WriteAllBytes("latest.nx", ((MemoryStream)settings.Output).ToArray());
+                    throw;
+                }
+            }
         }
     }
 
@@ -228,7 +266,9 @@ public class PackingTests
             Output = output,
             BlockSize = 32767,
             ChunkSize = 1048576,
-            MaxNumThreads = Environment.ProcessorCount // set to 1 for debugging.
+            MaxNumThreads = Environment.ProcessorCount, // set to 1 for debugging.
+            SolidCompressionLevel = 3,
+            ChunkedCompressionLevel = 3
         };
 
         var random = new Random();
@@ -241,7 +281,7 @@ public class PackingTests
                 return new PackerFile
                 {
                     FileSize = fileSize,
-                    RelativePath = GetRandomHash(),
+                    RelativePath = GetRandomHash(), // IncrementAndMod(ref index).ToString("X16"),
                     FileDataProvider = provider(fileSize)
                 };
             }).OmitAutoProperties();
@@ -252,10 +292,10 @@ public class PackingTests
 
     private string GetRandomHash()
     {
-        using var randomNumberGenerator = new RNGCryptoServiceProvider();
-        var randomNumber = new byte[8];
-        randomNumberGenerator.GetBytes(randomNumber);
-        return BitConverter.ToString(randomNumber).Replace("-", "");
+        // We want determinism, so we use a fixed seed.
+        var buf = new byte[8];
+        _rnd.NextBytes(buf);
+        return BitConverter.ToString(buf).Replace("-", "");
     }
 
     private FromArrayProvider GetFromArrayFileDataProvider(int fileSize) =>
