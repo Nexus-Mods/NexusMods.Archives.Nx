@@ -120,7 +120,7 @@ public struct StringPool
         // Okay time to deconstruct the pool.
         using var decompressed = Compression.DecompressZStd(poolPtr, compressedDataSize);
         var decompressedSpan = decompressed.Span;
-        var offsets = decompressedSpan.FindAllOffsetsOfByte(0, fileCountHint);
+        var offsets = decompressedSpan.Length > 0 ? decompressedSpan.FindAllOffsetsOfByte(0, fileCountHint) : new List<int>();
         var items = Polyfills.AllocateUninitializedArray<string>(offsets.Count);
 
         var currentOffset = 0;

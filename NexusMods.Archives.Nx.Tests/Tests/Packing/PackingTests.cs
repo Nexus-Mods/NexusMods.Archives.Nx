@@ -40,7 +40,9 @@ public class PackingTests
 
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+        var extracted =
+            unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
+                new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
         // Verify data.
         AssertExtracted(extracted);
@@ -59,7 +61,9 @@ public class PackingTests
 
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+        var extracted =
+            unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
+                new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
         // Verify data.
         AssertExtracted(extracted);
@@ -77,7 +81,9 @@ public class PackingTests
 
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+        var extracted =
+            unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
+                new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
         // Verify data.
         AssertExtracted(extracted);
@@ -95,7 +101,29 @@ public class PackingTests
 
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(), new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+        var extracted =
+            unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
+                new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+
+        // Verify data.
+        AssertExtracted(extracted);
+    }
+
+    [Theory]
+    [AutoData]
+    public void Can_Pack_And_Unpack_EmptyArchive(IFixture fixture)
+    {
+        // Act
+        var files = GetRandomDummyFiles(fixture, 0, 0, 0, out var settings);
+        NxPacker.Pack(files, settings);
+        settings.Output.Position = 0;
+        var streamProvider = new FromStreamProvider(settings.Output);
+
+        // Test succeeds if it doesn't throw.
+        var unpacker = new NxUnpacker(streamProvider);
+        var extracted =
+            unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
+                new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
         // Verify data.
         AssertExtracted(extracted);
@@ -114,7 +142,8 @@ public class PackingTests
         // Test succeeds if it doesn't throw.
         using var temporaryFilePath = new TemporaryDirectory();
         var unpacker = new NxUnpacker(streamProvider);
-        var extracted = unpacker.ExtractFilesToDisk(unpacker.GetFileEntriesRaw(), temporaryFilePath.FolderPath, new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+        var extracted = unpacker.ExtractFilesToDisk(unpacker.GetFileEntriesRaw(), temporaryFilePath.FolderPath,
+            new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
         // Verify data.
         foreach (var item in extracted)
@@ -172,6 +201,7 @@ public class PackingTests
 
         return result;
     }
+
     private static void AssertExtracted(OutputArrayProvider[] extracted)
     {
         for (var index = 0; index < extracted.Length; index++)
