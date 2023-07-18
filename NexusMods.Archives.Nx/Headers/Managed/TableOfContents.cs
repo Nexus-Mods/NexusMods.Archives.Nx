@@ -69,6 +69,12 @@ public class TableOfContents : IEquatable<TableOfContents>
         var blocks = Polyfills.AllocateUninitializedArray<BlockSize>(blockCount);
         var blockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(blockCount);
 
+        // Unavoidable bounds check in DangerousGetReferenceAt on older frameworks, when 0 blocks.
+        // So despite the code handling 0 blocks properly, code still throws there; so we have to add this
+        // jump to skip the code that would effectively be no-op.
+        if (entries.Length == 0)
+            goto pool;
+
         // Read Files
         ref var currentEntry = ref entries.DangerousGetReferenceAt(0);
         ref var lastEntry = ref entries.DangerousGetReferenceAt(entries.Length);
@@ -95,6 +101,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         ReadBlocksUnrolled(ref currentBlock, ref lastBlock, ref currentCompression, ref reader);
 
         // Read the StringPool.
+    pool:
         var bytesRead = reader.Ptr - dataPtr;
         var stringPoolSize = tocSize - paddingOffset - bytesRead;
         var pool = StringPool.Unpack(reader.Ptr, (int)stringPoolSize, fileCount);
@@ -181,6 +188,12 @@ public class TableOfContents : IEquatable<TableOfContents>
         // Note: This could in theory overflow if tocSize <= 0 && offsetInFile == 0, but that is impossible, given tocSize can't be 0
         writer.Write((blockCount << 14) | (paddingOffset << 2));
 
+        // Unavoidable bounds check in DangerousGetReferenceAt on older frameworks, when 0 blocks.
+        // So despite the code handling 0 blocks properly, code still throws there; so we have to add this
+        // jump to skip the code that would effectively be no-op.
+        if (Entries.Length == 0)
+            goto pool;
+
         // Now write out all the files.
         // Now let's write a fast loop like the runtime guys do 💜
         ref var currentEntry = ref Entries.DangerousGetReferenceAt(0);
@@ -208,6 +221,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         WriteBlocksUnrolled(ref currentBlock, ref lastBlock, ref currentCompression, ref writer);
 
         // Write the pool.
+    pool:
         writer.Write(stringPoolData);
         return (int)(writer.Ptr - dataPtr);
     }
