@@ -27,6 +27,8 @@ public class ParsedHeader : TableOfContents
         long currentOffset = Header.HeaderPageBytes;
         var numBlocks = Blocks.Length;
         BlockOffsets = Polyfills.AllocateUninitializedArray<long>(numBlocks);
+        if (numBlocks <= 0)
+            return;
 
         ref var blockOffsetsRef = ref BlockOffsets[0];
         blockOffsetsRef = Header.HeaderPageBytes; // pre-init first one.
