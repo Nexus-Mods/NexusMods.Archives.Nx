@@ -46,11 +46,12 @@ public class TableOfContents : IEquatable<TableOfContents>
     /// <summary>
     ///     Deserializes the table of contents from a given address and version.
     /// </summary>
-    /// <param name="dataPtr">Pointer to the data stored in the ToC.</param>
+    /// <param name="dataPtr">Pointer to the ToC.</param>
+    /// <param name="tocOffset">Offset of the table of contents within the file.</param>
     /// <param name="tocSize">Size of table of contents.</param>
     /// <param name="version">Version of the table of contents.</param>
     /// <returns>Deserialized table of contents.</returns>
-    public static unsafe T Deserialize<T>(byte* dataPtr, int tocSize, ArchiveVersion version) where T : TableOfContents, new()
+    public static unsafe T Deserialize<T>(byte* dataPtr, int tocOffset, int tocSize, ArchiveVersion version) where T : TableOfContents, new()
     {
         // Re-add padding if it's missing.
         tocSize = (tocSize + sizeof(NativeFileHeader)).RoundUp4096();
@@ -62,7 +63,9 @@ public class TableOfContents : IEquatable<TableOfContents>
 
         var blockCountAndPoolSize = reader.ReadInt();
         var blockCount = blockCountAndPoolSize >> 14;
-        var paddingOffset = (blockCountAndPoolSize >> 2) & 0xFFF;
+
+        tocOffset %= 4096;
+        var paddingOffset = ((blockCountAndPoolSize >> 2) & 0xFFF) + (tocOffset);
         var blocks = Polyfills.AllocateUninitializedArray<BlockSize>(blockCount);
         var blockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(blockCount);
 
@@ -71,25 +74,19 @@ public class TableOfContents : IEquatable<TableOfContents>
         ref var lastEntry = ref entries.DangerousGetReferenceAt(entries.Length);
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (version == ArchiveVersion.V0)
-        {
             while (Unsafe.IsAddressLessThan(ref currentEntry, ref lastEntry))
             {
                 currentEntry.FromReaderV0(ref reader);
                 currentEntry = ref Unsafe.Add(ref currentEntry, 1);
             }
-        }
         else if (version == ArchiveVersion.V1)
-        {
             while (Unsafe.IsAddressLessThan(ref currentEntry, ref lastEntry))
             {
                 currentEntry.FromReaderV1(ref reader);
                 currentEntry = ref Unsafe.Add(ref currentEntry, 1);
             }
-        }
         else
-        {
             ThrowHelpers.ThrowTocVersionNotSupported(version);
-        }
 
         // Read block data
         ref var currentBlock = ref blocks.DangerousGetReferenceAt(0);
@@ -164,18 +161,24 @@ public class TableOfContents : IEquatable<TableOfContents>
     ///     Serializes the ToC to allow reading from binary.
     /// </summary>
     /// <param name="dataPtr">Memory where to serialize to.</param>
+    /// <param name="tocOffset">Offset of the table of contents in the .nx file.</param>
     /// <param name="tocSize">Size of table of contents.</param>
     /// <param name="version">Version of the archive used.</param>
     /// <param name="stringPoolData">Raw data for the string pool.</param>
     /// <returns>Number of bytes written.</returns>
     /// <remarks>To determine needed size of <paramref name="dataPtr" />, call <see cref="CalculateTableSize" />.</remarks>
-    public unsafe int Serialize(byte* dataPtr, int tocSize, ArchiveVersion version, Span<byte> stringPoolData)
+    public unsafe int Serialize(byte* dataPtr, int tocOffset, int tocSize, ArchiveVersion version, Span<byte> stringPoolData)
     {
         // Note: Avoiding bitstreams entirely; manual packing for max perf.
         var writer = new LittleEndianWriter(dataPtr);
+
         writer.Write(Entries.Length); // limited to 1 mil so int is ok
         var blockCount = Blocks.Length; // Upper 18 bits
-        var paddingOffset = (tocSize + sizeof(NativeFileHeader)).RoundUp4096() - tocSize; // Next 12 bits.
+
+        tocOffset %= 4096;
+        var paddingOffset = (tocSize + tocOffset).RoundUp4096() - tocSize - tocOffset; // Next 12 bits.
+
+        // Note: This could in theory overflow if tocSize <= 0 && offsetInFile == 0, but that is impossible, given tocSize can't be 0
         writer.Write((blockCount << 14) | (paddingOffset << 2));
 
         // Now write out all the files.
@@ -184,25 +187,19 @@ public class TableOfContents : IEquatable<TableOfContents>
         ref var lastEntry = ref Entries.DangerousGetReferenceAt(Entries.Length);
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (version == ArchiveVersion.V0)
-        {
             while (Unsafe.IsAddressLessThan(ref currentEntry, ref lastEntry))
             {
                 currentEntry.WriteAsV0(ref writer);
                 currentEntry = ref Unsafe.Add(ref currentEntry, 1);
             }
-        }
         else if (version == ArchiveVersion.V1)
-        {
             while (Unsafe.IsAddressLessThan(ref currentEntry, ref lastEntry))
             {
                 currentEntry.WriteAsV1(ref writer);
                 currentEntry = ref Unsafe.Add(ref currentEntry, 1);
             }
-        }
         else
-        {
             ThrowHelpers.ThrowTocVersionNotSupported(version);
-        }
 
         // Write out all the block infos.
         ref var currentBlock = ref Blocks.DangerousGetReferenceAt(0);
@@ -281,6 +278,9 @@ public class TableOfContents : IEquatable<TableOfContents>
         return currentSize;
     }
 
+    /// <inheritdoc />
+    public override int GetHashCode() => PoolSize;
+
     #region Autogenerated Code
 
     /// <inheritdoc />
@@ -302,7 +302,4 @@ public class TableOfContents : IEquatable<TableOfContents>
     }
 
     #endregion
-
-    /// <inheritdoc />
-    public override int GetHashCode() => PoolSize;
 }
