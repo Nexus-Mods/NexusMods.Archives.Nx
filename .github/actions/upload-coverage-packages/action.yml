@@ -14,12 +14,12 @@ inputs:
   nupkg-glob: # id of input
     description: 'Glob pattern for NuGet packages'
     required: false
-    default: './src/*.nupkg'
-    
+    default: '**.nupkg'
+
   snupkg-glob: # id of input
-    description: 'Glob pattern for NuGet symbol packages'
+    description: 'Glob pattern for NuGet source packages'
     required: false
-    default: './src/*.snupkg'
+    default: '**.snupkg'
 
   nuget-key: # id of input
     description: 'Key used to upload packages to nuget.org'
@@ -48,7 +48,6 @@ runs:
         echo "code-coverage-path: ${{ inputs.code-coverage-path }}"
         echo "changelog-path: ${{ inputs.changelog-path }}"
         echo "nupkg-glob: ${{ inputs.nupkg-glob }}"
-        echo "snupkg-glob: ${{ inputs.snupkg-glob }}"
         echo "changelog-template: ${{ inputs.changelog-template }}"
         echo "is-release: ${{ inputs.is-release }}"
         echo "release-tag: ${{ inputs.release-tag }}"
@@ -68,7 +67,7 @@ runs:
     - name: Create Changelog (on Tag)
       shell: pwsh
       run: |
-        if (${{ inputs.is-release }} -eq "true")
+        if ("${{ inputs.is-release }}" -eq "true")
         {
             auto-changelog --sort-commits date --hide-credit --template "${{ inputs.changelog-template }}" --commit-limit false --unreleased --starting-version "${{ inputs.release-tag }}" --output "${{ inputs.changelog-path }}"
         }
@@ -84,8 +83,8 @@ runs:
         name: NuGet Packages
         # A file, directory or wildcard pattern that describes what to upload
         path: |
-          ${{ inputs.nupkg-glob }}
-          ${{ inputs.snupkg-glob }}
+          **/${{ inputs.nupkg-glob }}
+          **/${{ inputs.snupkg-glob }}
 
     - name: Upload Changelog Artifact
       uses: actions/upload-artifact@v3
@@ -104,8 +103,8 @@ runs:
         body_path: ${{ inputs.changelog-path }}
         # Newline-delimited list of path globs for asset files to upload
         files: |
-          ${{ inputs.nupkg-glob }}
-          ${{ inputs.snupkg-glob }}
+          **/${{ inputs.nupkg-glob }}
+          **/${{ inputs.snupkg-glob }}
           ${{ inputs.changelog-path }}
 
     - name: Upload to NuGet (on Tag)
@@ -115,10 +114,10 @@ runs:
         $items = Get-ChildItem -Path "${{ inputs.nupkg-glob }}" -Recurse
         Foreach ($item in $items)
         {
-            Write-Host "Pushing Package $item"
+            Write-Host "Pushing $item"
             dotnet nuget push "$item" -k "${{ inputs.nuget-key }}" -s "https://api.nuget.org/v3/index.json" --skip-duplicate
         }
-        
+
         $items = Get-ChildItem -Path "${{ inputs.snupkg-glob }}" -Recurse
         Foreach ($item in $items)
         {
