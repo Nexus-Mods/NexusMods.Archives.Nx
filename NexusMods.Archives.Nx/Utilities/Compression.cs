@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using K4os.Compression.LZ4;
@@ -114,7 +115,8 @@ internal static class Compression
         switch (method)
         {
             case CompressionPreference.Copy:
-                Buffer.MemoryCopy(source, destination, (uint)sourceLength, (uint)sourceLength);
+                Debug.Assert(sourceLength >= destinationLength);
+                Buffer.MemoryCopy(source, destination, (uint)destinationLength, (uint)destinationLength);
                 return;
             case CompressionPreference.ZStandard:
             {
