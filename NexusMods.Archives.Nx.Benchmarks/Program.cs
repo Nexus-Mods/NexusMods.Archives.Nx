@@ -1,7 +1,6 @@
 // ReSharper disable RedundantUsingDirective
 // See https://aka.ms/new-console-template for more information
 
-using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;

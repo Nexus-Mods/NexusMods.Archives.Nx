@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.Depen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.Cli", "NexusMods.Archives.Nx.Cli\NexusMods.Archives.Nx.Cli.csproj", "{2E62533F-F0C6-4BA1-BB39-9100D8233433}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Hashing.xxHash64", "NexusMods.Hashing.xxHash64\src\NexusMods.Hashing.xxHash64\NexusMods.Hashing.xxHash64.csproj", "{F2244719-A40E-480B-A8A1-D78EDD3664F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{2E62533F-F0C6-4BA1-BB39-9100D8233433}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E62533F-F0C6-4BA1-BB39-9100D8233433}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E62533F-F0C6-4BA1-BB39-9100D8233433}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2244719-A40E-480B-A8A1-D78EDD3664F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2244719-A40E-480B-A8A1-D78EDD3664F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2244719-A40E-480B-A8A1-D78EDD3664F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2244719-A40E-480B-A8A1-D78EDD3664F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection

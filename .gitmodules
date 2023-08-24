@@ -1,3 +1,6 @@
 [submodule "docs/Nexus"]
 	path = docs/Nexus
 	url = https://github.com/Nexus-Mods/NexusMods.MkDocsMaterial.Themes.Next
+[submodule "NexusMods.Hashing.xxHash64"]
+	path = NexusMods.Hashing.xxHash64
+	url = https://github.com/Nexus-Mods/NexusMods.Hashing.xxHash64.git
