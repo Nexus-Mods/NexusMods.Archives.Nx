@@ -85,7 +85,7 @@ NexusMods.Archives.Nx.Headers.Managed.FileEntry.FirstBlockIndex -> int
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.FromReaderV0(ref NexusMods.Archives.Nx.Utilities.LittleEndianReader reader) -> void
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.FromReaderV1(ref NexusMods.Archives.Nx.Utilities.LittleEndianReader reader) -> void
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.GetChunkCount(int chunkSizeBytes) -> int
-NexusMods.Archives.Nx.Headers.Managed.FileEntry.Hash -> ulong
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.Hash -> NexusMods.Hashing.xxHash64.Hash
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.WriteAsV0(ref NexusMods.Archives.Nx.Utilities.LittleEndianWriter writer) -> void
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.WriteAsV1(ref NexusMods.Archives.Nx.Utilities.LittleEndianWriter writer) -> void
 NexusMods.Archives.Nx.Headers.Managed.ParsedHeader
@@ -122,7 +122,7 @@ NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.FilePathIndex.get -> int
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.FilePathIndex.set -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.FirstBlockIndex.get -> int
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.FirstBlockIndex.set -> void
-NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.Hash -> ulong
+NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.Hash -> NexusMods.Hashing.xxHash64.Hash
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.NativeFileEntryV0() -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.CopyFrom(in NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
@@ -135,7 +135,7 @@ NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.FilePathIndex.get -> int
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.FilePathIndex.set -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.FirstBlockIndex.get -> int
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.FirstBlockIndex.set -> void
-NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.Hash -> ulong
+NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.Hash -> NexusMods.Hashing.xxHash64.Hash
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.NativeFileEntryV1() -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileHeader
 NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSize.get -> byte
