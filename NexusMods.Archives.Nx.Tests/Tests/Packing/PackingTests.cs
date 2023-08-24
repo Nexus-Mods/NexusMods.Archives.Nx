@@ -94,6 +94,14 @@ public class PackingTests
             unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
                 new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
+        // Assert hashes are correct
+        foreach (var ext in extracted)
+        {
+            var extractedHash = ext.Data.XxHash64();
+            var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
+            extractedHash.Should().Be(expectedHash);
+        }
+
         // Verify data.
         AssertExtracted(extracted);
     }

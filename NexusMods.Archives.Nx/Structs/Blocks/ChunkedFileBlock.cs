@@ -84,8 +84,6 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public void UpdateState(int chunkIndex, PackerPoolRental compData, int compressedSize, TableOfContentsBuilder<T> tocBuilder,
         PackerSettings settings, int blockIndex, Span<byte> rawChunkData, bool asCopy)
     {
-        UpdateHash(rawChunkData);
-
         // Write out actual block.
         BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compData, compressedSize, settings.Progress);
 
@@ -99,22 +97,24 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
 
         // Update file details once all chunks are done..
         if (chunkIndex != NumChunks - 1)
+        {
+            AppendHash(rawChunkData);
             return;
+        }
 
         ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
         file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[File.RelativePath];
         file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.
         file.DecompressedSize = (ulong)File.FileSize;
         file.DecompressedBlockOffset = 0;
-        var rounded = (rawChunkData.Length >> 5) << 5;
-        file.Hash = (Hash)GetFinalHash(rawChunkData.SliceFast(rounded, rawChunkData.Length - rounded));
+        file.Hash = (Hash)GetFinalHash(rawChunkData);
     }
 
     /// <summary>
     ///     Updates the current hash.
     /// </summary>
     /// <param name="data">The data to be hashed.</param>
-    private void UpdateHash(Span<byte> data)
+    internal void AppendHash(Span<byte> data)
     {
         Debug.Assert(data.Length % 32 == 0);
         _hash.TransformByteGroupsInternal(data);
@@ -123,5 +123,12 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     /// <summary>
     ///     Receive the final hash.
     /// </summary>
-    private ulong GetFinalHash(Span<byte> remainingData) => _hash.FinalizeHashValueInternal(remainingData);
+    private ulong GetFinalHash(Span<byte> remainingData)
+    {
+        var initialSize = (remainingData.Length >> 5) << 5;
+        if (initialSize > 0)
+            _hash.TransformByteGroupsInternal(remainingData[..initialSize]);
+
+        return _hash.FinalizeHashValueInternal(remainingData[initialSize..]);
+    }
 }
