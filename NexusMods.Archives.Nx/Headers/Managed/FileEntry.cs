@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Native.Structs;
 using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Headers.Managed;
 
@@ -13,7 +14,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     /// <summary>
     ///     [u64] Hash of the file described in this entry.
     /// </summary>
-    public ulong Hash;
+    public Hash Hash;
 
     /// <summary>
     ///     [u32/u64] Size of the file after decompression.
@@ -81,7 +82,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FromReaderV0(ref LittleEndianReader reader)
     {
-        Hash = reader.ReadUlongAtOffset(0);
+        Hash = (Hash)reader.ReadUlongAtOffset(0);
         DecompressedSize = reader.ReadUIntAtOffset(8);
         var packed = new OffsetPathIndexTuple(reader.ReadLongAtOffset(12));
         packed.CopyTo(ref this);
@@ -95,7 +96,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FromReaderV1(ref LittleEndianReader reader)
     {
-        Hash = reader.ReadUlongAtOffset(0);
+        Hash = (Hash)reader.ReadUlongAtOffset(0);
         DecompressedSize = reader.ReadUlongAtOffset(8);
         var packed = new OffsetPathIndexTuple(reader.ReadLongAtOffset(16));
         packed.CopyTo(ref this);

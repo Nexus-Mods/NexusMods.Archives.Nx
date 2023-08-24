@@ -1,11 +1,9 @@
 using AutoFixture;
 using AutoFixture.Xunit2;
 using NexusMods.Archives.Nx.FileProviders;
-using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Archives.Nx.Utilities;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;

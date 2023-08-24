@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Headers.Native.Structs;
+using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Headers.Native;
 
@@ -68,7 +69,7 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     /// <inheritdoc />
     public void CopyFrom(in FileEntry entry)
     {
-        Hash = entry.Hash;
+        Hash = (ulong)entry.Hash;
         DecompressedSize = (uint)entry.DecompressedSize;
         _offsetPathIndexTuple =
             new OffsetPathIndexTuple(entry.DecompressedBlockOffset, entry.FilePathIndex, entry.FirstBlockIndex);
@@ -77,7 +78,7 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     /// <inheritdoc />
     public void CopyTo(ref FileEntry entry)
     {
-        entry.Hash = Hash;
+        entry.Hash = (Hash)Hash;
         entry.DecompressedSize = DecompressedSize;
         _offsetPathIndexTuple.CopyTo(ref entry);
     }
