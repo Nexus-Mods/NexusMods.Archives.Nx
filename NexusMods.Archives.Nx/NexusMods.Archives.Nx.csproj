@@ -24,6 +24,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="SharpZstd.Interop" Version="1.5.5-beta1"/>
+        <PackageReference Include="NexusMods.Hashing.xxHash64" Version="1.0.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,11 +34,6 @@
     <ItemGroup>
         <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Shipped.txt"/>
         <AdditionalFiles Include="PublicAPI/$(TargetFramework)/PublicAPI.Unshipped.txt"/>
-    </ItemGroup>
-
-
-    <ItemGroup>
-      <ProjectReference Include="..\NexusMods.Hashing.xxHash64\src\NexusMods.Hashing.xxHash64\NexusMods.Hashing.xxHash64.csproj" />
     </ItemGroup>
 
 </Project>
