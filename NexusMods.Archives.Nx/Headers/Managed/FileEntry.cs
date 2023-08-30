@@ -14,7 +14,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     /// <summary>
     ///     [u64] Hash of the file described in this entry.
     /// </summary>
-    public Hash Hash;
+    public ulong Hash;
 
     /// <summary>
     ///     [u32/u64] Size of the file after decompression.
@@ -35,6 +35,13 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     ///     [u18] Index of the first block associated with this file.
     /// </summary>
     public int FirstBlockIndex;
+
+    // Properties & Methods
+
+    /// <summary>
+    ///     [u64] Returns the current entry hash as a ValueObject.
+    /// </summary>
+    public Hash AsHash => Hashing.xxHash64.Hash.From(Hash);
 
     /// <summary>
     ///     Calculated via <see cref="DecompressedSize" /> divided by Chunk Size.
@@ -82,7 +89,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FromReaderV0(ref LittleEndianReader reader)
     {
-        Hash = (Hash)reader.ReadUlongAtOffset(0);
+        Hash = reader.ReadUlongAtOffset(0);
         DecompressedSize = reader.ReadUIntAtOffset(8);
         var packed = new OffsetPathIndexTuple(reader.ReadLongAtOffset(12));
         packed.CopyTo(ref this);
@@ -96,7 +103,7 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FromReaderV1(ref LittleEndianReader reader)
     {
-        Hash = (Hash)reader.ReadUlongAtOffset(0);
+        Hash = reader.ReadUlongAtOffset(0);
         DecompressedSize = reader.ReadUlongAtOffset(8);
         var packed = new OffsetPathIndexTuple(reader.ReadLongAtOffset(16));
         packed.CopyTo(ref this);

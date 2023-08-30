@@ -107,7 +107,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.
         file.DecompressedSize = (ulong)File.FileSize;
         file.DecompressedBlockOffset = 0;
-        file.Hash = (Hash)GetFinalHash(rawChunkData);
+        file.Hash = GetFinalHash(rawChunkData);
     }
 
     /// <summary>

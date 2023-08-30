@@ -28,7 +28,7 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     /// <summary>
     ///     [u64] Hash of the file described in this entry.
     /// </summary>
-    public Hash Hash;
+    public ulong Hash;
 
     /// <summary>
     ///     [u32] Size of the file after decompression.
@@ -38,6 +38,11 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     private OffsetPathIndexTuple _offsetPathIndexTuple;
 
     // Properties
+
+    /// <summary>
+    ///     [u64] Returns the current entry hash as a ValueObject.
+    /// </summary>
+    public Hash AsHash => Hashing.xxHash64.Hash.From(Hash);
 
     /// <summary>
     ///     [u26] Offset of the file inside the decompressed block.
@@ -69,7 +74,7 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     /// <inheritdoc />
     public void CopyFrom(in FileEntry entry)
     {
-        Hash = entry.Hash;
+        Hash = (ulong)entry.Hash;
         DecompressedSize = (uint)entry.DecompressedSize;
         _offsetPathIndexTuple =
             new OffsetPathIndexTuple(entry.DecompressedBlockOffset, entry.FilePathIndex, entry.FirstBlockIndex);
@@ -78,7 +83,7 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     /// <inheritdoc />
     public void CopyTo(ref FileEntry entry)
     {
-        entry.Hash = (Hash)Hash;
+        entry.Hash = Hash;
         entry.DecompressedSize = DecompressedSize;
         _offsetPathIndexTuple.CopyTo(ref entry);
     }

@@ -68,7 +68,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 file.FirstBlockIndex = blockIndex;
                 file.DecompressedSize = data.DataLength;
                 file.DecompressedBlockOffset = decompressedBlockOffset;
-                file.Hash = new Span<byte>(data.Data, (int)data.DataLength).XxHash64();
+                file.Hash = new Span<byte>(data.Data, (int)data.DataLength).XxHash64().Value;
 
                 // Copy to SOLID block
                 Buffer.MemoryCopy(data.Data, decompressedPtr + decompressedBlockOffset,
