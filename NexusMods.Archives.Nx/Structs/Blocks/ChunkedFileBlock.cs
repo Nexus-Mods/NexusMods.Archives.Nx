@@ -1,8 +1,9 @@
-using System.IO.Hashing;
+using System.Diagnostics;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -67,7 +68,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     /// <summary>
     ///     Instance of the Microsoft xxHash64 hasher.
     /// </summary>
-    private readonly XxHash64 _hash = new();
+    private XxHash64Algorithm _hash = new();
 
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.
@@ -83,8 +84,6 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public void UpdateState(int chunkIndex, PackerPoolRental compData, int compressedSize, TableOfContentsBuilder<T> tocBuilder,
         PackerSettings settings, int blockIndex, Span<byte> rawChunkData, bool asCopy)
     {
-        UpdateHash(rawChunkData);
-
         // Write out actual block.
         BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compData, compressedSize, settings.Progress);
 
@@ -98,24 +97,38 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
 
         // Update file details once all chunks are done..
         if (chunkIndex != NumChunks - 1)
+        {
+            AppendHash(rawChunkData);
             return;
+        }
 
         ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
         file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[File.RelativePath];
         file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.
         file.DecompressedSize = (ulong)File.FileSize;
         file.DecompressedBlockOffset = 0;
-        file.Hash = GetFinalHash();
+        file.Hash = GetFinalHash(rawChunkData);
     }
 
     /// <summary>
     ///     Updates the current hash.
     /// </summary>
     /// <param name="data">The data to be hashed.</param>
-    private void UpdateHash(Span<byte> data) => _hash.Append(data);
+    internal void AppendHash(Span<byte> data)
+    {
+        Debug.Assert(data.Length % 32 == 0);
+        _hash.TransformByteGroupsInternal(data);
+    }
 
     /// <summary>
     ///     Receive the final hash.
     /// </summary>
-    private ulong GetFinalHash() => _hash.GetCurrentHashAsUInt64();
+    private ulong GetFinalHash(Span<byte> remainingData)
+    {
+        var initialSize = (remainingData.Length >> 5) << 5;
+        if (initialSize > 0)
+            _hash.TransformByteGroupsInternal(remainingData[..initialSize]);
+
+        return _hash.FinalizeHashValueInternal(remainingData[initialSize..]);
+    }
 }

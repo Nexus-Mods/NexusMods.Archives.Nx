@@ -1,8 +1,8 @@
-using System.IO.Hashing;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Hashing.xxHash64;
 #if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
 #endif
@@ -68,7 +68,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 file.FirstBlockIndex = blockIndex;
                 file.DecompressedSize = data.DataLength;
                 file.DecompressedBlockOffset = decompressedBlockOffset;
-                file.Hash = XxHash64.HashToUInt64(new Span<byte>(data.Data, (int)data.DataLength));
+                file.Hash = new Span<byte>(data.Data, (int)data.DataLength).XxHash64().Value;
 
                 // Copy to SOLID block
                 Buffer.MemoryCopy(data.Data, decompressedPtr + decompressedBlockOffset,

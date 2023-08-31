@@ -77,6 +77,7 @@ NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult.HeaderParserResult
 NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult.HeaderSize.get -> int
 NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult.HeaderSize.init -> void
 NexusMods.Archives.Nx.Headers.Managed.FileEntry
+NexusMods.Archives.Nx.Headers.Managed.FileEntry.AsHash.get -> NexusMods.Hashing.xxHash64.Hash
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.DecompressedBlockOffset -> int
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.DecompressedSize -> ulong
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.FileEntry() -> void
@@ -112,6 +113,7 @@ NexusMods.Archives.Nx.Headers.Native.INativeFileEntry
 NexusMods.Archives.Nx.Headers.Native.INativeFileEntry.CopyFrom(in NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.Headers.Native.INativeFileEntry.CopyTo(ref NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0
+NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.AsHash.get -> NexusMods.Hashing.xxHash64.Hash
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.CopyFrom(in NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.CopyTo(ref NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.DecompressedBlockOffset.get -> int
@@ -125,6 +127,7 @@ NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.FirstBlockIndex.set -> vo
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.Hash -> ulong
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.NativeFileEntryV0() -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1
+NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.AsHash.get -> NexusMods.Hashing.xxHash64.Hash
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.CopyFrom(in NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.CopyTo(ref NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.DecompressedBlockOffset.get -> int

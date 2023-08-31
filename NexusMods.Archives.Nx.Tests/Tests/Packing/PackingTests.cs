@@ -1,11 +1,12 @@
 using AutoFixture;
 using AutoFixture.Xunit2;
+using FluentAssertions;
 using NexusMods.Archives.Nx.FileProviders;
-using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Hashing.xxHash64;
+using Xunit.Sdk;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
@@ -65,6 +66,14 @@ public class PackingTests
             unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
                 new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
+        // Assert hashes are correct
+        foreach (var ext in extracted)
+        {
+            var extractedHash = ext.Data.XxHash64();
+            var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
+            extractedHash.Should().Be(expectedHash);
+        }
+
         // Verify data.
         AssertExtracted(extracted);
     }
@@ -84,6 +93,14 @@ public class PackingTests
         var extracted =
             unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
                 new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+
+        // Assert hashes are correct
+        foreach (var ext in extracted)
+        {
+            var extractedHash = ext.Data.XxHash64();
+            var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
+            extractedHash.Should().Be(expectedHash);
+        }
 
         // Verify data.
         AssertExtracted(extracted);
