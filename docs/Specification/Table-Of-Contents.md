@@ -90,6 +90,8 @@ This way the decoding logic can work when given either a padded or unpadded size
 
 ## String Pool
 
+!!! note "Nx archives should only use '/' as the path delimiter."
+
 Raw buffer of UTF-8 deduplicated strings of file paths. Each string is null terminated.
 The strings in this pool are first lexicographically sorted (to group similar paths together); and then compressed using ZStd.
 As for decompression, size of this pool is unknown until after decompression is done; file header should specify sufficient buffer size.
