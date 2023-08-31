@@ -1,12 +1,11 @@
 ﻿# Interfaces
 
-These interfaces define the structure for providing access to underlying file data and creating instances of file data, 
+These interfaces define the structure for providing access to underlying file data and creating instances of file data,
 particularly useful for unpacking purposes.
 
 ## IFileData Interface
 
-!!! info "The `IFileData` interface provides access to underlying file data. This is particularly useful for read 
-operations where the entire file is not yet available, such as over a network; you should stall until you can provide enough data."
+!!! info "The `IFileData` interface provides access to underlying file data. This is particularly useful for read operations where the entire file is not yet available, such as over a network; you should stall until you can provide enough data."
 
 ### Properties
 
