@@ -315,6 +315,7 @@ NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Dispose() -> void
 NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Length.get -> int
 NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Rental.get -> NexusMods.Archives.Nx.Utilities.ArrayRental
 NexusMods.Archives.Nx.Utilities.ArrayRentalSlice.Span.get -> System.Span<byte>
+NexusMods.Archives.Nx.Utilities.Compression
 NexusMods.Archives.Nx.Utilities.FileFinder
 NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException
 NexusMods.Archives.Nx.Utilities.InsufficientStringPoolSizeException.InsufficientStringPoolSizeException(string? message) -> void
@@ -396,6 +397,10 @@ static NexusMods.Archives.Nx.Headers.StringPool.Unpack(byte* poolPtr, int compre
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan) -> string![]!
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan, int fileCountHint) -> string![]!
 static NexusMods.Archives.Nx.Packing.NxPacker.Pack(NexusMods.Archives.Nx.Structs.PackerFile![]! files, NexusMods.Archives.Nx.Structs.PackerSettings! settings) -> void
+static NexusMods.Archives.Nx.Utilities.Compression.AllocForCompressSize(NexusMods.Archives.Nx.Enums.CompressionPreference method, int sourceLength) -> int
+static NexusMods.Archives.Nx.Utilities.Compression.Compress(NexusMods.Archives.Nx.Enums.CompressionPreference method, int level, byte* source, int sourceLength, byte* destination, int destinationLength, out bool defaultedToCopy) -> int
+static NexusMods.Archives.Nx.Utilities.Compression.Decompress(NexusMods.Archives.Nx.Enums.CompressionPreference method, byte* source, int sourceLength, byte* destination, int destinationLength) -> void
+static NexusMods.Archives.Nx.Utilities.Compression.MaxAllocForCompressSize(int sourceLength) -> int
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.EnumerationOptions! options) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.SearchOption searchOption) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
