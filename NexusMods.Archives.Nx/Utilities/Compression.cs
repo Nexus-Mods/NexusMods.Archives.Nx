@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using K4os.Compression.LZ4;
 using NexusMods.Archives.Nx.Enums;
 using SharpZstd.Interop;
@@ -13,7 +14,7 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// <summary>
 ///     Utility methods for performing compression and decompression.
 /// </summary>
-internal static class Compression
+public static class Compression
 {
     /// <summary>
     ///     Determines maximum memory needed to alloc to compress data with any method.
@@ -176,7 +177,7 @@ internal static class Compression
     /// <param name="length">Length of data at 'input'.</param>
     /// <param name="level">Level at which to compress at.</param>
     /// <returns>The compressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice CompressZStd(byte* input, int length, int level = 16)
+    internal static unsafe ArrayRentalSlice CompressZStd(byte* input, int length, int level = 16)
     {
         var result = new ArrayRental((int)ZSTD_compressBound((nuint)length));
         fixed (byte* resultPtr = result.Span)
@@ -192,7 +193,7 @@ internal static class Compression
     /// <param name="input">The data to compress.</param>
     /// <param name="level">Level at which to compress at.</param>
     /// <returns>The compressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice CompressZStd(Span<byte> input, int level = 16)
+    internal static unsafe ArrayRentalSlice CompressZStd(Span<byte> input, int level = 16)
     {
         fixed (byte* inputPtr = input)
         {
@@ -206,7 +207,7 @@ internal static class Compression
     /// <param name="compressedDataPtr">Pointer to compressed data.</param>
     /// <param name="compressedSize">Size of compressed data at <paramref name="compressedDataPtr" />.</param>
     /// <returns>The decompressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize) => DecompressZStd(compressedDataPtr,
+    internal static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize) => DecompressZStd(compressedDataPtr,
         compressedSize, (int)ZSTD_findDecompressedSize(compressedDataPtr, (nuint)compressedSize));
 
     /// <summary>
@@ -216,7 +217,7 @@ internal static class Compression
     /// <param name="compressedSize">Size of compressed data at <paramref name="compressedDataPtr" />.</param>
     /// <param name="decompressedSize">Known ahead of time size for decompressed data.</param>
     /// <returns>The decompressed data. Make sure to dispose it!</returns>
-    public static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize, int decompressedSize)
+    internal static unsafe ArrayRentalSlice DecompressZStd(byte* compressedDataPtr, int compressedSize, int decompressedSize)
     {
         var result = new ArrayRental(decompressedSize);
         var resultSpan = result.Span;
