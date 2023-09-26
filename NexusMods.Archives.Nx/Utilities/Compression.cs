@@ -142,14 +142,24 @@ public static class Compression
                 {
                     result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
                     var error = ZSTD_isError(result);
-                    if (error <= 0)
+                    if (error > 0)
+                    {
+                        var namePtr = (nint)ZSTD_getErrorName(result);
+                        var str = Marshal.PtrToStringAnsi(namePtr);
+                        ZSTD_freeDStream(dStream);
+                        throw new InvalidOperationException($"ZStd Decompression error: {str}");
+                    }
+
+                    // Not decompressed everything.
+                    if (outBuf.pos != outBuf.size)
                         continue;
 
-                    var namePtr = (nint)ZSTD_getErrorName(result);
-                    var str = Marshal.PtrToStringAnsi(namePtr);
-                    ZSTD_freeDStream(dStream);
-                    throw new InvalidOperationException($"ZStd Decompression error: {str}");
-                } while (result != 0 || outBuf.pos < (nuint)destinationLength);
+                    // To quote the docs:
+                    // But if `output.pos == output.size`, there might be some data left within internal buffers.,
+                    // In which case, call ZSTD_decompressStream() again to flush whatever remains in the buffer.
+                    ZSTD_decompressStream(dStream, &outBuf, &inBuf);
+                    break;
+                } while (outBuf.pos < (nuint)destinationLength);
 
                 ZSTD_freeDStream(dStream);
                 return;
