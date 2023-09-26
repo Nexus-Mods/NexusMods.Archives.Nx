@@ -1,6 +1,7 @@
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
@@ -53,8 +54,6 @@ public class PackingTests
     [AutoData]
     public void Can_Pack_And_Unpack_WithSolidOnlyBlocks(IFixture fixture)
     {
-        // Solid Blocks are LZ4 by default.
-        // Act
         var files = GetRandomDummyFiles(fixture, 4096, 4096, 16384, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
@@ -65,6 +64,44 @@ public class PackingTests
         var extracted =
             unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
                 new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+
+        // Assert hashes are correct
+        foreach (var ext in extracted)
+        {
+            var extractedHash = ext.Data.XxHash64();
+            var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
+            extractedHash.Should().Be(expectedHash);
+        }
+
+        // Verify data.
+        AssertExtracted(extracted);
+    }
+
+    /// <summary>
+    /// This test catches an edge case where a SOLID block may be partially decompressed.
+    /// This can happen in the scenario where only the first file of a SOLID block (offset 0) is required to be unpacked to 1 output source.
+    /// </summary>
+    /// <remarks>
+    ///     See associated PR https://github.com/Nexus-Mods/NexusMods.Archives.Nx/pull/13 for more details.
+    /// </remarks>
+    [Theory]
+    [InlineAutoData(CompressionPreference.Lz4)]
+    [InlineAutoData(CompressionPreference.Copy)]
+    [InlineAutoData(CompressionPreference.ZStandard)]
+    public void Can_Pack_And_Unpack_FirstSolidItem(CompressionPreference solidAlgorithm, IFixture fixture)
+    {
+        var files = GetRandomDummyFiles(fixture, 4, 16, 128, out var settings);
+        settings.BlockSize = 1048575;
+        settings.SolidBlockAlgorithm = solidAlgorithm;
+        NxPacker.Pack(files, settings);
+        settings.Output.Position = 0;
+        var streamProvider = new FromStreamProvider(settings.Output);
+
+        // Test succeeds if it doesn't throw.
+        var unpacker = new NxUnpacker(streamProvider);
+        var firstFileInSolidBlock = unpacker.GetFileEntriesRaw().ToArray().Where(x => x.DecompressedBlockOffset == 0).ToArray();
+        var extracted =
+            unpacker.ExtractFilesInMemory(firstFileInSolidBlock, new UnpackerSettings());
 
         // Assert hashes are correct
         foreach (var ext in extracted)
