@@ -85,7 +85,7 @@ public class PackingTests
     ///     See associated PR https://github.com/Nexus-Mods/NexusMods.Archives.Nx/pull/13 for more details.
     /// </remarks>
     [Theory]
-    [InlineAutoData(CompressionPreference.Lz4)]
+    // [InlineAutoData(CompressionPreference.Lz4)] // Broken until PR in K4os.Compression.LZ4 is merged.
     [InlineAutoData(CompressionPreference.Copy)]
     [InlineAutoData(CompressionPreference.ZStandard)]
     public void Can_Pack_And_Unpack_FirstSolidItem(CompressionPreference solidAlgorithm, IFixture fixture)
