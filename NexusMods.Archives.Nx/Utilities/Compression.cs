@@ -167,7 +167,7 @@ public static class Compression
             case CompressionPreference.Lz4:
             {
                 // Fastest API with minimal alloc.
-                var result = LZ4Codec.Decode(source, sourceLength, destination, destinationLength);
+                var result = LZ4Codec.PartialDecode(source, sourceLength, destination, destinationLength);
                 if (result < 0)
                     throw new InvalidOperationException($"LZ4 Decompression error: {result}");
 
