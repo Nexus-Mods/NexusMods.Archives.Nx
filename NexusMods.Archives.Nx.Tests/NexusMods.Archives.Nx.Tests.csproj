@@ -35,4 +35,14 @@
         <ProjectReference Include="..\NexusMods.Archives.Nx\NexusMods.Archives.Nx.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Assets\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Assets\**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

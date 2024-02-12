@@ -66,9 +66,9 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public T File { get; init; } = default!;
 
     /// <summary>
-    ///     Instance of the Microsoft xxHash64 hasher.
+    ///     Instance of the Nexus xxHash64 hasher.
     /// </summary>
-    private XxHash64Algorithm _hash = new();
+    private XxHash64Algorithm _hash = new(0);
 
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.
