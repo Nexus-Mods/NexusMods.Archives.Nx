@@ -66,9 +66,9 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public T File { get; init; } = default!;
 
     /// <summary>
-    ///     Instance of the Microsoft xxHash64 hasher.
+    ///     Instance of the Nexus xxHash64 hasher.
     /// </summary>
-    private XxHash64Algorithm _hash = new();
+    private XxHash64Algorithm _hash = new(0);
 
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.
@@ -85,7 +85,8 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         PackerSettings settings, int blockIndex, Span<byte> rawChunkData, bool asCopy)
     {
         // Write out actual block.
-        BlockHelpers.WriteToOutputLocked(tocBuilder, blockIndex, settings.Output, compData, compressedSize, settings.Progress);
+        BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
+        BlockHelpers.WriteToOutput(settings.Output, compData, compressedSize);
 
         // Update Block Details
         var toc = tocBuilder.Toc;
@@ -99,9 +100,12 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         if (chunkIndex != NumChunks - 1)
         {
             AppendHash(rawChunkData);
+            BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
             return;
         }
 
+        // Only executed on final thread, so we can end and increment early.
+        BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
         ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
         file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[File.RelativePath];
         file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.

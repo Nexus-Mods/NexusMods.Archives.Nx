@@ -3,11 +3,12 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
+using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
 using NexusMods.Hashing.xxHash64;
-using Xunit.Sdk;
+using NxPackerBuilder = NexusMods.Archives.Nx.Packing.NxPackerBuilder;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
@@ -17,6 +18,39 @@ namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 /// </summary>
 public class PackingTests
 {
+    [Fact(Skip = "This data set is too big to include in the repo. Remove this Skip comment, adjust the path and test manually. " +
+                 "This is just a last resort sanity test I (Sewer) decided to keep around. The other tests cover everything present here already," +
+                 "but sometimes it's better to test real data, with realistic settings. I like to leave this test running on loop for a while " +
+                 "if I think there's a bug.")]
+    // SMIM SE 2-08-659-2-08.7z
+    // https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id=59069&game_id=1704
+    public void Packing_RealData_RoundTrips()
+    {
+        // Testing some weird hash weirdness
+        var path = "/home/sewer/Downloads/SMIM SE 2-08-659-2-08";
+        var packed = PackWithFilesFromDirectory(path);
+        var map = CreateHashToStringMap("Assets/SMIM SE 2-08-659-2-08-Hashes.txt");
+
+        // Test succeeds if it doesn't throw.
+        packed.Position = 0;
+        var unpacker = new NxUnpacker(new FromStreamProvider(packed), true);
+        var entries = unpacker.GetPathedFileEntries();
+        var entryHashes = new HashSet<ulong>();
+        var unpackSettings = new UnpackerSettings();
+
+        foreach (var entry in entries)
+        {
+            var entryData = unpacker.ExtractFilesInMemory(new[] { entry.Entry }, unpackSettings);
+            var entryHash = entryData[0].Data.XxHash64();
+            entryHash.Value.Should().Be(entry.Entry.Hash); // Verify extracted file hash matches the stored header data.
+            entryHashes.Add(entry.Entry.Hash);
+        }
+
+        // Verify that each expected hash from text file is present.
+        foreach (var kv in map)
+            entryHashes.Contains(kv.Key).Should().BeTrue($"Failed to find hash for file: {kv.Value}. With hash {kv.Key:X}");
+    }
+
     [Theory]
     [AutoData]
     public NxUnpacker Can_Pack_And_Parse_Baseline(IFixture fixture)
@@ -70,7 +104,9 @@ public class PackingTests
         {
             var extractedHash = ext.Data.XxHash64();
             var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
+            var savedHash = Hash.From(ext.Entry.Hash);
             extractedHash.Should().Be(expectedHash);
+            savedHash.Should().Be(expectedHash);
         }
 
         // Verify data.
@@ -136,7 +172,9 @@ public class PackingTests
         {
             var extractedHash = ext.Data.XxHash64();
             var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
+            var savedHash = Hash.From(ext.Entry.Hash);
             extractedHash.Should().Be(expectedHash);
+            savedHash.Should().Be(expectedHash);
         }
 
         // Verify data.
@@ -269,5 +307,27 @@ public class PackingTests
                     Assert.Fail($"Data[x] is {data[x]}, Should be: {(byte)(x % 255)}");
             }
         }
+    }
+
+    private Stream PackWithFilesFromDirectory(string directoryPath)
+    {
+        var output = new MemoryStream();
+        var builder = new NxPackerBuilder();
+        builder.AddFolder(directoryPath);
+        builder.WithOutput(output);
+        return builder.Build(false);
+    }
+
+    private Dictionary<ulong, string> CreateHashToStringMap(string hashesFilePath)
+    {
+        var hashToPathMap = new Dictionary<ulong, string>();
+
+        foreach (var entry in File.ReadAllLines(hashesFilePath))
+        {
+            var parts = entry.Split(',');
+            hashToPathMap[Convert.ToUInt64(parts[1], 16)] = parts[0];
+        }
+
+        return hashToPathMap;
     }
 }
