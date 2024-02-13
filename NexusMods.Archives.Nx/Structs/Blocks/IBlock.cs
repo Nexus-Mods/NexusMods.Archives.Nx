@@ -51,9 +51,19 @@ internal static class BlockHelpers
         int destinationLength, out bool asCopy) => Compression.Compress(compression, compressionLevel, data.Data, (int)data.DataLength,
         destinationPtr, destinationLength, out asCopy);
 
+    /// <summary>
+    ///     Calls to this method should be wrapped with <see cref="StartProcessingBlock{T}"/> and <see cref="EndProcessingBlock{T}"/>.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void WriteToOutputLocked<T>(TableOfContentsBuilder<T> builder, int blockIndex, Stream output, PackerPoolRental compressedBlock,
-        int numBytes, IProgress<double>? progress) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
+    public static void WriteToOutputLocked(Stream output, PackerPoolRental compressedBlock, int numBytes)
+    {
+        // Copy to output stream and pad.
+        output.Write(compressedBlock.Array, 0, numBytes);
+        output.SetLength(output.Length.RoundUp4096());
+        output.Position = output.Length;
+    }
+
+    internal static void StartProcessingBlock<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
@@ -65,12 +75,10 @@ internal static class BlockHelpers
             spinWait.SpinOnce();
 #endif
         }
+    }
 
-        // Copy to output stream and pad.
-        output.Write(compressedBlock.Array, 0, numBytes);
-        output.SetLength(output.Length.RoundUp4096());
-        output.Position = output.Length;
-
+    internal static void EndProcessingBlock<T>(TableOfContentsBuilder<T> builder, IProgress<double>? progress) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
+    {
         // Advance to next block.
         var lastBlock = builder.GetAndIncrementBlockIndexAtomic();
 

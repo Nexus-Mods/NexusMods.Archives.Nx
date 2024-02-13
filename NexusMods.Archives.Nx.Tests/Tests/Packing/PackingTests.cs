@@ -3,6 +3,7 @@ using AutoFixture.Xunit2;
 using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
+using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
@@ -17,10 +18,13 @@ namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 /// </summary>
 public class PackingTests
 {
-    [Fact]
+    [Fact(Skip = "This data set is too big to include in the repo. Remove this Skip comment, adjust the path and test manually. " +
+                 "This is just a last resort sanity test I (Sewer) decided to keep around. The other tests cover everything present here already," +
+                 "but sometimes it's better to test real data, with realistic settings. I like to leave this test running on loop for a while " +
+                 "if I think there's a bug.")]
+    // SMIM SE 2-08-659-2-08.7z
     // https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id=59069&game_id=1704
-    [Trait("RequiresExternalAsset_SMIM", "OptIn")] // Files we don't want to ship in repo because they're big.
-    public void Packing_Creates_Correct_Files()
+    public void Packing_RealData_RoundTrips()
     {
         // Testing some weird hash weirdness
         var path = "/home/sewer/Downloads/SMIM SE 2-08-659-2-08";
@@ -32,12 +36,19 @@ public class PackingTests
         var unpacker = new NxUnpacker(new FromStreamProvider(packed), true);
         var entries = unpacker.GetPathedFileEntries();
         var entryHashes = new HashSet<ulong>();
+        var unpackSettings = new UnpackerSettings();
 
         foreach (var entry in entries)
+        {
+            var entryData = unpacker.ExtractFilesInMemory(new[] { entry.Entry }, unpackSettings);
+            var entryHash = entryData[0].Data.XxHash64();
+            entryHash.Value.Should().Be(entry.Entry.Hash); // Verify extracted file hash matches the stored header data.
             entryHashes.Add(entry.Entry.Hash);
+        }
 
+        // Verify that each expected hash from text file is present.
         foreach (var kv in map)
-            entryHashes.Contains(kv.Key).Should().BeTrue($"Failed to find hash for file: {kv.Value}");
+            entryHashes.Contains(kv.Key).Should().BeTrue($"Failed to find hash for file: {kv.Value}. With hash {kv.Key:X}");
     }
 
     [Theory]
@@ -45,7 +56,7 @@ public class PackingTests
     public NxUnpacker Can_Pack_And_Parse_Baseline(IFixture fixture)
     {
         // Act
-        NxPacker.Pack(PackWithFilesFromDirectory(fixture, 4096, 16384, 32766, out var settings), settings);
+        NxPacker.Pack(GetRandomDummyFiles(fixture, 4096, 16384, 32766, out var settings), settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
 
@@ -58,7 +69,7 @@ public class PackingTests
     public void Can_Pack_And_Unpack_Baseline(IFixture fixture)
     {
         // Act
-        var files = PackWithFilesFromDirectory(fixture, 4096, 65535, 65535 * 2, out var settings);
+        var files = GetRandomDummyFiles(fixture, 4096, 65535, 65535 * 2, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -77,7 +88,7 @@ public class PackingTests
     [AutoData]
     public void Can_Pack_And_Unpack_WithSolidOnlyBlocks(IFixture fixture)
     {
-        var files = PackWithFilesFromDirectory(fixture, 4096, 4096, 16384, out var settings);
+        var files = GetRandomDummyFiles(fixture, 4096, 4096, 16384, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -115,7 +126,7 @@ public class PackingTests
     [InlineAutoData(CompressionPreference.ZStandard)]
     public void Can_Pack_And_Unpack_FirstSolidItem(CompressionPreference solidAlgorithm, IFixture fixture)
     {
-        var files = PackWithFilesFromDirectory(fixture, 4, 16, 128, out var settings);
+        var files = GetRandomDummyFiles(fixture, 4, 16, 128, out var settings);
         settings.BlockSize = 1048575;
         settings.SolidBlockAlgorithm = solidAlgorithm;
         NxPacker.Pack(files, settings);
@@ -145,7 +156,7 @@ public class PackingTests
     public void Can_Pack_And_Unpack_WithChunkedOnlyBlocks(IFixture fixture)
     {
         // Act
-        var files = PackWithFilesFromDirectory(fixture, 32, 1048577, 4194308, out var settings);
+        var files = GetRandomDummyFiles(fixture, 32, 1048577, 4194308, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -175,7 +186,7 @@ public class PackingTests
     public void Can_Pack_And_Unpack_WithEmptyFiles(IFixture fixture)
     {
         // Act
-        var files = PackWithFilesFromDirectory(fixture, 4096, 0, 0, out var settings);
+        var files = GetRandomDummyFiles(fixture, 4096, 0, 0, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -195,7 +206,7 @@ public class PackingTests
     public void Can_Pack_And_Unpack_EmptyArchive(IFixture fixture)
     {
         // Act
-        var files = PackWithFilesFromDirectory(fixture, 0, 0, 0, out var settings);
+        var files = GetRandomDummyFiles(fixture, 0, 0, 0, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -215,7 +226,7 @@ public class PackingTests
     public void Can_Pack_And_Unpack_ToDisk(IFixture fixture)
     {
         // Act
-        var files = PackWithFilesFromDirectory(fixture, 16, 1048577, 4194308, out var settings);
+        var files = GetRandomDummyFiles(fixture, 16, 1048577, 4194308, out var settings);
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
@@ -241,7 +252,7 @@ public class PackingTests
         }
     }
 
-    private PackerFile[] PackWithFilesFromDirectory(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
+    private PackerFile[] GetRandomDummyFiles(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
     {
         var output = new MemoryStream();
         settings = new PackerSettings
@@ -302,7 +313,6 @@ public class PackingTests
     {
         var output = new MemoryStream();
         var builder = new NxPackerBuilder();
-        builder.WithMaxNumThreads(1);
         builder.AddFolder(directoryPath);
         builder.WithOutput(output);
         return builder.Build(false);
