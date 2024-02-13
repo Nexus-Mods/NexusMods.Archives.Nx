@@ -86,7 +86,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     {
         // Write out actual block.
         BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
-        BlockHelpers.WriteToOutputLocked(settings.Output, compData, compressedSize);
+        BlockHelpers.WriteToOutput(settings.Output, compData, compressedSize);
 
         // Update Block Details
         var toc = tocBuilder.Toc;

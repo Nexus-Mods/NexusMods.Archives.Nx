@@ -89,7 +89,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 blockCompression = asCopy ? CompressionPreference.Copy : Compression;
 
                 BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
-                BlockHelpers.WriteToOutputLocked(settings.Output, compressedAlloc, blockSize.CompressedSize);
+                BlockHelpers.WriteToOutput(settings.Output, compressedAlloc, blockSize.CompressedSize);
                 BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
             }
         }
