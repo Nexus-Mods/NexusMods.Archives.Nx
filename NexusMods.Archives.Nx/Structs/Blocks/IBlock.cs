@@ -55,7 +55,7 @@ internal static class BlockHelpers
     ///     Calls to this method should be wrapped with <see cref="StartProcessingBlock{T}"/> and <see cref="EndProcessingBlock{T}"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void WriteToOutput(Stream output, PackerPoolRental compressedBlock, int numBytes)
+    internal static void WriteToOutput(Stream output, PackerPoolRental compressedBlock, int numBytes)
     {
         // Copy to output stream and pad.
         output.Write(compressedBlock.Array, 0, numBytes);
