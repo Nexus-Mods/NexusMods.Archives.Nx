@@ -132,9 +132,9 @@ public class NativeHeaderPackingTests
     }
 
     [Theory]
-    [InlineData(0, 4194304)]
-    [InlineData(1, 8388608)]
-    [InlineData(7, 536870912)]
+    [InlineData(0, 1048576)]
+    [InlineData(1, 2097152)]
+    [InlineData(7, 134217728)]
     public void ChunkSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();

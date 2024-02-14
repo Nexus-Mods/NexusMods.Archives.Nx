@@ -39,9 +39,9 @@ public class PackerSettings
 
     /// <summary>
     ///     Size of large file chunks.
-    ///     Range is 4194304 (4 MiB) to 536870912 (512 MiB).
+    ///     Range is 1048576 (1 MiB) to 134217728 (128 MiB).
     /// </summary>
-    public int ChunkSize { get; set; } = 16777216;
+    public int ChunkSize { get; set; } = 1048576;
 
     /// <summary>
     ///     Compression level to use for SOLID data.
@@ -86,7 +86,7 @@ public class PackerSettings
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
 
         BlockSize = Polyfills.Clamp(BlockSize, 32767, 67108863);
-        ChunkSize = Polyfills.Clamp(ChunkSize, 4194304, 536870912);
+        ChunkSize = Polyfills.Clamp(ChunkSize, 1048576, 134217728);
         if (ChunkSize <= BlockSize)
             ChunkSize = BlockSize + 1;
 

@@ -7,10 +7,10 @@ namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 public class PackerSettingsTests
 {
     [Theory]
-    [InlineData(536870913, 536870912)]
-    [InlineData(int.MaxValue, 536870912)]
-    [InlineData(4194303, 4194304)]
-    [InlineData(int.MinValue, 4194304)]
+    [InlineData(134217727, 134217728)]
+    [InlineData(int.MaxValue, 134217728)]
+    [InlineData(1048575, 1048576)]
+    [InlineData(int.MinValue, 1048576)]
     public void ChunkSize_IsClamped(int chunkSize, int expected)
     {
         var settings = new PackerSettings { Output = Stream.Null };

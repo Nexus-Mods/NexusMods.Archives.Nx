@@ -70,7 +70,6 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
 
     /// <summary>
     ///     [u3] Gets or sets the large chunk size in its encoded raw value (0-7).<br />
-    ///     (Blocks are encoded as (32768 &lt;&lt; blockSize) - 1)
     /// </summary>
     public byte ChunkSize
     {
@@ -80,7 +79,6 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
 
     /// <summary>
     ///     [u13] Gets or sets the number of compressed pages to store the entire ToC (incl. compressed stringpool).<br />
-    ///     (Blocks are encoded as (32768 &lt;&lt; blockSize) - 1)
     /// </summary>
     public ushort HeaderPageCount
     {
@@ -113,8 +111,8 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     public int ChunkSizeBytes
     {
-        get => 4194304 << ChunkSize;
-        set => ChunkSize = (byte)Math.Log(value >> 22, 2);
+        get => 1048576 << ChunkSize;
+        set => ChunkSize = (byte)Math.Log(value >> 20, 2);
     }
 
     /// <summary>
