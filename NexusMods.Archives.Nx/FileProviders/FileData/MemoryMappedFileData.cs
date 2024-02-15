@@ -1,6 +1,10 @@
 using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
+#if NET5_0_OR_GREATER
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+#endif
 
 // ReSharper disable IntroduceOptionalParameters.Global
 
@@ -77,6 +81,23 @@ public sealed class MemoryMappedFileData : IFileData
         _mappedFileView = _mappedFile!.CreateViewAccessor(start, length, access);
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
         DataLength = length;
+
+        // Provide some OS specific hints
+        // POSIX compliant
+#if NET5_0_OR_GREATER
+        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS() || OperatingSystem.IsFreeBSD() || OperatingSystem.IsAndroid()
+            || OperatingSystem.IsIOS())
+        {
+            // Also tried MADV_SEQUENTIAL, but didn't yield a benefit (on Linux) strangely.
+            madvise(Data, length, 3); // MADV_WILLNEED
+        }
+        else if (OperatingSystem.IsWindows())
+        {
+            var entries = stackalloc MemoryRangeEntry[1];
+            entries[0] = new MemoryRangeEntry { VirtualAddress = (nint)Data, NumberOfBytes = DataLength };
+            PrefetchVirtualMemory(Process.GetCurrentProcess().Handle, (nuint)1, entries, 0);
+        }
+#endif
     }
 
     private unsafe void InitEmpty()
@@ -89,4 +110,27 @@ public sealed class MemoryMappedFileData : IFileData
 
     /// <inheritdoc />
     ~MemoryMappedFileData() => Dispose();
+
+    #region Memory Access Hints for OSes
+#if NET5_0_OR_GREATER
+    // POSIX Compatible
+    [DllImport("libc.so.6", EntryPoint = "madvise")]
+    private static extern unsafe int madvise(byte* addr, nuint length, int advice);
+
+    // Windows-Like
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MemoryRangeEntry
+    {
+        public nint VirtualAddress;
+        public nuint NumberOfBytes;
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern unsafe bool PrefetchVirtualMemory(
+        IntPtr hProcess,
+        UIntPtr numberOfEntries,
+        MemoryRangeEntry* memoryRanges,
+        uint flags);
+#endif
+    #endregion
 }
