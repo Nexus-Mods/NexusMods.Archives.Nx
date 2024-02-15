@@ -48,6 +48,9 @@ internal static class Polyfills
         if (value == int.MaxValue)
             return value;
 
+        if (value > int.MaxValue >> 1)
+            return int.MaxValue;
+
 #if NET7_0_OR_GREATER
         return (int)BitOperations.RoundUpToPowerOf2((uint)value);
 #else
