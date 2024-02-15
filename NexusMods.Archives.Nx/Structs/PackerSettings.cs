@@ -28,7 +28,8 @@ public class PackerSettings
     /// <summary>
     ///     Maximum number of threads allowed.
     /// </summary>
-    public int MaxNumThreads { get; set; } = Environment.ProcessorCount;
+    public int MaxNumThreads { get; set; } = NxEnvironment.PhysicalCoreCount;
+    // HT/SMT hurts here, due to sub-par concurrency handling and fact core cache is split.
 
     /// <summary>
     ///     Size of SOLID blocks.

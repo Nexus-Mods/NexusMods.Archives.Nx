@@ -112,6 +112,7 @@ public sealed class MemoryMappedFileData : IFileData
     ~MemoryMappedFileData() => Dispose();
 
     #region Memory Access Hints for OSes
+
 #if NET5_0_OR_GREATER
     // POSIX Compatible
     [DllImport("libc.so.6", EntryPoint = "madvise")]
@@ -132,5 +133,6 @@ public sealed class MemoryMappedFileData : IFileData
         MemoryRangeEntry* memoryRanges,
         uint flags);
 #endif
+
     #endregion
 }
