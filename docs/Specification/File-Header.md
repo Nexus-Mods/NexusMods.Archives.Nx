@@ -47,9 +47,9 @@ Stored so the decompressor knows how many chunks a file is split into; and how m
 Also limits memory use on 4+GB archives.  
 
 Size: `3 bits`, (0-7).  
-Parsed as `4194304 << chunkSize`.  
+Parsed as `1048576 << chunkSize`.  
 
-i.e. ChunkSize = 7 is `536870912` (512MiB, i.e. 2^29).  
+i.e. ChunkSize = 7 is `134217728` (128MiB, i.e. 2^27).  
 
 !!! note
 
