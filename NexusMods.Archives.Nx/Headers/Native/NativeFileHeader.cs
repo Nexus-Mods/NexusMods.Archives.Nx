@@ -73,12 +73,25 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     }
 
     /// <summary>
-    ///     [u13] Gets or sets the number of compressed pages used to store the entire ToC (incl. compressed stringpool).<br />
+    ///     [u13] Gets or sets the number of compressed pages used to store the entire ToC (incl. compressed stringpool).
     /// </summary>
     public ushort HeaderPageCount
     {
-        get => (ushort)(_headerData & 0b00011111_11111111);
-        set => _headerData = (_headerData & 0b11111111_11111111_11100000_00000000) | value;
+        get => (ushort)((_headerData >> 8) & 0b11111_11111111);
+        set => _headerData = (_headerData & 0b11111110_11100000_00000000_11111111) | ((uint)value << 8);
+    }
+
+    /// <summary>
+    ///     [u8] Gets/sets the 'feature flags' for this structure.
+    ///     A feature flag represents an extension to the format, such as storing time/date.<br/>
+    /// </summary>
+    /// <remarks>
+    ///     This is internal until any feature flags are actually implemented.
+    /// </remarks>
+    internal ushort FeatureFlags
+    {
+        get => (ushort)(_headerData & 0b11111111);
+        set => _headerData = (_headerData & 0b11111110_11111111_11111111_00000000) | value;
     }
 
     // Note: Not adding a constructor since it could technically be skipped, if not explicitly init'ed by `new`.

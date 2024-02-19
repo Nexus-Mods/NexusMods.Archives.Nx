@@ -24,12 +24,12 @@ string HeaderSize(short r)
 
 string ChunkSize(short r)
 {
-    return "Chunk Size: " + Str("%d", 4194304 << r);
+    return "Chunk Size: " + Str("%d", 32768 << r);
 }
 
 string BlockSize(short r)
 {
-    return "Block Size: " + Str("%d", (32768 << r) - 1);
+    return "Block Size: " + Str("%d", (4096 << r) - 1);
 }
 
 string Version(short r)
@@ -54,11 +54,11 @@ string Compression(short r)
 struct Header
 {
     byte Magic[4];
-    byte Version : 4 <comment=Version>;
-    byte BlockSize : 4 <comment=BlockSize>;
-    uint16 ChunkSize : 3 <comment=ChunkSize>;
-    uint16 PageCount : 13 <comment=HeaderSize>; 
-    byte FeatureFlags;
+    uint32 Version : 3 <comment=Version>;
+    uint32 BlockSize : 4 <comment=BlockSize>;
+    uint32 ChunkSize : 4 <comment=ChunkSize>;
+    uint32 PageCount : 13 <comment=HeaderSize>; 
+    uint32 FeatureFlags : 8;
 };
 
 struct TableOfContentsHeader 
