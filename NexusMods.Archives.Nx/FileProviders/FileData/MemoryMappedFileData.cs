@@ -85,10 +85,14 @@ public sealed class MemoryMappedFileData : IFileData
         // Provide some OS specific hints
         // POSIX compliant
 #if NET5_0_OR_GREATER
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD() || OperatingSystem.IsAndroid())
+        if (OperatingSystem.IsLinux())
         {
             // Also tried MADV_SEQUENTIAL, but didn't yield a benefit (on Linux) strangely.
             madvise(Data, length, 3); // MADV_WILLNEED
+        }
+        else if (OperatingSystem.IsAndroid())
+        {
+            madvise_android(Data, length, 3); // MADV_WILLNEED
         }
         else if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS())
         {
@@ -120,6 +124,10 @@ public sealed class MemoryMappedFileData : IFileData
     // POSIX Compatible
     [DllImport("libc.so.6", EntryPoint = "madvise")]
     private static extern unsafe int madvise(byte* addr, nuint length, int advice);
+
+    // POSIX Compatible
+    [DllImport("libc.so", EntryPoint = "madvise")]
+    private static extern unsafe int madvise_android(byte* addr, nuint length, int advice);
 
     // OSX
     [DllImport("libSystem", EntryPoint = "madvise")]
