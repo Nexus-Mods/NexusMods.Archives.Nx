@@ -1,7 +1,5 @@
 ﻿# Benchmarks
 
-!!! tip "Coming Soon (TM)"
-
 !!! info "Spoiler: This bottlenecks any NVMe 😀"
 
 !!! info
@@ -14,6 +12,10 @@
     - `RAM`: 32GB DDR4-3000 (16-17-17-35)  
     - `OS`: Windows 11 22H2 (Build 22621)  
     - `Storage`: Samsung 980 Pro 1TB (NVMe) [PCI-E 3.0 x4]  
+
+!!! note "Some of the compression benchmarks are very dated, as ZStd 1.5.5 has has huge improvements in handling incompressible data since."
+
+    Nonetheless, hopefully they are useful for reference.
 
 ## Common Data Sets
 
@@ -29,8 +31,6 @@ Texture overhauls in games make a majority of mods which large file sizes out th
 Therefore, having a good compression ratio on this data set is important.  
 
 ### Log Files
-
-!!! tip "[Available Here](./R2Logs.nx)"
 
 !!! info "This dataset consists of 189 [Reloaded-II Logs](https://reloaded-project.github.io/Reloaded-II/) from end users, across various games, with a total size of 12.4MiB"
 

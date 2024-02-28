@@ -24,7 +24,7 @@ public class NativeHeaderPackingTests
     [AutoNativeHeaders]
     public void VersionAndBlockSizeCanBePacked(NativeFileHeader header)
     {
-        foreach (var currentVersion in Permutations.GetBitPackingOverlapTestValues(4))
+        foreach (var currentVersion in Permutations.GetBitPackingOverlapTestValues(3))
             foreach (var currentBlockSize in Permutations.GetBitPackingOverlapTestValues(4))
                 PackingTestHelpers.TestPackedProperties(
                     ref header,
@@ -39,11 +39,11 @@ public class NativeHeaderPackingTests
 
     [Theory]
     [AutoNativeHeaders]
-    public void VersionShouldBe4Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
+    public void VersionShouldBe3Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
         ref header,
         (ref NativeFileHeader instance, long value) => instance.Version = (byte)value,
         (ref NativeFileHeader instance) => instance.Version,
-        4);
+        3);
 
     [Theory]
     [AutoNativeHeaders]
@@ -76,11 +76,11 @@ public class NativeHeaderPackingTests
 
     [Theory]
     [AutoNativeHeaders]
-    public void ChunkSizeShouldBe3Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
+    public void ChunkSizeShouldBe4Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
         ref header,
         (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
         (ref NativeFileHeader instance) => instance.ChunkSize,
-        3);
+        4);
 
     [Theory]
     [AutoNativeHeaders]
@@ -99,25 +99,26 @@ public class NativeHeaderPackingTests
     {
         // Setting values that are guaranteed not to mirror in hex
         header.Magic = 1234;
-        header._largeChunkSizeAndPageCount = 5678;
+        header._headerData = 5678;
 
         // Copy and assert they are reversed.
         var header2 = header;
         header2.ReverseEndian();
 
         header2.Magic.Should().NotBe(header.Magic);
-        header2._largeChunkSizeAndPageCount.Should().NotBe(header._largeChunkSizeAndPageCount);
+        header2._headerData.Should().NotBe(header._headerData);
 
         // Now reverse again and doubly make sure
         header2.ReverseEndian();
         header2.Magic.Should().Be(header.Magic);
-        header2._largeChunkSizeAndPageCount.Should().Be(header._largeChunkSizeAndPageCount);
+        header2._headerData.Should().Be(header._headerData);
     }
 
     [Theory]
-    [InlineData(0, 32767)]
-    [InlineData(1, 65535)]
-    [InlineData(11, 67108863)]
+    [InlineData(0, 4095)]
+    [InlineData(1, 8191)]
+    [InlineData(14, 67108863)]
+    [InlineData(15, 134217727)]
     public void BlockSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();
@@ -132,9 +133,10 @@ public class NativeHeaderPackingTests
     }
 
     [Theory]
-    [InlineData(0, 4194304)]
-    [InlineData(1, 8388608)]
-    [InlineData(7, 536870912)]
+    [InlineData(0, 32768)]
+    [InlineData(1, 65536)]
+    [InlineData(14, 536870912)]
+    [InlineData(15, 1073741824)]
     public void ChunkSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();

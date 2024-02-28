@@ -3,15 +3,15 @@
 8 bytes:
 
 - `u8[4]` Magic (`"NXUS"`)
-- `u4` [Version/Variant](#versionvariant)
+- `u3` [Version/Variant](#versionvariant)
 - `u4` [BlockSize](#block-size)
-- `u3` [Large File Chunk Size](#large-file-chunk-size)
-- `u13` [HeaderPageCount](#headerpagecount)
+- `u4` [Large File Chunk Size](#large-file-chunk-size)
+- `u13` [Header Page Count](#header-page-count)
 - `u8` [Feature Flags](#feature-flags)
 
 ## Version/Variant
 
-Size: `4 bits` (0-15)
+Size: `3 bits` (0-7)
 
 - `0`:
     - Most common variant covering 99.99% of cases.
@@ -30,12 +30,15 @@ Limitation of 1 million files is inferred from [FileEntry -> FilePathIndex](./Ta
 
 Stored so the decompressor knows how big each block is.
 
-Size: `4 bits`, but restricted (0-11) due to [Table of Contents File Entries](./Table-Of-Contents.md).  
-Parsed as `(32768 << blockSize) - 1`.
+Size: `4 bits`.  
+Parsed as `(4096 << blockSize) - 1`.  
 
-i.e. BlockSize = 11 is `67108863` (i.e. `64MiB - 1` or `2^26 - 1`).  
+Limited to BlockSize = 14, `67108863` (i.e. `64MiB - 1` or `2^26 - 1`).  
+Due to [Table of Contents File Entries](./Table-Of-Contents.md).  
 
-We remove -1 from the value to avoid collisions with [Chunk Size](#large-file-chunk-size).  
+!!! note "A future version/flag may allow 128MiB SOLID blocks, however for now, we haven't found a need for it."
+
+!!! note "We remove -1 from the value to avoid collisions with [Chunk Size](#large-file-chunk-size)"
 
 ## Large File Chunk Size
 
@@ -46,10 +49,10 @@ We remove -1 from the value to avoid collisions with [Chunk Size](#large-file-ch
 Stored so the decompressor knows how many chunks a file is split into; and how much memory to allocate.  
 Also limits memory use on 4+GB archives.  
 
-Size: `3 bits`, (0-7).  
-Parsed as `4194304 << chunkSize`.  
+Size: `4 bits`, (0-15).  
+Parsed as `32768 << chunkSize`.  
 
-i.e. ChunkSize = 7 is `536870912` (512MiB, i.e. 2^29).  
+i.e. ChunkSize = 15 is `1073741824` (1GiB, i.e. 2^31).  
 
 !!! note
 
