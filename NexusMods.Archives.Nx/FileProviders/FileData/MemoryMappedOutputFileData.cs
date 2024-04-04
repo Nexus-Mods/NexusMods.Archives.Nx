@@ -1,6 +1,8 @@
 using System.IO.MemoryMappedFiles;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
+using NexusMods.Archives.Nx.Utilities;
 
 // ReSharper disable IntroduceOptionalParameters.Global
 
@@ -59,6 +61,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
 
         _disposed = true;
 
+        // Notes for non-Windows.
         // Don't dispose the view, but dispose the underlying handle.
         // The View is hardcoded to force a synchronous file flush on dispose.
         // We don't want this behaviour in the case of having a lot of small files.
@@ -82,7 +85,18 @@ public sealed class MemoryMappedOutputFileData : IFileData
         // On Windows, flushing the view leads to somewhat asynchronous write in any case.
         // But .NET Runtime does it synchronously on Linux.
         // This actually brings our platforms closer to parity.
-        _mappedFileView?.SafeMemoryMappedViewHandle.Dispose();
+        if (Polyfills.IsWindows())
+        {
+            // On Windows flushing acts as a hint of 'start writing asynchronously now'.
+            // so it's desirable to keep the full flush.
+            // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-flushviewoffile#remarks
+            _mappedFileView?.Dispose();
+        }
+        else
+        {
+            _mappedFileView?.SafeMemoryMappedViewHandle.Dispose();
+        }
+
         GC.SuppressFinalize(this);
     }
 }
