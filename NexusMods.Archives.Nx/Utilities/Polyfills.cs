@@ -1,5 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+#if !NET5_0_OR_GREATER
+using System.Runtime.InteropServices;
+#endif
 #if NET7_0_OR_GREATER
 using System.Numerics;
 #endif
@@ -138,6 +141,21 @@ internal static class Polyfills
         }
 
         return totalRead;
+#endif
+    }
+
+    /// <summary>
+    ///     Checks if the current platform is Windows.
+    ///     On modern runtimes, this is trimmer friendly, and evaluates to a constant.
+    ///     On older runtimes, this is dynamically checked.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsWindows()
+    {
+#if NET5_0_OR_GREATER
+        return OperatingSystem.IsWindows();
+#else
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 #endif
     }
 }
