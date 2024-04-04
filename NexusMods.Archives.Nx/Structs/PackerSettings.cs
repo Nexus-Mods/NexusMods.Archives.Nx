@@ -28,20 +28,21 @@ public class PackerSettings
     /// <summary>
     ///     Maximum number of threads allowed.
     /// </summary>
-    public int MaxNumThreads { get; set; } = Environment.ProcessorCount;
+    public int MaxNumThreads { get; set; } = NxEnvironment.PhysicalCoreCount;
+    // HT/SMT hurts here, due to sub-par concurrency handling and fact core cache is split.
 
     /// <summary>
     ///     Size of SOLID blocks.
-    ///     Range is 32767 to 67108863 (64 MiB).
+    ///     Range is 4095 to 67108863 (64 MiB).
     ///     Must be smaller than <see cref="ChunkSize" />.
     /// </summary>
     public int BlockSize { get; set; } = 1048575;
 
     /// <summary>
     ///     Size of large file chunks.
-    ///     Range is 4194304 (4 MiB) to 536870912 (512 MiB).
+    ///     Range is 32768 (32K) to 1073741824 (1 GiB).
     /// </summary>
-    public int ChunkSize { get; set; } = 16777216;
+    public int ChunkSize { get; set; } = 1048576;
 
     /// <summary>
     ///     Compression level to use for SOLID data.
@@ -85,8 +86,8 @@ public class PackerSettings
         BlockSize = Polyfills.RoundUpToPowerOf2NoOverflow(BlockSize) - 1;
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
 
-        BlockSize = Polyfills.Clamp(BlockSize, 32767, 67108863);
-        ChunkSize = Polyfills.Clamp(ChunkSize, 4194304, 536870912);
+        BlockSize = Polyfills.Clamp(BlockSize, 4095, 67108863);
+        ChunkSize = Polyfills.Clamp(ChunkSize, 32768, 1073741824); // 1GiB because we can't pool more with standard ArrayPool.
         if (ChunkSize <= BlockSize)
             ChunkSize = BlockSize + 1;
 

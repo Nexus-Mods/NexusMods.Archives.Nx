@@ -21,8 +21,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
     /// </summary>
     public string FullPath { get; init; }
 
-    private readonly MemoryMappedFile? _mappedFile;
-    private readonly FileStream _fileStream;
+    private readonly MemoryMappedFile _mappedFile;
     private bool _isDisposed;
 
     /// <summary>
@@ -43,20 +42,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
     trycreate:
         try
         {
-#if NET7_0_OR_GREATER
-            _fileStream = new FileStream(FullPath, new FileStreamOptions
-            {
-                PreallocationSize = (long)entry.DecompressedSize,
-                Access = FileAccess.ReadWrite,
-                Mode = FileMode.Create,
-                Share = FileShare.ReadWrite,
-                BufferSize = 0,
-                Options = FileOptions.SequentialScan
-            });
-#else
-            _fileStream = new FileStream(FullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-            _fileStream.SetLength((long)entry.DecompressedSize);
-#endif
+            _mappedFile = MemoryMappedFile.CreateFromFile(FullPath, FileMode.Create, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite);
         }
         catch (DirectoryNotFoundException)
         {
@@ -64,10 +50,6 @@ public sealed class OutputFileProvider : IOutputDataProvider
             Directory.CreateDirectory(Path.GetDirectoryName(FullPath)!);
             goto trycreate;
         }
-
-        if (entry.DecompressedSize > 0)
-            _mappedFile = MemoryMappedFile.CreateFromFile(_fileStream, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite,
-                HandleInheritability.None, true);
     }
 
     /// <inheritdoc />
@@ -83,8 +65,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
             return;
 
         _isDisposed = true;
-        _mappedFile?.Dispose();
-        _fileStream.Dispose();
+        _mappedFile.Dispose();
         GC.SuppressFinalize(this);
     }
 }

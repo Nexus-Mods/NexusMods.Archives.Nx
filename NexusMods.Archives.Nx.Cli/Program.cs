@@ -39,8 +39,8 @@ var packCommand = new Command("pack", "Pack files to an archive.")
     new Option<string>("--source", "[Required] Source folder to pack files from.") { IsRequired = true },
     new Option<string>("--target", "[Required] Target location to place packed archive to.") { IsRequired = true },
     new Option<int?>("--blocksize", () => defaultPackerSettings.BlockSize,
-        "Size of SOLID blocks. Range is 32767 to 67108863 (64 MiB). This is a power of 2 (minus one) and must be smaller than chunk size."),
-    new Option<int?>("--chunksize", () => defaultPackerSettings.ChunkSize, "Size of large file chunks. Range is 4194304 (4 MiB) to 536870912 (512 MiB)."),
+        "Size of SOLID blocks. Range is 4096 to 67108863 (64 MiB). This is a power of 2 (minus one) and must be smaller than chunk size."),
+    new Option<int?>("--chunksize", () => defaultPackerSettings.ChunkSize, "Size of large file chunks. Range is 32768 (32K) to 1073741824 (1GiB). Must be power of 2."),
     new Option<int?>("--solidlevel", () => defaultPackerSettings.SolidCompressionLevel, "Compression level to use for SOLID data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
     new Option<int?>("--chunkedlevel", () => defaultPackerSettings.ChunkedCompressionLevel, "Compression level to use for chunks of large data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
     new Option<CompressionPreference?>("--solid-algorithm", () => defaultPackerSettings.SolidBlockAlgorithm, "Compression algorithm used for compressing SOLID blocks."),
@@ -58,7 +58,7 @@ var rootCommand = new RootCommand
     benchmarkCommand
 };
 
-// Parse the incoming args and invoke the handler 
+// Parse the incoming args and invoke the handler
 rootCommand.Invoke(args);
 
 void Extract(string source, string target, int? threads)
@@ -72,13 +72,13 @@ void Extract(string source, string target, int? threads)
 
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
-    
+
     Console.WriteLine("Initialized in {0}ms", initializeTimeTaken.ElapsedMilliseconds);
 
     // Progress Reporting.
     var unpackingTimeTaken = Stopwatch.StartNew();
     AnsiConsole.Progress()
-        .Start(ctx => 
+        .Start(ctx =>
         {
             // Define tasks
             var packTask = ctx.AddTask("[green]Unpacking Files[/]");
@@ -86,36 +86,36 @@ void Extract(string source, string target, int? threads)
             builder.WithProgress(progress);
             builder.Extract();
         });
-    
+
     Console.WriteLine("Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
 }
 
 void Pack(string source, string target, int? blocksize, int? chunksize, int? solidLevel, int? chunkedLevel, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads)
 {
     Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], solidLevel [{solidLevel}], chunkedLevel [{chunkedLevel}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}].");
-    
+
     var builder = new NxPackerBuilder();
     builder.AddFolder(source);
     builder.WithOutput(new FileStream(target, FileMode.Create, FileAccess.ReadWrite));
-    
+
     if (blocksize.HasValue)
         builder.WithBlockSize(blocksize.Value);
-    
+
     if (chunksize.HasValue)
         builder.WithChunkSize(chunksize.Value);
 
     if (solidLevel.HasValue)
         builder.WithSolidCompressionLevel(solidLevel.Value);
-    
+
     if (chunkedLevel.HasValue)
         builder.WithChunkedLevel(chunkedLevel.Value);
-    
+
     if (solidAlgorithm.HasValue)
         builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
-    
+
     if (chunkedAlgorithm.HasValue)
         builder.WithChunkedFileAlgorithm(chunkedAlgorithm.Value);
-    
+
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
 
@@ -123,7 +123,7 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? sol
 
     // Progress Reporting.
     AnsiConsole.Progress()
-        .Start(ctx => 
+        .Start(ctx =>
         {
             // Define tasks
             var packTask = ctx.AddTask("[green]Packing Files[/]");
@@ -148,7 +148,7 @@ void Benchmark(string source, int? threads, int? attempts)
         builder.WithMaxNumThreads(threads.Value);
 
     long totalTimeTaken = 0;
-    
+
     // Warmup, get that JIT to promote all the way to max tier.
     // With .NET 8, and R2R, this might take 2 (* 40) executions.
     for (var x = 0; x < 80; x++)
@@ -157,7 +157,7 @@ void Benchmark(string source, int? threads, int? attempts)
         builder.Extract();
         Console.WriteLine("[Warmup] Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
     }
-    
+
     attempts = attempts.GetValueOrDefault(25);
     for (var x = 0; x < attempts; x++)
     {
