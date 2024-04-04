@@ -42,7 +42,20 @@ public sealed class OutputFileProvider : IOutputDataProvider
     trycreate:
         try
         {
-            _mappedFile = MemoryMappedFile.CreateFromFile(FullPath, FileMode.Create, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite);
+            // TODO: Use OS APIs directly.
+            // We specifically delete to skip a 'file already exists' check,
+            // which we can't avoid with the existing API.
+
+            // By passing FileMode.CreateNew, in conjugation with the delete above,
+            // we ensure that the file is created empty, as we otherwise would
+            // with `FileMode.Create`.
+
+            // Ideally we would create the MMFs using OS APIs directly, but for
+            // now that's not an option, time-wise.
+
+            // Forcing an unlink/delete, instead of checking for existence, is faster.
+            File.Delete(FullPath);
+            _mappedFile = MemoryMappedFile.CreateFromFile(FullPath, FileMode.CreateNew, null, (long)entry.DecompressedSize, MemoryMappedFileAccess.ReadWrite);
         }
         catch (DirectoryNotFoundException)
         {
