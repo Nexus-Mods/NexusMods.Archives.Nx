@@ -61,6 +61,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
 
         _disposed = true;
 
+        // Notes for non-Windows.
         // Don't dispose the view, but dispose the underlying handle.
         // The View is hardcoded to force a synchronous file flush on dispose.
         // We don't want this behaviour in the case of having a lot of small files.
