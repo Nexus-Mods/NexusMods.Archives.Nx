@@ -1,6 +1,7 @@
 using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
+using NexusMods.Archives.Nx.Utilities;
 
 // ReSharper disable IntroduceOptionalParameters.Global
 
@@ -58,7 +59,43 @@ public sealed class MemoryMappedOutputFileData : IFileData
             return;
 
         _disposed = true;
-        _mappedFileView?.Dispose();
+
+        // Notes for non-Windows.
+        // Don't dispose the view, but dispose the underlying handle.
+        // The View is hardcoded to force a synchronous file flush on dispose.
+        // We don't want this behaviour in the case of having a lot of small files.
+
+        // We want the Linux VM or Windows Memory Manager to handle the flushing
+        // of the data to disk instead asynchronously.
+
+        // For Linux, this would usually occur after ~30 (+ 0-5) seconds
+        // on default kernel settings.
+
+        // The VM will safely commit the flushing even if the process dies or
+        // segfaults. The only possible risk of data loss is if the whole system
+        // loses power, or the kernel crashes; but in most workloads, inclusive
+        // of the Nexus App, this should be handled gracefully.
+
+        // Note:
+        // The view itself checks the underlying handle during dispose.
+        // There's no harm to doing this, even in old runtimes.
+
+        // Note Note:
+        // On Windows, flushing the view leads to somewhat asynchronous write in any case.
+        // But .NET Runtime does it synchronously on Linux.
+        // This actually brings our platforms closer to parity.
+        if (Polyfills.IsWindows())
+        {
+            // On Windows flushing acts as a hint of 'start writing asynchronously now'.
+            // so it's desirable to keep the full flush.
+            // https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-flushviewoffile#remarks
+            _mappedFileView?.Dispose();
+        }
+        else
+        {
+            _mappedFileView?.SafeMemoryMappedViewHandle.Dispose();
+        }
+
         GC.SuppressFinalize(this);
     }
 }
