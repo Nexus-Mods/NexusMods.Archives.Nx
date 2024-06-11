@@ -3,10 +3,11 @@ using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
+using NexusMods.Archives.Nx.Packing.Unpack.Steps;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Utilities;
 
-namespace NexusMods.Archives.Nx.Packing;
+namespace NexusMods.Archives.Nx.Packing.Unpack;
 
 /// <summary>
 ///     Utility for unpacking `.nx` files.
@@ -24,7 +25,7 @@ public class NxUnpacker
     private PackerArrayPool _decompressPool = null!;
 
     /// <summary>
-    ///     Creates an utility for unpacking archives.
+    ///     Creates a utility for unpacking archives.
     /// </summary>
     /// <param name="provider">Provides access to the underlying .nx archive.</param>
     /// <param name="hasLotsOfFiles">
@@ -73,7 +74,7 @@ public class NxUnpacker
     public string GetFilePath(FileEntry entry) => _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex);
 
     /// <summary>
-    ///     Extracts all files from this archive in memory.
+    ///     Arranges for the given files to be extracted to memory.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     public OutputArrayProvider[] MakeArrayOutputProviders(Span<FileEntry> files)
@@ -91,7 +92,7 @@ public class NxUnpacker
     }
 
     /// <summary>
-    ///     Extracts all files from this archive to disk.
+    ///     Arranges for the given files to be extracted to disk.
     /// </summary>
     /// <param name="files">The entries to be extracted.</param>
     /// <param name="outputFolder">Folder to output items to.</param>
@@ -147,7 +148,7 @@ public class NxUnpacker
         settings.Sanitize();
         _progress = settings.Progress;
 
-        var blocks = MakeExtractableBlocks(outputs, _nxHeader.Header.ChunkSizeBytes);
+        var blocks = MakeExtractableBlocks.Do(outputs, _nxHeader.Header.ChunkSizeBytes);
         _decompressPool = new PackerArrayPool(settings.MaxNumThreads, _nxHeader.Header.ChunkSizeBytes);
         _currentNumBlocks = blocks.Count;
         if (settings.MaxNumThreads > 1)
@@ -172,7 +173,7 @@ public class NxUnpacker
 
     private unsafe void ExtractBlock(object? state)
     {
-        var extractable = (ExtractableBlock)state!;
+        var extractable = (MakeExtractableBlocks.ExtractableBlock)state!;
         var blockIndex = extractable.BlockIndex;
         var chunkSize = _nxHeader.Header.ChunkSizeBytes;
         var offset = _nxHeader.BlockOffsets[blockIndex];
@@ -185,7 +186,7 @@ public class NxUnpacker
     fallback:
         if (canFastDecompress)
         {
-            // This is a hot path in case of 1 output which starts at offset 0. 
+            // This is a hot path in case of 1 output which starts at offset 0.
             // This is common in the case of chunked files extracted to disk.
             var output = outputs[0];
             var entry = output.Entry;
@@ -236,71 +237,6 @@ public class NxUnpacker
 
             _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
         }
-    }
-
-    /// <summary>
-    ///     Groups blocks for extraction based on the <see cref="FileEntry.FirstBlockIndex" /> of the files.
-    /// </summary>
-    internal static List<ExtractableBlock> MakeExtractableBlocks(IOutputDataProvider[] outputs, int chunkSize)
-    {
-        var result = new List<ExtractableBlock>(outputs.Length);
-        var blockDict = new Dictionary<int, ExtractableBlock>(outputs.Length);
-
-        for (var x = 0; x < outputs.Length; x++)
-        {
-            // Slow due to copy to stack, but not that big a deal here.
-            var output = outputs[x];
-            var entry = output.Entry;
-            var chunkCount = entry.GetChunkCount(chunkSize);
-            var remainingDecompSize = entry.DecompressedSize;
-
-            for (var chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
-            {
-                var blockIndex = entry.FirstBlockIndex + chunkIndex;
-                if (!blockDict.TryGetValue(blockIndex, out var block))
-                {
-                    block = new ExtractableBlock
-                    {
-                        BlockIndex = blockIndex,
-                        Outputs = new List<IOutputDataProvider> { output },
-                        DecompressSize = entry.DecompressedBlockOffset + (int)Math.Min(remainingDecompSize, (ulong)chunkSize)
-                    };
-
-                    blockDict[blockIndex] = block;
-                    result.Add(block);
-                }
-                else
-                {
-                    var decompSize = entry.DecompressedBlockOffset + (int)Math.Min(remainingDecompSize, (ulong)chunkSize);
-                    block.DecompressSize = Math.Max(block.DecompressSize, decompSize);
-                    block.Outputs.Add(output);
-                }
-
-                remainingDecompSize -= (ulong)chunkSize;
-            }
-        }
-
-        return result;
-    }
-
-    internal class ExtractableBlock
-    {
-        /// <summary>
-        ///     Index of block to decompress.
-        /// </summary>
-        public required int BlockIndex { get; init; }
-
-        /// <summary>
-        ///     Amount of data to decompress in this block.
-        ///     This is equivalent to largest <see cref="FileEntry.DecompressedBlockOffset" /> +
-        ///     <see cref="FileEntry.DecompressedSize" /> for a file within the block.
-        /// </summary>
-        public required int DecompressSize { get; set; }
-
-        /// <summary>
-        ///     The files being output to disk.
-        /// </summary>
-        public required List<IOutputDataProvider> Outputs { get; init; }
     }
 }
 

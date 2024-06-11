@@ -1,5 +1,6 @@
 using FluentAssertions;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Pack;
+using NexusMods.Archives.Nx.Packing.Pack.Steps;
 using NexusMods.Archives.Nx.Traits;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
@@ -49,7 +50,7 @@ public class PackerGroupingTests
         var items = expected.SelectMany(x => x.Value).ToArray();
         items.SortBySizeAscending(); // replicate sort in packer
 
-        var groups = NxPacker.MakeGroups(items);
+        var groups = GroupFiles.Do(items);
         foreach (var group in groups)
         {
             expected.Should().ContainKey(group.Key);

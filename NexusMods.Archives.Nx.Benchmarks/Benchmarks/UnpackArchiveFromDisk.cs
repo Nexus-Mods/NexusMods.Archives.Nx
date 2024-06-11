@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Attributes;
 using NexusMods.Archives.Nx.FileProviders;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
 
 namespace NexusMods.Archives.Nx.Benchmarks.Benchmarks;

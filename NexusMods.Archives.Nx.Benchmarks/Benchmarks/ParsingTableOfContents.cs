@@ -3,7 +3,7 @@ using NexusMods.Archives.Nx.Benchmarks.Columns;
 using NexusMods.Archives.Nx.Benchmarks.Utilities;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Pack.Steps;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using static NexusMods.Archives.Nx.Benchmarks.Columns.SizeAfterTocCompressionColumn;
 
@@ -37,7 +37,7 @@ public class ParsingTableOfContents
         CreateToc();
     }
 
-    // Size Reporting 
+    // Size Reporting
     [GlobalCleanup(Target = nameof(CreateTable))]
     public void Cleanup_CreateTable()
     {
@@ -71,8 +71,8 @@ public class ParsingTableOfContents
     private void InitTocData()
     {
         // Generate blocks.
-        Groups = NxPacker.MakeGroups(Files);
-        Blocks = NxPacker.MakeBlocks(Groups, SolidBlockSize, ChunkSize);
+        Groups = GroupFiles.Do(Files);
+        Blocks = MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
     }
 
     private unsafe int CreateToc()
@@ -80,8 +80,8 @@ public class ParsingTableOfContents
         Builder?.Dispose();
 
         // Generate blocks.
-        Groups = NxPacker.MakeGroups(Files);
-        Blocks = NxPacker.MakeBlocks(Groups, SolidBlockSize, ChunkSize);
+        Groups = GroupFiles.Do(Files);
+        Blocks = MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
 
         // Generate TOC.
         Builder = new TableOfContentsBuilder<PackerFileForBenchmarking>(Blocks, Files);

@@ -1,6 +1,6 @@
 using FluentAssertions;
 using NexusMods.Archives.Nx.Enums;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Pack.Steps;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Tests.Utilities;
 
@@ -44,7 +44,7 @@ public class PackerBlockCreationTests
         };
 
         // Act
-        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4);
+        var blocks = MakeBlocks.Do(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4);
 
         // Assert
         blocks.Count.Should().Be(2);
@@ -104,7 +104,7 @@ public class PackerBlockCreationTests
         };
 
         // Act
-        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4);
+        var blocks = MakeBlocks.Do(items, solidBlockSize, int.MaxValue, CompressionPreference.Lz4);
 
         // Assert
         blocks.Count.Should().Be(2);
@@ -167,7 +167,7 @@ public class PackerBlockCreationTests
 
         // We specified NoSOLID and LZ4 on Block0File0. Block chunker should respect this decision.
         // Act
-        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, int.MaxValue, CompressionPreference.ZStandard);
+        var blocks = MakeBlocks.Do(items, solidBlockSize, int.MaxValue, CompressionPreference.ZStandard);
 
         // Assert
         blocks.Count.Should().Be(2);
@@ -211,7 +211,7 @@ public class PackerBlockCreationTests
         };
 
         // Act
-        var blocks = NxPacker.MakeBlocks(items, solidBlockSize, chunkSize, CompressionPreference.NoPreference,
+        var blocks = MakeBlocks.Do(items, solidBlockSize, chunkSize, CompressionPreference.NoPreference,
             CompressionPreference.ZStandard);
 
         // Assert

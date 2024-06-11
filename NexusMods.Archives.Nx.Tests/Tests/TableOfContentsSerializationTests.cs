@@ -4,7 +4,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Pack.Steps;
 using NexusMods.Archives.Nx.Tests.Attributes;
 using NexusMods.Archives.Nx.Tests.Utilities;
 
@@ -38,8 +38,8 @@ public class TableOfContentsSerializationTests
         var entries = fixture.Create<FileEntry[]>();
 
         // Generate blocks.
-        var groups = NxPacker.MakeGroups(files);
-        var blocks = NxPacker.MakeBlocks(groups, solidBlockSize, chunkSize);
+        var groups = GroupFiles.Do(files);
+        var blocks = MakeBlocks.Do(groups, solidBlockSize, chunkSize);
 
         // Generate TOC.
         using var tableOfContents = new TableOfContentsBuilder<PackerFileForTesting>(blocks, files);
