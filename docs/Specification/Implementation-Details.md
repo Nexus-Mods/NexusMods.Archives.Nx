@@ -1,9 +1,13 @@
-﻿# Implementation Details
+# Implementation Details
 
 !!! info
 
     This page contains guidance for people implementing their own libraries for working with `.nx` files.  
     It is not a step by step guide, just some guidelines.  
+
+!!! note
+
+    For the best source of truth, always check the source code!
 
 ## Use Memory Maps
 
