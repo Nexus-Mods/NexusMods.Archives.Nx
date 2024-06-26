@@ -27,7 +27,7 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="filePath">Path of the file to map.</param>
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
-    public MemoryMappedFileData(string filePath, long start, uint length) : this(filePath, start, length, false) { }
+    public MemoryMappedFileData(string filePath, long start, long length) : this(filePath, start, length, false) { }
 
     /// <summary>
     ///     Creates file data backed by a memory mapped file.
@@ -36,7 +36,7 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
     /// <param name="readOnly">If true, this is read only.</param>
-    public MemoryMappedFileData(string filePath, long start, uint length, bool readOnly)
+    public MemoryMappedFileData(string filePath, long start, long length, bool readOnly)
     {
         // TODO: Investigate if it's worth using OpenExisting in cases of chunked files.
         // Checking if an existing MMF is already there is a perf penalty for opening lots of small files
@@ -75,12 +75,12 @@ public sealed class MemoryMappedFileData : IFileData
         GC.SuppressFinalize(this);
     }
 
-    private unsafe void InitFromMmf(long start, uint length, bool isReadOnly = false)
+    private unsafe void InitFromMmf(long start, long length, bool isReadOnly = false)
     {
         var access = isReadOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
         _mappedFileView = _mappedFile!.CreateViewAccessor(start, length, access);
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
-        DataLength = length;
+        DataLength = (nuint)length;
 
         // Provide some OS specific hints
         // POSIX compliant
@@ -88,15 +88,15 @@ public sealed class MemoryMappedFileData : IFileData
         if (OperatingSystem.IsLinux())
         {
             // Also tried MADV_SEQUENTIAL, but didn't yield a benefit (on Linux) strangely.
-            madvise(Data, length, 3); // MADV_WILLNEED
+            madvise(Data, (nuint)length, 3); // MADV_WILLNEED
         }
         else if (OperatingSystem.IsAndroid())
         {
-            madvise_android(Data, length, 3); // MADV_WILLNEED
+            madvise_android(Data, (nuint)length, 3); // MADV_WILLNEED
         }
         else if (OperatingSystem.IsMacOS() || OperatingSystem.IsIOS())
         {
-            madvise_libSystem(Data, length, 3); // MADV_WILLNEED
+            madvise_libSystem(Data, (nuint)length, 3); // MADV_WILLNEED
         }
         else if (OperatingSystem.IsWindows())
         {
