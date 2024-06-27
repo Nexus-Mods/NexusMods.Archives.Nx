@@ -389,3 +389,18 @@ static NexusMods.Archives.Nx.Utilities.Compression.MaxAllocForCompressSize(int s
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.EnumerationOptions! options) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.SearchOption searchOption) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
+const NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.Length = 4 -> int
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.GetNames() -> string![]!
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.GetValues() -> NexusMods.Archives.Nx.Enums.CompressionPreference[]!
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(in System.ReadOnlySpan<char> name) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(in System.ReadOnlySpan<char> name, bool allowMatchingMetadataAttribute) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(string! name) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(string! name, bool allowMatchingMetadataAttribute) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.ToStringFast(this NexusMods.Archives.Nx.Enums.CompressionPreference value) -> string!
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference result, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase) -> bool
+static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
