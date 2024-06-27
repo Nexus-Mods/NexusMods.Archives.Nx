@@ -5,7 +5,6 @@ using NexusMods.Archives.Nx.Headers.Structs;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-using LE = NexusMods.Archives.Nx.Utilities.LittleEndianHelper;
 
 namespace NexusMods.Archives.Nx.Headers;
 

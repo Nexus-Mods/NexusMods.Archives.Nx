@@ -74,7 +74,7 @@ public struct NativeFileEntryV0 : INativeFileEntry, IEquatable<NativeFileEntryV0
     /// <inheritdoc />
     public void CopyFrom(in FileEntry entry)
     {
-        Hash = (ulong)entry.Hash;
+        Hash = entry.Hash;
         DecompressedSize = (uint)entry.DecompressedSize;
         _offsetPathIndexTuple =
             new OffsetPathIndexTuple(entry.DecompressedBlockOffset, entry.FilePathIndex, entry.FirstBlockIndex);

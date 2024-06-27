@@ -77,7 +77,7 @@ public class ParsingTableOfContents
 
     private unsafe int CreateToc()
     {
-        Builder?.Dispose();
+        Builder.Dispose();
 
         // Generate blocks.
         Groups = GroupFiles.Do(Files);
@@ -87,7 +87,7 @@ public class ParsingTableOfContents
         Builder = new TableOfContentsBuilder<PackerFileForBenchmarking>(Blocks, Files);
         foreach (var unused in Files)
         {
-            ref var item = ref Builder.GetAndIncrementFileAtomic();
+            ref var _ = ref Builder.GetAndIncrementFileAtomic();
         }
 
         // Set block infos.

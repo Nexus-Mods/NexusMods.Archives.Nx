@@ -38,28 +38,29 @@ public static class NxPacker
         {
             // Pack the Blocks
             // Note: Blocks must be packed 'in-order' for chunked files; because their blocks need to be sequential.
-            using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
-            using var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null);
-            var context = new BlockContext
+            using (var sched = new OrderedTaskScheduler(settings.MaxNumThreads))
             {
-                Settings = settings,
-                TocBuilder = toc,
-                PackerPool = pool
-            };
-
-            for (var x = 0; x < blocks.Count; x++)
-            {
-                var block = blocks[x];
-                Task.Factory.StartNew(PackBlock, new BlockData
+                using var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null);
+                var context = new BlockContext
                 {
-                    Block = block,
-                    BlockIndex = x,
-                    Context = context
-                }, CancellationToken.None, TaskCreationOptions.None, sched);
-            }
+                    Settings = settings,
+                    TocBuilder = toc,
+                    PackerPool = pool
+                };
 
-            // Waits for all jobs to complete.
-            sched.Dispose();
+                for (var x = 0; x < blocks.Count; x++)
+                {
+                    var block = blocks[x];
+                    Task.Factory.StartNew(PackBlock, new BlockData
+                    {
+                        Block = block,
+                        BlockIndex = x,
+                        Context = context
+                    }, CancellationToken.None, TaskCreationOptions.None, sched);
+                }
+
+                // Implicit dispose of `sched` waits for all jobs to complete.
+            }
 
             // Truncate stream.
             stream.SetLength(stream.Position);

@@ -35,5 +35,7 @@ public enum CompressionPreference : byte
 
 // Auto generated.
 [ExcludeFromCodeCoverage]
+#pragma warning disable RS0016 // Add public types and members to the declared API
 // ReSharper disable once PartialTypeWithSinglePart
 public static partial class CompressionPreferenceExtensions { }
+#pragma warning restore RS0016

@@ -293,7 +293,7 @@ public class NxPackerBuilder
     {
         // This is here just in case user sets output multiple times.
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        Settings.Output?.Dispose();
+        Settings.Output.Dispose();
         Settings.Output = null!;
     }
 }

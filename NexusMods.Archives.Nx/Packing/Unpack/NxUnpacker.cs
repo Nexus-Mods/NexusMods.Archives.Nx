@@ -154,11 +154,8 @@ public class NxUnpacker
         if (settings.MaxNumThreads > 1)
         {
             using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
-
             for (var x = 0; x < _currentNumBlocks; x++)
                 Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
-
-            sched.Dispose();
         }
         else
         {
