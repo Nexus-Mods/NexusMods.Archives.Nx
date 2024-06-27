@@ -1,5 +1,11 @@
-NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, long length) -> void
+﻿NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, long length) -> void
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, long length, bool readOnly) -> void
+NexusMods.Archives.Nx.Packing.NxRepackerBuilder
+NexusMods.Archives.Nx.Packing.NxRepackerBuilder.AddFromExistingNxArchive() -> void
+NexusMods.Archives.Nx.Packing.NxRepackerBuilder.AddNewFile() -> void
+NexusMods.Archives.Nx.Packing.NxRepackerBuilder.AddOrReplaceFile() -> void
+NexusMods.Archives.Nx.Packing.NxRepackerBuilder.NxRepackerBuilder(NexusMods.Archives.Nx.Interfaces.IFileData! originalNxFileData) -> void
+NexusMods.Archives.Nx.Packing.NxRepackerBuilder.NxRepackerBuilder(string! filePath) -> void
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithArrayOutput(NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]! files, out NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]! results) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithDiskOutput(NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]! files, string! outputFolder) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.GetPathedFileEntries() -> NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]!
