@@ -47,6 +47,7 @@ public class UnpackerBuilderTests
         sut.AddFilesWithArrayOutput(files, out var results);
 
         // Assert
+        // ReSharper disable once CoVariantArrayConversion
         sut.Outputs.Should().Equal(results);
         ((OutputArrayProvider)sut.Outputs[0]).Data.Should().NotBeEmpty();
     }

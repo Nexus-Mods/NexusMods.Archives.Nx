@@ -72,6 +72,7 @@ internal class NxEnvironment
     }
 
     // ReSharper disable once InconsistentNaming
+    // ReSharper disable once EnumUnderlyingTypeIsInt
     internal enum LOGICAL_PROCESSOR_RELATIONSHIP : int
     {
         RelationProcessorCore,

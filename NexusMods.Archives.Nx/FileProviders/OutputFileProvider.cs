@@ -66,7 +66,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
     }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new MemoryMappedOutputFileData(_mappedFile!, start, length);
+    public IFileData GetFileData(long start, uint length) => new MemoryMappedOutputFileData(_mappedFile, start, length);
 
     /// <inheritdoc />
     ~OutputFileProvider() => Dispose();

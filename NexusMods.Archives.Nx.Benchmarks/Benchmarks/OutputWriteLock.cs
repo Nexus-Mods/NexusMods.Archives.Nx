@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
 using NexusMods.Archives.Nx.Utilities;
+// ReSharper disable InconsistentNaming
 
 namespace NexusMods.Archives.Nx.Benchmarks.Benchmarks;
 
@@ -98,7 +99,7 @@ public class OutputWriteLock
 
         // But we won't stall at any point unless write thread is overwhelmed.
         SimulateWrite();
-        _queue.TryDequeue(out var item);
+        _queue.TryDequeue(out _);
     }
 
     /// <summary>

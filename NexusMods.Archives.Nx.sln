@@ -14,9 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".solutionItems", ".solution
 		README.md = README.md
 		Directory.Build.props = Directory.Build.props
 		NuGet.Build.props = NuGet.Build.props
+		FixUndeclaredAPIs.ps1 = FixUndeclaredAPIs.ps1
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.DependencyInjection", "NexusMods.Archives.Nx.DependencyInjection\NexusMods.Archives.Nx.DependencyInjection.csproj", "{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Archives.Nx.Cli", "NexusMods.Archives.Nx.Cli\NexusMods.Archives.Nx.Cli.csproj", "{2E62533F-F0C6-4BA1-BB39-9100D8233433}"
 EndProject
@@ -38,10 +37,6 @@ Global
 		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08DAAA30-6E7D-4CE8-83CE-120FC8B34B0A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E3FA8ED-BB35-4647-8CAC-A6122A34F669}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E62533F-F0C6-4BA1-BB39-9100D8233433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E62533F-F0C6-4BA1-BB39-9100D8233433}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E62533F-F0C6-4BA1-BB39-9100D8233433}.Release|Any CPU.ActiveCfg = Release|Any CPU

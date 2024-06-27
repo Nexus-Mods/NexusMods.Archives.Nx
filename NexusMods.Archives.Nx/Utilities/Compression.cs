@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using K4os.Compression.LZ4;
 using NexusMods.Archives.Nx.Enums;
 using SharpZstd.Interop;
@@ -122,7 +121,6 @@ public static class Compression
             case CompressionPreference.ZStandard:
             {
                 // Initialize output buffer
-                nuint result;
                 var dStream = ZSTD_createDStream();
                 var outBuf = new ZSTD_outBuffer
                 {
@@ -140,7 +138,7 @@ public static class Compression
 
                 do
                 {
-                    result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
+                    var result = ZSTD_decompressStream(dStream, &outBuf, &inBuf);
                     var error = ZSTD_isError(result);
                     if (error > 0)
                     {

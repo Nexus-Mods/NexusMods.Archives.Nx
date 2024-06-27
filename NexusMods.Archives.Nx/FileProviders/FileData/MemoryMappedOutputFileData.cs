@@ -33,7 +33,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
         // Create a memory-mapped file
         if (length != 0)
         {
-            _mappedFileView = file!.CreateViewAccessor(start, length, MemoryMappedFileAccess.ReadWrite);
+            _mappedFileView = file.CreateViewAccessor(start, length, MemoryMappedFileAccess.ReadWrite);
             Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
             DataLength = length;
             return;

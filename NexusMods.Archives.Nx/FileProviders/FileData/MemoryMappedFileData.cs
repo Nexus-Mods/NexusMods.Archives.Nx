@@ -102,6 +102,7 @@ public sealed class MemoryMappedFileData : IFileData
         {
             var entries = stackalloc MemoryRangeEntry[1];
             entries[0] = new MemoryRangeEntry { VirtualAddress = (nint)Data, NumberOfBytes = DataLength };
+            // ReSharper disable once RedundantCast
             PrefetchVirtualMemory(Process.GetCurrentProcess().Handle, (nuint)1, entries, 0);
         }
 #endif

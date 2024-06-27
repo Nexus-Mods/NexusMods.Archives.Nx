@@ -1,5 +1,4 @@
 ﻿#nullable enable
-const NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.Length = 4 -> int
 const NexusMods.Archives.Nx.Headers.StringPool.MaxCompressedSize = 33550336 -> int
 NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Enums.CompressionPreference.Copy = 0 -> NexusMods.Archives.Nx.Enums.CompressionPreference
@@ -19,8 +18,8 @@ NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.Data.get -> byte*
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.DataLength.get -> nuint
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.Dispose() -> void
-NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, uint length) -> void
-NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, uint length, bool readOnly) -> void
+NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, long length) -> void
+NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.MemoryMappedFileData(string! filePath, long start, long length, bool readOnly) -> void
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedOutputFileData
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedOutputFileData.Data.get -> byte*
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedOutputFileData.DataLength.get -> nuint
@@ -196,7 +195,6 @@ NexusMods.Archives.Nx.Packing.AddFileParams.RelativePath.get -> string!
 NexusMods.Archives.Nx.Packing.AddFileParams.RelativePath.init -> void
 NexusMods.Archives.Nx.Packing.AddFileParams.SolidType.get -> NexusMods.Archives.Nx.Enums.SolidPreference
 NexusMods.Archives.Nx.Packing.AddFileParams.SolidType.set -> void
-NexusMods.Archives.Nx.Packing.NxPacker
 NexusMods.Archives.Nx.Packing.NxPackerBuilder
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.AddFile(byte[]! data, NexusMods.Archives.Nx.Packing.AddFileParams options) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.AddFile(string! filePath, NexusMods.Archives.Nx.Packing.AddFileParams options) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
@@ -217,39 +215,40 @@ NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithPreset(NexusMods.Archives.Nx.P
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithProgress(System.IProgress<double>? progress) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithSolidBlockAlgorithm(NexusMods.Archives.Nx.Enums.CompressionPreference solidBlockAlgorithm) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithSolidCompressionLevel(int level) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
-NexusMods.Archives.Nx.Packing.NxUnpacker
-NexusMods.Archives.Nx.Packing.NxUnpacker.ExtractFiles(NexusMods.Archives.Nx.Interfaces.IOutputDataProvider![]! outputs, NexusMods.Archives.Nx.Structs.UnpackerSettings! settings) -> void
-NexusMods.Archives.Nx.Packing.NxUnpacker.ExtractFilesInMemory(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, NexusMods.Archives.Nx.Structs.UnpackerSettings! settings) -> NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]!
-NexusMods.Archives.Nx.Packing.NxUnpacker.ExtractFilesToDisk(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, string! outputFolder, NexusMods.Archives.Nx.Structs.UnpackerSettings! settings) -> NexusMods.Archives.Nx.FileProviders.OutputFileProvider![]!
-NexusMods.Archives.Nx.Packing.NxUnpacker.GetFileEntriesRaw() -> System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry>
-NexusMods.Archives.Nx.Packing.NxUnpacker.GetFilePath(NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> string!
-NexusMods.Archives.Nx.Packing.NxUnpacker.GetPathedFileEntries() -> NexusMods.Archives.Nx.Packing.PathedFileEntry![]!
-NexusMods.Archives.Nx.Packing.NxUnpacker.MakeArrayOutputProviders(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files) -> NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]!
-NexusMods.Archives.Nx.Packing.NxUnpacker.MakeDiskOutputProviders(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, string! outputFolder) -> NexusMods.Archives.Nx.FileProviders.OutputFileProvider![]!
-NexusMods.Archives.Nx.Packing.NxUnpacker.NxUnpacker(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> void
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder
-NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithArrayOutput(NexusMods.Archives.Nx.Packing.PathedFileEntry![]! files, out NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]! results) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
+NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithArrayOutput(NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]! files, out NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]! results) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithArrayOutput(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, out NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]! results) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
-NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithDiskOutput(NexusMods.Archives.Nx.Packing.PathedFileEntry![]! files, string! outputFolder) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
+NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithDiskOutput(NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]! files, string! outputFolder) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.AddFilesWithDiskOutput(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, string! outputFolder) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.Extract() -> NexusMods.Archives.Nx.Interfaces.IOutputDataProvider![]!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.GetFileEntriesRaw() -> System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry>
-NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.GetPathedFileEntries() -> NexusMods.Archives.Nx.Packing.PathedFileEntry![]!
+NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.GetPathedFileEntries() -> NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.NxUnpackerBuilder(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> void
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.Outputs.get -> System.Collections.Generic.List<NexusMods.Archives.Nx.Interfaces.IOutputDataProvider!>!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.Settings.get -> NexusMods.Archives.Nx.Structs.UnpackerSettings!
-NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.Unpacker.get -> NexusMods.Archives.Nx.Packing.NxUnpacker!
+NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.Unpacker.get -> NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.WithMaxNumThreads(int maxNumThreads) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
 NexusMods.Archives.Nx.Packing.NxUnpackerBuilder.WithProgress(System.IProgress<double>? progress) -> NexusMods.Archives.Nx.Packing.NxUnpackerBuilder!
+NexusMods.Archives.Nx.Packing.Pack.NxPacker
 NexusMods.Archives.Nx.Packing.PackerPreset
 NexusMods.Archives.Nx.Packing.PackerPreset.Default = 0 -> NexusMods.Archives.Nx.Packing.PackerPreset
 NexusMods.Archives.Nx.Packing.PackerPreset.RandomAccess = 1 -> NexusMods.Archives.Nx.Packing.PackerPreset
-NexusMods.Archives.Nx.Packing.PathedFileEntry
-NexusMods.Archives.Nx.Packing.PathedFileEntry.Entry.get -> NexusMods.Archives.Nx.Headers.Managed.FileEntry
-NexusMods.Archives.Nx.Packing.PathedFileEntry.Entry.init -> void
-NexusMods.Archives.Nx.Packing.PathedFileEntry.FileName.get -> string!
-NexusMods.Archives.Nx.Packing.PathedFileEntry.FileName.init -> void
-NexusMods.Archives.Nx.Packing.PathedFileEntry.PathedFileEntry() -> void
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.ExtractFiles(NexusMods.Archives.Nx.Interfaces.IOutputDataProvider![]! outputs, NexusMods.Archives.Nx.Structs.UnpackerSettings! settings) -> void
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.ExtractFilesInMemory(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, NexusMods.Archives.Nx.Structs.UnpackerSettings! settings) -> NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]!
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.ExtractFilesToDisk(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, string! outputFolder, NexusMods.Archives.Nx.Structs.UnpackerSettings! settings) -> NexusMods.Archives.Nx.FileProviders.OutputFileProvider![]!
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.GetFileEntriesRaw() -> System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry>
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.GetFilePath(NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> string!
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.GetPathedFileEntries() -> NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry![]!
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.MakeArrayOutputProviders(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files) -> NexusMods.Archives.Nx.FileProviders.OutputArrayProvider![]!
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.MakeDiskOutputProviders(System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> files, string! outputFolder) -> NexusMods.Archives.Nx.FileProviders.OutputFileProvider![]!
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.NxUnpacker(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> void
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.Entry.get -> NexusMods.Archives.Nx.Headers.Managed.FileEntry
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.Entry.init -> void
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.FileName.get -> string!
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.FileName.init -> void
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.PathedFileEntry() -> void
 NexusMods.Archives.Nx.Structs.PackerFile
 NexusMods.Archives.Nx.Structs.PackerFile.CompressionPreference.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Structs.PackerFile.CompressionPreference.set -> void
@@ -367,20 +366,6 @@ override NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.Equals(object? o
 override NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.GetHashCode() -> int
 override NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.Equals(object? obj) -> bool
 override NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.GetHashCode() -> int
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.GetNames() -> string![]!
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.GetValues() -> NexusMods.Archives.Nx.Enums.CompressionPreference[]!
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(in System.ReadOnlySpan<char> name) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(in System.ReadOnlySpan<char> name, bool allowMatchingMetadataAttribute) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(string! name) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.IsDefined(string! name, bool allowMatchingMetadataAttribute) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.ToStringFast(this NexusMods.Archives.Nx.Enums.CompressionPreference value) -> string!
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference result, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(in System.ReadOnlySpan<char> name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase) -> bool
-static NexusMods.Archives.Nx.Enums.CompressionPreferenceExtensions.TryParse(string? name, out NexusMods.Archives.Nx.Enums.CompressionPreference value, bool ignoreCase, bool allowMatchingMetadataAttribute) -> bool
 static NexusMods.Archives.Nx.Headers.HeaderParser.ParseHeader(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> NexusMods.Archives.Nx.Headers.Managed.ParsedHeader!
 static NexusMods.Archives.Nx.Headers.HeaderParser.TryParseHeader(byte* data, int dataSize) -> NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult
 static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr, int tocOffset, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> T!
@@ -396,7 +381,7 @@ static NexusMods.Archives.Nx.Headers.StringPool.Unpack(byte* poolPtr, int compre
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(byte* poolPtr, int compressedDataSize, int fileCountHint) -> string![]!
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan) -> string![]!
 static NexusMods.Archives.Nx.Headers.StringPool.Unpack(System.Span<byte> poolSpan, int fileCountHint) -> string![]!
-static NexusMods.Archives.Nx.Packing.NxPacker.Pack(NexusMods.Archives.Nx.Structs.PackerFile![]! files, NexusMods.Archives.Nx.Structs.PackerSettings! settings) -> void
+static NexusMods.Archives.Nx.Packing.Pack.NxPacker.Pack(NexusMods.Archives.Nx.Structs.PackerFile![]! files, NexusMods.Archives.Nx.Structs.PackerSettings! settings) -> void
 static NexusMods.Archives.Nx.Utilities.Compression.AllocForCompressSize(NexusMods.Archives.Nx.Enums.CompressionPreference method, int sourceLength) -> int
 static NexusMods.Archives.Nx.Utilities.Compression.Compress(NexusMods.Archives.Nx.Enums.CompressionPreference method, int level, byte* source, int sourceLength, byte* destination, int destinationLength, out bool defaultedToCopy) -> int
 static NexusMods.Archives.Nx.Utilities.Compression.Decompress(NexusMods.Archives.Nx.Enums.CompressionPreference method, byte* source, int sourceLength, byte* destination, int destinationLength) -> void
