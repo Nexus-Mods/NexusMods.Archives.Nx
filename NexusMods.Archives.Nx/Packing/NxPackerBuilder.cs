@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
+using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -65,13 +67,18 @@ public class NxPackerBuilder
     ///     The data to compress.
     ///     Starts at current stream position, ends at end of stream.
     ///     Must support seeking.
+    ///
+    ///     The maximum allowed length is 2GiB.
     /// </param>
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(Stream stream, AddFileParams options)
     {
+        var length = stream.Length - stream.Position;
+        Debug.Assert(length <= int.MaxValue, "Streams larger than 2GiB are not currently supported. Please file a ticket if this is a requirement.");
+
         var file = new PackerFile
         {
-            FileSize = stream.Length - stream.Position,
+            FileSize = length,
             FileDataProvider = new FromStreamProvider(stream)
         };
 
@@ -83,7 +90,10 @@ public class NxPackerBuilder
     /// <summary>
     ///     Adds a file to be packed.
     /// </summary>
-    /// <param name="length">Length of data at current stream position.</param>
+    /// <param name="length">
+    ///     Length of data at current stream position.
+    ///     The maximum allowed length is 2GiB.
+    /// </param>
     /// <param name="options">The options for this file.</param>
     /// <param name="stream">
     ///     The data to compress.
@@ -93,6 +103,8 @@ public class NxPackerBuilder
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(Stream stream, long length, AddFileParams options)
     {
+        Debug.Assert(length <= int.MaxValue, "Streams larger than 2GiB are not currently supported. Please file a ticket if this is a requirement.");
+
         var file = new PackerFile
         {
             FileSize = length,
@@ -279,7 +291,7 @@ public class NxPackerBuilder
 
     private void DisposeExistingStream()
     {
-        // This is here just in case user sets output multiple times. 
+        // This is here just in case user sets output multiple times.
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         Settings.Output?.Dispose();
         Settings.Output = null!;

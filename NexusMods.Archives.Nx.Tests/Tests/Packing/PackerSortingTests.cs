@@ -1,5 +1,5 @@
 using FluentAssertions;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Tests.Utilities;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;

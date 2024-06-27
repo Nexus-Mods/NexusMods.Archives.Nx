@@ -19,7 +19,7 @@ if (chunksize.HasValue) builder.WithBlockSize(chunksize.Value);
 if (solidLevel.HasValue) builder.WithSolidCompressionLevel(solidLevel.Value);
 if (chunkedLevel.HasValue) builder.WithChunkedLevel(chunkedLevel.Value);
 if (solidAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
-if (chunkedAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(chunkedAlgorithm.Value);
+if (chunkedAlgorithm.HasValue) builder.WithChunkedFileAlgorithm(chunkedAlgorithm.Value);
 if (threads.HasValue) builder.WithMaxNumThreads(threads.Value);
     
 // Make the Archive

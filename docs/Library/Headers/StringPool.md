@@ -1,10 +1,10 @@
-﻿# StringPool
+# StringPool
 
 !!! tip "[The structure and purpose of the StringPool is detailed in the specification.](../../Specification/Table-Of-Contents.md#string-pool)"
 
 ## Constants
 
-- `MaxCompressedSize`: The maximum allowed size of the compressed string pool.
+- `MaxCompressedSize`: The maximum allowed size of the compressed string pool. (32MiB at time of writing)
 - `DefaultCompressionLevel`: The default compression level used for the `Zstandard` compression algorithm.
 
 ## Methods

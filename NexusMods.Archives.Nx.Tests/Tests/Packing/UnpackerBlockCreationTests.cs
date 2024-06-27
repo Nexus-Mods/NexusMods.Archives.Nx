@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Unpack.Steps;
 using NexusMods.Archives.Nx.Tests.Utilities;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
@@ -46,7 +46,7 @@ public class UnpackerBlockCreationTests
                     FirstBlockIndex = 1
                 }
             },
-            // Non-SOLID explicitly requested by user 
+            // Non-SOLID explicitly requested by user
             new TestOutputDataProvider()
             {
                 RelativePath = "NonSolid0",
@@ -60,7 +60,7 @@ public class UnpackerBlockCreationTests
         };
 
         // Act
-        var blocks = NxUnpacker.MakeExtractableBlocks(items, chunkSize);
+        var blocks = MakeExtractableBlocks.Do(items, chunkSize);
 
         // Assert
         blocks.Count.Should().Be(4);
@@ -113,7 +113,7 @@ public class UnpackerBlockCreationTests
         };
 
         // Act
-        var blocks = NxUnpacker.MakeExtractableBlocks(items, chunkSize);
+        var blocks = MakeExtractableBlocks.Do(items, chunkSize);
 
         // Assert
         blocks.Count.Should().Be(2);

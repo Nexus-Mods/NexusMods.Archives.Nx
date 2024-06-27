@@ -1,4 +1,4 @@
-﻿# Benchmarks
+# Benchmarks
 
 !!! info "Spoiler: This bottlenecks any NVMe 😀"
 
@@ -15,7 +15,7 @@
 
 !!! note "Some of the compression benchmarks are very dated, as ZStd 1.5.5 has has huge improvements in handling incompressible data since."
 
-    Nonetheless, hopefully they are useful for reference.
+    Nonetheless, they are still useful for reference.
 
 ## Common Data Sets
 

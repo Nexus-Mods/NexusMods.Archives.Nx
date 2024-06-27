@@ -80,6 +80,7 @@ nav:
           - IHasSolidType: Library/Traits/IHasSolidType.md
       - Utilities:
         - ArrayRental: Library/Utilities/ArrayRental.md
+        - Compression: Library/Utilities/Compression.md
         - FileFinder: Library/Utilities/FileFinder.md
         - LittleEndianReader: Library/Utilities/LittleEndianReader.md
         - LittleEndianWriter: Library/Utilities/LittleEndianWriter.md

@@ -1,5 +1,5 @@
 using BenchmarkDotNet.Attributes;
-using NexusMods.Archives.Nx.Packing;
+using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Utilities;
 
