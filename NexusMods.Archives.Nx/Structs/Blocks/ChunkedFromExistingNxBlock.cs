@@ -1,5 +1,6 @@
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
+using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -17,11 +18,11 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// <param name="State">Stores the shared state of all chunks.</param>
 /// <param name="Compression">Stores the shared state of all chunks.</param>
 internal record ChunkedFileFromExistingNxBlock<T>
-    (nuint StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockFromExistingNxState<T> State, CompressionPreference Compression) : IBlock<T>
+    (nuint StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockFromExistingNxState State, CompressionPreference Compression) : IBlock<T>
     where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <inheritdoc />
-    public ulong LargestItemSize() => (ulong)State.NxSource.FileSize;
+    public ulong LargestItemSize() => (ulong)State.FileLength;
 
     /// <inheritdoc />
     public bool CanCreateChunks() => true;
@@ -31,7 +32,7 @@ internal record ChunkedFileFromExistingNxBlock<T>
     {
         unsafe
         {
-            using var data = State.NxSource.FileDataProvider.GetFileData(StartOffset, (uint)ChunkSize);
+            using var data = State.NxSource.GetFileData(StartOffset, (uint)ChunkSize);
             var dataSpan = new Span<byte>(data.Data, (int)data.DataLength);
             State.UpdateState(ChunkIndex, dataSpan, tocBuilder, settings, blockIndex, Compression);
         }
@@ -43,27 +44,32 @@ internal record ChunkedFileFromExistingNxBlock<T>
 ///     This is a modified variant of <see cref="ChunkedBlockState{T}"/> which skips some unnecessary
 ///     hashing operations as we already know the hash of the input.
 /// </summary>
-internal class ChunkedBlockFromExistingNxState<T> where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
+internal class ChunkedBlockFromExistingNxState
 {
     /// <summary>
     ///     Number of total chunks in this chunked block.
     /// </summary>
-    public int NumChunks = 0;
+    public required int NumChunks { get; init; }
 
     /// <summary>
-    ///     Source Nx archive associated with this chunked block.
+    ///     Provides access to the raw Nx file.
     /// </summary>
-    public T NxSource { get; init; } = default!;
+    public required IFileDataProvider NxSource { get; init; }
+
+    /// <summary>
+    ///     The relative path of the file in the Nx archive.
+    /// </summary>
+    public required string RelativePath { get; init; }
 
     /// <summary>
     ///     The length of the decompressed file in bytes.
     /// </summary>
-    public ulong FileLength { get; init; }
+    public required ulong FileLength { get; init; }
 
     /// <summary>
     ///     Known hash from existing file in original Nx archive.
     /// </summary>
-    public ulong FileHash { get; init; }
+    public required ulong FileHash { get; init; }
 
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.
@@ -74,8 +80,8 @@ internal class ChunkedBlockFromExistingNxState<T> where T : IHasFileSize, ICanPr
     /// <param name="settings">Packer settings.</param>
     /// <param name="blockIndex">Index of currently packed block.</param>
     /// <param name="compression">Type of compression used by the <paramref name="blockData"/>.</param>
-    public void UpdateState(int chunkIndex, Span<byte> blockData, TableOfContentsBuilder<T> tocBuilder,
-        PackerSettings settings, int blockIndex, CompressionPreference compression)
+    public void UpdateState<T>(int chunkIndex, Span<byte> blockData, TableOfContentsBuilder<T> tocBuilder,
+        PackerSettings settings, int blockIndex, CompressionPreference compression) where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
     {
         // Write out actual block.
         BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
@@ -99,7 +105,7 @@ internal class ChunkedBlockFromExistingNxState<T> where T : IHasFileSize, ICanPr
         // Only executed on final thread, so we can end and increment early.
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
         ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
-        file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[NxSource.RelativePath];
+        file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[RelativePath];
         file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.
         file.DecompressedSize = FileLength;
         file.DecompressedBlockOffset = 0;

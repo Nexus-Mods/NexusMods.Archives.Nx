@@ -59,7 +59,7 @@ public class NxUnpacker
             results[x] = new PathedFileEntry
             {
                 Entry = entry,
-                FileName = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
+                FilePath = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
             };
         }
 
@@ -249,7 +249,7 @@ public class PathedFileEntry
     public FileEntry Entry { get; init; }
 
     /// <summary>
-    ///     Name of the file in question.
+    ///     Contains the file path relative to the root of the Nx archive.
     /// </summary>
-    public required string FileName { get; init; }
+    public required string FilePath { get; init; }
 }

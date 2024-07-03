@@ -79,6 +79,11 @@ internal static class BlockHelpers
         output.Position = output.Length;
     }
 
+    /// <summary>
+    ///     Locks the output stream to which the raw compressed block data is being
+    ///     written to. The lock happens on the <paramref name="builder"/>
+    ///     with the currently processed block index being used.
+    /// </summary>
     internal static void StartProcessingBlock<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
         // Wait until it's our turn to write.

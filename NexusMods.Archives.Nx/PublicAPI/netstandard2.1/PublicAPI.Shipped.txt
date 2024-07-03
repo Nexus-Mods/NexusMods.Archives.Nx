@@ -13,14 +13,6 @@ NexusMods.Archives.Nx.FileProviders.FileData.ArrayFileData.ArrayFileData(byte[]!
 NexusMods.Archives.Nx.FileProviders.FileData.ArrayFileData.Data.get -> byte*
 NexusMods.Archives.Nx.FileProviders.FileData.ArrayFileData.DataLength.get -> ulong
 NexusMods.Archives.Nx.FileProviders.FileData.ArrayFileData.Dispose() -> void
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.Data.get -> byte*
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.Data.init -> void
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.DataLength.get -> ulong
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.DataLength.init -> void
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.DecompressedNxBlockFileData(NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock! block, int fileStartOffset, ulong fileLength) -> void
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.Dispose() -> void
-NexusMods.Archives.Nx.FileProviders.FileData.DecompressedNxBlockFileData.~DecompressedNxBlockFileData() -> void
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.Data.get -> byte*
 NexusMods.Archives.Nx.FileProviders.FileData.MemoryMappedFileData.DataLength.get -> ulong
@@ -49,24 +41,11 @@ NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.FromDirectoryDataP
 NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.GetFileData(ulong start, ulong length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
 NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.RelativePath.get -> string!
 NexusMods.Archives.Nx.FileProviders.FromDirectoryDataProvider.RelativePath.init -> void
-NexusMods.Archives.Nx.FileProviders.FromExistingNxBlock
-NexusMods.Archives.Nx.FileProviders.FromExistingNxBlock.FromExistingNxBlock(NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock! block, NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
-NexusMods.Archives.Nx.FileProviders.FromExistingNxBlock.GetFileData(ulong start, ulong length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
-NexusMods.Archives.Nx.FileProviders.FromExistingNxBlock.LazyRefCounterDecompressedNxBlock.get -> NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock!
-NexusMods.Archives.Nx.FileProviders.FromExistingNxBlock.LazyRefCounterDecompressedNxBlock.init -> void
 NexusMods.Archives.Nx.FileProviders.FromStreamProvider
 NexusMods.Archives.Nx.FileProviders.FromStreamProvider.FromStreamProvider(System.IO.Stream! stream) -> void
 NexusMods.Archives.Nx.FileProviders.FromStreamProvider.GetFileData(ulong start, ulong length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
 NexusMods.Archives.Nx.FileProviders.FromStreamProvider.Stream.get -> System.IO.Stream!
 NexusMods.Archives.Nx.FileProviders.FromStreamProvider.StreamStart.get -> long
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.Acquire() -> void
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.ConsiderFile(NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.Dispose() -> void
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.GetData() -> void*
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.LazyRefCounterDecompressedNxBlock(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! sourceNxDataProvider, ulong blockOffset, ulong compressedBlockLength, NexusMods.Archives.Nx.Enums.CompressionPreference compression) -> void
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.Release() -> void
-NexusMods.Archives.Nx.FileProviders.LazyRefCounterDecompressedNxBlock.~LazyRefCounterDecompressedNxBlock() -> void
 NexusMods.Archives.Nx.FileProviders.OutputArrayProvider
 NexusMods.Archives.Nx.FileProviders.OutputArrayProvider.Data.get -> byte[]!
 NexusMods.Archives.Nx.FileProviders.OutputArrayProvider.Dispose() -> void
@@ -266,8 +245,8 @@ NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.NxUnpacker(NexusMods.Archives.Nx
 NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry
 NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.Entry.get -> NexusMods.Archives.Nx.Headers.Managed.FileEntry
 NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.Entry.init -> void
-NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.FileName.get -> string!
-NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.FileName.init -> void
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.FilePath.get -> string!
+NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.FilePath.init -> void
 NexusMods.Archives.Nx.Packing.Unpack.PathedFileEntry.PathedFileEntry() -> void
 NexusMods.Archives.Nx.Structs.PackerFile
 NexusMods.Archives.Nx.Structs.PackerFile.CompressionPreference.get -> NexusMods.Archives.Nx.Enums.CompressionPreference

@@ -117,7 +117,7 @@ internal static class MakeBlocks
         };
 
         var x = (ulong)0;
-        for (; x < (ulong)numIterations; x++)
+        for (; x < numIterations; x++)
         {
             blocks.Add(new ChunkedFileBlock<T>(currentOffset, chunkSize, (int)x, state));
             currentOffset += (ulong)chunkSize;

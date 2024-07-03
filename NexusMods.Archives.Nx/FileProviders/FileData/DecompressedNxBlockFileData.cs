@@ -6,7 +6,7 @@ namespace NexusMods.Archives.Nx.FileProviders.FileData;
 ///     Implementation of <see cref="IFileData" /> backed up by a decompressed Nx block
 ///     (see <see cref="LazyRefCounterDecompressedNxBlock"/>).
 /// </summary>
-public class DecompressedNxBlockFileData : IFileData
+internal class DecompressedNxBlockFileData : IFileData
 {
     /// <inheritdoc />
     public unsafe byte* Data { get; init; }

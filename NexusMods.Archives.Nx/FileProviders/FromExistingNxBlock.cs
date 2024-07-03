@@ -11,7 +11,7 @@ namespace NexusMods.Archives.Nx.FileProviders;
 /// <summary>
 ///     This provider allows you to read a file from an existing Nx block.
 /// </summary>
-public class FromExistingNxBlock : IFileDataProvider
+internal class FromExistingNxBlock : IFileDataProvider
 {
     /// <summary>
     ///     Contains the decompressed chunk of data.
@@ -58,7 +58,7 @@ public class FromExistingNxBlock : IFileDataProvider
 ///     The idea is that <see cref="FromExistingNxBlock"/> will hold a reference to this block.
 ///     This block will then be passed to
 /// </summary>
-public unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
+internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
 {
     /// <summary>
     ///     The raw data of the decompressed chunk.
