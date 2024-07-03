@@ -12,7 +12,7 @@ These classes are part of a system that provides and manages data from an array 
 
 ### Methods
 
-- `GetFileData(long start, uint length)`: Returns file data backed by the array it holds.
+- `GetFileData(ulong start, ulong length)`: Returns file data backed by the array it holds.
 
 ## Usage
 

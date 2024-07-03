@@ -201,7 +201,7 @@ public class NxUnpacker
             var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
             var length = Math.Min((long)decompSizeInChunk, chunkSize);
 
-            using var outputData = output.GetFileData(start, (uint)length);
+            using var outputData = output.GetFileData((ulong)start, (ulong)length);
             Compression.Decompress(method, compressedBlock.Data, blockSize, outputData.Data, (int)outputData.DataLength);
             _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
             return;
@@ -228,7 +228,7 @@ public class NxUnpacker
                 var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
                 var length = Math.Min((long)decompSizeInChunk, chunkSize);
 
-                using var outputData = output.GetFileData(start, (uint)length);
+                using var outputData = output.GetFileData((ulong)start, (ulong)length);
                 Buffer.MemoryCopy(extractedPtr + entry.DecompressedBlockOffset, outputData.Data, outputData.DataLength, outputData.DataLength);
             }
 

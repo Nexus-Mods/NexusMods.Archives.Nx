@@ -22,5 +22,5 @@ public sealed class FromDirectoryDataProvider : IFileDataProvider
     public required string RelativePath { get; init; }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new MemoryMappedFileData(Path.Combine(Directory, RelativePath), start, length, true);
+    public IFileData GetFileData(ulong start, ulong length) => new MemoryMappedFileData(Path.Combine(Directory, RelativePath), start, length, true);
 }

@@ -16,7 +16,7 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// <param name="ChunkSize">Size of the file segment.</param>
 /// <param name="State">Stores the shared state of all chunks.</param>
 internal record ChunkedFileBlock<T>
-    (long StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockState<T> State) : IBlock<T>
+    (ulong StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockState<T> State) : IBlock<T>
     where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <inheritdoc />
@@ -46,7 +46,7 @@ internal record ChunkedFileBlock<T>
 }
 
 /// <summary>
-///     This item stores the shared state of all chunks.
+///     This item stores the shared state of all <see cref="ChunkedFileBlock{T}"/> chunks.
 /// </summary>
 internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
@@ -96,7 +96,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
         blockCompression = asCopy ? CompressionPreference.Copy : Compression;
 
-        // Update file details once all chunks are done..
+        // Update file details once all chunks are done.
         if (chunkIndex != NumChunks - 1)
         {
             AppendHash(rawChunkData);

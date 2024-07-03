@@ -13,7 +13,7 @@ public sealed unsafe class RentedArrayFileData : IFileData
     public byte* Data { get; }
 
     /// <inheritdoc />
-    public nuint DataLength { get; }
+    public ulong DataLength { get; }
 
     private readonly ArrayRentalSlice _data;
     private GCHandle _handle;

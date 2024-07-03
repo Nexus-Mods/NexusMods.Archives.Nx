@@ -99,14 +99,14 @@ internal static class MakeBlocks
         CompressionPreference chunkedBlockAlgorithm)
         where T : IHasFileSize, IHasSolidType, IHasCompressionPreference, ICanProvideFileData, IHasRelativePath
     {
-        var sizeLeft = item.FileSize;
-        long currentOffset = 0;
+        var sizeLeft = (ulong)item.FileSize;
+        ulong currentOffset = 0;
 
         if (chunkedBlockAlgorithm == CompressionPreference.NoPreference)
             chunkedBlockAlgorithm = CompressionPreference.ZStandard;
 
-        var numIterations = sizeLeft / chunkSize;
-        var remainingSize = sizeLeft % chunkSize;
+        var numIterations = sizeLeft / (uint)chunkSize;
+        var remainingSize = sizeLeft % (uint)chunkSize;
         var numChunks = remainingSize > 0 ? numIterations + 1 : numIterations;
 
         var state = new ChunkedBlockState<T>
@@ -116,14 +116,14 @@ internal static class MakeBlocks
             File = item
         };
 
-        var x = 0;
-        for (; x < numIterations; x++)
+        var x = (ulong)0;
+        for (; x < (ulong)numIterations; x++)
         {
-            blocks.Add(new ChunkedFileBlock<T>(currentOffset, chunkSize, x, state));
-            currentOffset += chunkSize;
+            blocks.Add(new ChunkedFileBlock<T>(currentOffset, chunkSize, (int)x, state));
+            currentOffset += (ulong)chunkSize;
         }
 
         if (remainingSize > 0)
-            blocks.Add(new ChunkedFileBlock<T>(currentOffset, (int)remainingSize, x, state));
+            blocks.Add(new ChunkedFileBlock<T>(currentOffset, (int)remainingSize, (int)x, state));
     }
 }

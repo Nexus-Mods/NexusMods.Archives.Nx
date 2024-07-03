@@ -39,7 +39,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
         // Note: GetFullPath normalizes the path.
         FullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
 
-    trycreate:
+    TryCreate:
         try
         {
             // TODO: Use OS APIs directly.
@@ -61,12 +61,12 @@ public sealed class OutputFileProvider : IOutputDataProvider
         {
             // This is written this way because explicit check is slow.
             Directory.CreateDirectory(Path.GetDirectoryName(FullPath)!);
-            goto trycreate;
+            goto TryCreate;
         }
     }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new MemoryMappedOutputFileData(_mappedFile, start, length);
+    public IFileData GetFileData(ulong start, ulong length) => new MemoryMappedOutputFileData(_mappedFile, start, length);
 
     /// <inheritdoc />
     ~OutputFileProvider() => Dispose();

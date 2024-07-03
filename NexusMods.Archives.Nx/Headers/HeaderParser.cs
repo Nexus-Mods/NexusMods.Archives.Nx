@@ -27,7 +27,7 @@ public static class HeaderParser
     {
         /*
             This library is optimised in mind with smaller mods; most mods' TOC and header fits in within 4K.
-        
+
             In any case, on a 980 Pro (currently most popular NVMe), we observe the following latencies (QD 1):
             - 4K: 52us
             - 8K: 80us
@@ -39,24 +39,24 @@ public static class HeaderParser
             - 256K: 140us
             ----
             - 512K: 218us
-    
+
             Although benchmarks for random reads beyond 4K are hard to come by; this is a general pattern that seems to surface
             from the limited data I could gather. In any case, this is the explanation for header size choice.
         */
 
-        var headerSize = hasLotsOfFiles ? 65536 : 4096;
+        var headerSize = hasLotsOfFiles ? 65536 : (nuint)4096;
         using var data = provider.GetFileData(0, (uint)headerSize);
         var header = TryParseHeader(data.Data, headerSize);
         if (header.Header != null)
             return header.Header;
 
-        using var remainingData = provider.GetFileData(headerSize, (uint)(header.HeaderSize - headerSize));
+        using var remainingData = provider.GetFileData(headerSize, (uint)(header.HeaderSize - (long)headerSize));
         using var fullHeader = new ArrayRental(header.HeaderSize);
         fixed (byte* fullHeaderPtr = fullHeader.Span)
         {
-            Buffer.MemoryCopy(data.Data, fullHeaderPtr, fullHeader.Array.Length, headerSize);
-            Buffer.MemoryCopy(remainingData.Data, fullHeaderPtr + headerSize, fullHeader.Array.Length - headerSize, header.HeaderSize - headerSize);
-            return TryParseHeader(fullHeaderPtr, header.HeaderSize).Header!;
+            Buffer.MemoryCopy(data.Data, fullHeaderPtr, fullHeader.Array.Length, (long)headerSize);
+            Buffer.MemoryCopy(remainingData.Data, fullHeaderPtr + headerSize, fullHeader.Array.Length - (long)headerSize, header.HeaderSize - (long)headerSize);
+            return TryParseHeader(fullHeaderPtr, (nuint)header.HeaderSize).Header!;
         }
     }
 
@@ -73,7 +73,7 @@ public static class HeaderParser
     ///     <see cref="HeaderParserResult.HeaderSize" />.
     /// </returns>
     /// <exception cref="NotANexusArchiveException">Not a Nexus Archive.</exception>
-    public static unsafe HeaderParserResult TryParseHeader(byte* data, int dataSize)
+    public static unsafe HeaderParserResult TryParseHeader(byte* data, nuint dataSize)
     {
         var header = (NativeFileHeader*)data;
         header->ReverseEndianIfNeeded();
@@ -88,7 +88,7 @@ public static class HeaderParser
             }
 
             // Verify if length is sufficient.
-            if (dataSize < header->HeaderPageBytes)
+            if (dataSize < (nuint)header->HeaderPageBytes)
                 return new HeaderParserResult { Header = null, HeaderSize = header->HeaderPageBytes };
 
             var parsedHeader =

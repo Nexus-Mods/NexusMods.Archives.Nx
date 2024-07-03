@@ -1,10 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-#if !NET5_0_OR_GREATER
+#if !NET7_0_OR_GREATER
 using System.Runtime.InteropServices;
 #endif
 #if NET7_0_OR_GREATER
 using System.Numerics;
+using System.Runtime.InteropServices;
+#endif
+#if NETSTANDARD2_0
+using System.Buffers;
 #endif
 
 namespace NexusMods.Archives.Nx.Utilities;
@@ -156,6 +160,53 @@ internal static class Polyfills
         return OperatingSystem.IsWindows();
 #else
         return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#endif
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void WriteSpan(this Stream stream, ReadOnlySpan<byte> buffer)
+    {
+#if NETSTANDARD2_0
+        var numArray = ArrayPool<byte>.Shared.Rent(buffer.Length);
+        try
+        {
+            buffer.CopyTo((Span<byte>) numArray);
+            stream.Write(numArray, 0, buffer.Length);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(numArray);
+        }
+#else
+        stream.Write(buffer);
+#endif
+    }
+
+    /// <summary>
+    ///     Allocates a block of native memory with the specified size.
+    /// </summary>
+    /// <param name="size">Size of the memory to allocate.</param>
+    /// <returns>The block of memory.</returns>
+    public static unsafe void* AllocNativeMemory(nuint size)
+    {
+#if NET7_0_OR_GREATER
+        return NativeMemory.Alloc(size);
+#else
+        return (void*)Marshal.AllocHGlobal((nint)size);
+#endif
+    }
+
+    /// <summary>
+    ///     Frees a block of memory at the specified address.
+    /// </summary>
+    /// <param name="addr">Address of the native allocation.</param>
+    /// <returns>The block of memory.</returns>
+    public static unsafe void FreeNativeMemory(void* addr)
+    {
+#if NET7_0_OR_GREATER
+        NativeMemory.Free(addr);
+#else
+        Marshal.FreeHGlobal((IntPtr)addr);
 #endif
     }
 }

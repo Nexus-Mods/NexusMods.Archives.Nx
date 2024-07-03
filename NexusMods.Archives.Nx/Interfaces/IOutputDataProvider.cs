@@ -29,5 +29,5 @@ public interface IOutputDataProvider : IDisposable
     ///     Individual <see cref="IFileData" /> buffer to write decompressed data to. Make sure to dispose, e.g. with
     ///     'using' statement.
     /// </returns>
-    public IFileData GetFileData(long start, uint length);
+    public IFileData GetFileData(ulong start, ulong length);
 }

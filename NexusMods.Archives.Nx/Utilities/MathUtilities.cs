@@ -8,6 +8,11 @@ internal static class MathUtilities
     /// <summary>
     ///     Rounds the current value up to next multiple of 4096.
     /// </summary>
+    public static nuint RoundUp4096(this nuint value) => (value + 4095) & ~(nuint)4095;
+
+    /// <summary>
+    ///     Rounds the current value up to next multiple of 4096.
+    /// </summary>
     public static long RoundUp4096(this long value) => (value + 4095) & ~4095;
 
     /// <summary>

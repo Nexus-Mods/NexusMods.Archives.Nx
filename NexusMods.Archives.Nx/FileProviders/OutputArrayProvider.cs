@@ -34,7 +34,7 @@ public sealed class OutputArrayProvider : IOutputDataProvider
     }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new ArrayFileData(Data, start, length);
+    public IFileData GetFileData(ulong start, ulong length) => new ArrayFileData(Data, start, length);
 
     /// <inheritdoc />
     public void Dispose() { }

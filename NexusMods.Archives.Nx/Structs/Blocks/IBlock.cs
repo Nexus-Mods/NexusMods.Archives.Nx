@@ -8,7 +8,7 @@ using NexusMods.Archives.Nx.Utilities;
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
 /// <summary>
-///     Represents an individual block..
+///     Represents an individual block.
 /// </summary>
 // ReSharper disable once UnusedTypeParameter
 internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
@@ -26,7 +26,7 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
     /// <summary>
     ///     Processes this block during the packing operation with the specified settings.
     /// </summary>
-    /// <param name="tocBuilder">Used for updating the table of contents..</param>
+    /// <param name="tocBuilder">Used for updating the table of contents.</param>
     /// <param name="settings">Settings used for the buffer.</param>
     /// <param name="blockIndex">Index of the block being processed.</param>
     /// <param name="pools">Used for renting blocks and chunks.</param>
@@ -57,8 +57,24 @@ internal static class BlockHelpers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteToOutput(Stream output, PackerPoolRental compressedBlock, int numBytes)
     {
-        // Copy to output stream and pad.
+        // Note: On NS 2.0, span is not natively supported. So this can't be deduped with overload.
         output.Write(compressedBlock.Array, 0, numBytes);
+        AddPaddingAfterBlockWrite(output);
+    }
+
+    /// <summary>
+    ///     Calls to this method should be wrapped with <see cref="StartProcessingBlock{T}"/> and <see cref="EndProcessingBlock{T}"/>.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteToOutput(Stream output, Span<byte> compressedBlock)
+    {
+        output.WriteSpan(compressedBlock);
+        AddPaddingAfterBlockWrite(output);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void AddPaddingAfterBlockWrite(Stream output)
+    {
         output.SetLength(output.Length.RoundUp4096());
         output.Position = output.Length;
     }

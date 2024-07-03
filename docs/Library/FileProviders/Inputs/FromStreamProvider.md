@@ -20,7 +20,7 @@
 !!! info "Retrieves file data from the stream based on the given start index and length."
 
 ```csharp
-public IFileData GetFileData(long start, uint length)
+public IFileData GetFileData(ulong start, ulong length)
 ```
 
 ## Usage
@@ -34,6 +34,6 @@ using var fileData = provider.GetFileData(0, 1024);
 // Use fileData...
 ```
 
-In this example, a stream is obtained from a source, and a `FromStreamProvider` is created with the stream. 
-The `GetFileData` method is then used to retrieve file data from the stream starting at index 0 with a length of 1024. 
+In this example, a stream is obtained from a source, and a `FromStreamProvider` is created with the stream.
+The `GetFileData` method is then used to retrieve file data from the stream starting at index 0 with a length of 1024.
 The resulting `IFileData` object can be used as needed.

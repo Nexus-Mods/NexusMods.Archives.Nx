@@ -19,7 +19,7 @@
 !!! info "Retrieves the file data from the array based on the given start index and length."
 
 ```csharp
-public IFileData GetFileData(long start, uint length)
+public IFileData GetFileData(ulong start, ulong length)
 ```
 
 ### Dispose

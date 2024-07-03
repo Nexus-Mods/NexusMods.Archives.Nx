@@ -3,7 +3,7 @@
 !!! info "In this project `File Providers` are types that satisfy the `IFileDataProvider` or `IOutputDataProvider` interfaces."
 
 These interfaces declare the `IFileData GetFileData(long start, uint length)` method.
-The `IFileData` interface is defined as:  
+The `IFileData` interface is defined as:
 
 ```csharp
 /// <summary>
@@ -23,7 +23,7 @@ public unsafe interface IFileData : IDisposable
     /// <summary>
     ///     Length of the underlying data.
     /// </summary>
-    public nuint DataLength { get; }
+    public ulong DataLength { get; }
 }
 ```
 
@@ -50,7 +50,7 @@ public sealed class FromArrayProvider : IFileDataProvider
     public required byte[] Data { get; init; }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new ArrayFileData(Data, start, length);
+    public IFileData GetFileData(ulong start, ulong length) => new ArrayFileData(Data, start, length);
 }
 
 /// <summary>
@@ -62,7 +62,7 @@ public sealed unsafe class ArrayFileData : IFileData
     public byte* Data { get; }
 
     /// <inheritdoc />
-    public nuint DataLength { get; }
+    public ulong DataLength { get; }
 
     private GCHandle _handle;
     private bool _disposed;
@@ -73,12 +73,12 @@ public sealed unsafe class ArrayFileData : IFileData
     /// <param name="data">The data backed up by the array.</param>
     /// <param name="start">Start offset.</param>
     /// <param name="length">Length into the data.</param>
-    public ArrayFileData(byte[] data, long start, uint length)
+    public ArrayFileData(byte[] data, ulong start, ulong length)
     {
         _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
         Data = (byte*)_handle.AddrOfPinnedObject() + start;
         // ReSharper disable once RedundantCast
-        DataLength = (nuint)length;
+        DataLength = )length;
     }
 
     /// <inheritdoc />
@@ -89,7 +89,7 @@ public sealed unsafe class ArrayFileData : IFileData
     {
         if (_disposed)
             return;
-        
+
         _disposed = true;
         _handle.Free();
         GC.SuppressFinalize(this);

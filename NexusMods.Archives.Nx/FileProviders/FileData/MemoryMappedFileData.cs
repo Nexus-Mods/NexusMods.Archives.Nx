@@ -27,7 +27,7 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="filePath">Path of the file to map.</param>
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
-    public MemoryMappedFileData(string filePath, long start, long length) : this(filePath, start, length, false) { }
+    public MemoryMappedFileData(string filePath, ulong start, ulong length) : this(filePath, start, length, false) { }
 
     /// <summary>
     ///     Creates file data backed by a memory mapped file.
@@ -36,7 +36,7 @@ public sealed class MemoryMappedFileData : IFileData
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
     /// <param name="readOnly">If true, this is read only.</param>
-    public MemoryMappedFileData(string filePath, long start, long length, bool readOnly)
+    public MemoryMappedFileData(string filePath, ulong start, ulong length, bool readOnly)
     {
         // TODO: Investigate if it's worth using OpenExisting in cases of chunked files.
         // Checking if an existing MMF is already there is a perf penalty for opening lots of small files
@@ -61,7 +61,7 @@ public sealed class MemoryMappedFileData : IFileData
     public unsafe byte* Data { get; private set; }
 
     /// <inheritdoc />
-    public nuint DataLength { get; private set; }
+    public ulong DataLength { get; private set; }
 
     /// <inheritdoc />
     public void Dispose()
@@ -75,12 +75,13 @@ public sealed class MemoryMappedFileData : IFileData
         GC.SuppressFinalize(this);
     }
 
-    private unsafe void InitFromMmf(long start, long length, bool isReadOnly = false)
+    private unsafe void InitFromMmf(ulong start, ulong length, bool isReadOnly = false)
     {
         var access = isReadOnly ? MemoryMappedFileAccess.Read : MemoryMappedFileAccess.ReadWrite;
-        _mappedFileView = _mappedFile!.CreateViewAccessor(start, length, access);
+        // Note: Truncating cast here, though files of 2^63 bytes are unlikely.
+        _mappedFileView = _mappedFile!.CreateViewAccessor((long)start, (long)length, access);
         Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
-        DataLength = (nuint)length;
+        DataLength = length;
 
         // Provide some OS specific hints
         // POSIX compliant
@@ -101,7 +102,8 @@ public sealed class MemoryMappedFileData : IFileData
         else if (OperatingSystem.IsWindows())
         {
             var entries = stackalloc MemoryRangeEntry[1];
-            entries[0] = new MemoryRangeEntry { VirtualAddress = (nint)Data, NumberOfBytes = DataLength };
+            // Note: Ignore the potential overflow on 32-bit OS here, it is not dangerous.
+            entries[0] = new MemoryRangeEntry { VirtualAddress = (nint)Data, NumberOfBytes = (nuint)DataLength };
             // ReSharper disable once RedundantCast
             PrefetchVirtualMemory(Process.GetCurrentProcess().Handle, (nuint)1, entries, 0);
         }

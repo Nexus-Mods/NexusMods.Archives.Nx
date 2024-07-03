@@ -17,5 +17,5 @@ public unsafe interface IFileData : IDisposable
     /// <summary>
     ///     Length of the underlying data.
     /// </summary>
-    public nuint DataLength { get; }
+    public ulong DataLength { get; }
 }
