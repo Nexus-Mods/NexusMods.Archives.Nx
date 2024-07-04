@@ -71,7 +71,7 @@ This value is encoded as:
 // FileHeader is just the 8 byte header.
 // tocOffset is offset of the ToC from the start of the file.
 tocOffset %= 4096;
-var paddingOffset = (tocSize + sizeof(FileHeader)).RoundUp4096() - tocSize - tocOffset;
+var paddingOffset = (tocSize + tocOffset).RoundUp4096() - tocSize - tocOffset;
 ```
 
 And decoded as:
