@@ -70,9 +70,41 @@ To do this, we will perform the following steps:
 
 - Prefer ZStd for large files.  
 
-## Repacking/Appending Files
+## Repacking & Merging Nx Archives
 
-Speed of this operation depends on SOLID block size, but in most cases should be reasonably fast. This is because
-non-SOLID blocks used for big files can be copied verbatim.
+!!! info "Repacking/Merging Archives should be a fairly inexpensive operation."
 
-Updating the ToC is inexpensive.
+Namely, it's possible to do the following:
+
+- Copy compressed blocks directly/chunks between Nx archives.
+    - Decompression buffer size is determined from the file entries, thus blocks can be copied verbatim.
+    - It's possible to mix [SOLID block sizes](./File-Header.md#block-size).
+        - Provided that SOLID blocks are smaller than the [Chunk Size](./File-Header.md#large-file-chunk-size) of the new archive.
+        - Verify this by checking if [Chunk Size](./File-Header.md#large-file-chunk-size) of all input archive matches.
+- Efficiently use existing SOLID blocks as inputs.
+    - Use files inside compressed blocks from File A as input to File B.
+    - With clever usage, (Example: [FromExistingNxBlock][from-existing-nx-block]) you can decompress just-in-time.
+
+The runtime complexity/overheads of repacking are generally very low, so the whole
+operation should be nearly as fast as just copying the data verbatim.
+
+### Maximizing Multithreaded Packing Efficiency
+
+!!! info "When [Compressing in Parallel](#parallel-compression), additional consideration is needed."
+
+This requires a short explanation.
+
+Although the blocks are being [compressed entirely in parallel](#parallel-compression),
+writing out the block to the final output/stream is a sequential operation.
+
+What this means is that if any of the blocks being processed in parallel takes
+considerably longer to compress than the others, the entire pipeline will be
+bottlenecked by that single block; reducing the overall efficiency.
+
+!!! note "Normally this is a non-issue."
+
+    Because we group the files, sort them by size and then group them into blocks,
+    we will often end up in a situation where there are many blocks of similar size
+    in a sequence.
+
+[from-existing-nx-block]: https://github.com/Nexus-Mods/NexusMods.Archives.Nx/blob/ce09b2099f28293ca30a3c634160f1c539ef297c/NexusMods.Archives.Nx/FileProviders/FromExistingNxBlock.cs

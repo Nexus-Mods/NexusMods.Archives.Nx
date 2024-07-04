@@ -3,6 +3,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
+using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
 using static NexusMods.Archives.Nx.Utilities.Polyfills;
 
@@ -10,7 +11,21 @@ namespace NexusMods.Archives.Nx.FileProviders;
 
 /// <summary>
 ///     This provider allows you to read a file from an existing Nx block.
+///
+///     This is used when you only want some files from an exising block in a
+///     foreign Nx archive.
 /// </summary>
+/// <remarks>
+///     This class has 'special' behaviour, and thus is internal.
+///
+///     In order to work efficiently and release memory as soon as possible,
+///     it relies on the implementation detail that <see cref="GetFileData"/>
+///     is only called once on this provider during packing from any implementation
+///     of <see cref="IBlock{T}"/>. We then do reference counting around that.
+///
+///     This behaviour is asserted via the tests. If it does not hold true,
+///     the test will fail.
+/// </remarks>
 internal class FromExistingNxBlock : IFileDataProvider
 {
     /// <summary>
@@ -56,7 +71,7 @@ internal class FromExistingNxBlock : IFileDataProvider
 ///
 ///     When the reference count reaches 0, the memory is released.
 ///     The idea is that <see cref="FromExistingNxBlock"/> will hold a reference to this block.
-///     This block will then be passed to
+///     It will then increment the reference count when it's used.
 /// </summary>
 internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
 {
@@ -130,6 +145,11 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
         _refCount--;
         if (_refCount == 0)
             Dispose();
+
+#if DEBUG
+        if (_refCount < 0)
+            throw new InvalidOperationException("Reference count is negative.");
+#endif
     }
 
     /// <summary>
