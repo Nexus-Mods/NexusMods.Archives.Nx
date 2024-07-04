@@ -42,7 +42,7 @@ public class TableOfContentsSerializationTests
         var blocks = MakeBlocks.Do(groups, solidBlockSize, chunkSize);
 
         // Generate TOC.
-        using var tableOfContents = new TableOfContentsBuilder<PackerFileForTesting>(blocks, files);
+        using var tableOfContents = TableOfContentsBuilder<PackerFileForTesting>.Create<PackerFileForTesting>(blocks, files);
         tableOfContents.Version = version;
         foreach (var entry in entries)
         {

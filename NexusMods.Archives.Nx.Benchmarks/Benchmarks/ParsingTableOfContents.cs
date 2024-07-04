@@ -72,7 +72,7 @@ public class ParsingTableOfContents
         }
     }
 
-    private TableOfContentsBuilder<PackerFileForBenchmarking> InitToc() => new(Blocks, Files);
+    private TableOfContentsBuilder<PackerFileForBenchmarking> InitToc() => TableOfContentsBuilder<PackerFileForBenchmarking>.Create<PackerFileForBenchmarking>(Blocks, Files);
 
     private List<IBlock<PackerFileForBenchmarking>> InitTocData()
     {
@@ -90,7 +90,7 @@ public class ParsingTableOfContents
         blocks = MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
 
         // Generate TOC.
-        Builder = new TableOfContentsBuilder<PackerFileForBenchmarking>(blocks, Files);
+        Builder = TableOfContentsBuilder<PackerFileForBenchmarking>.Create<PackerFileForBenchmarking>(blocks, Files);
         foreach (var unused in Files)
         {
             ref var _ = ref Builder.GetAndIncrementFileAtomic();

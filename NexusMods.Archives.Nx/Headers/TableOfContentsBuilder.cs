@@ -47,24 +47,29 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// <summary>
     ///     Compressed strings in the StringPool.
     /// </summary>
-    private readonly ArrayRentalSlice _poolData;
+    private ArrayRentalSlice _poolData;
 
     /// <summary>
     ///     Currently modified file entry.
     /// </summary>
     private int _currentFile;
 
+    private TableOfContentsBuilder() { }
+
     /// <summary>
-    ///     Initializes a Table of Contents from given set of items.
+    ///     Creates a Table of Contents from given set of items.
     /// </summary>
     /// <param name="blocks">The blocks that will be burned into the ToC.</param>
     /// <param name="files">The files to be packed.</param>
-    public TableOfContentsBuilder(List<IBlock<T>> blocks, Span<T> files)
+    public static TableOfContentsBuilder<T> Create<TWithRelativePath>(List<IBlock<T>> blocks, Span<TWithRelativePath> files)
+        where TWithRelativePath : IHasRelativePath
     {
+        var builder = new TableOfContentsBuilder<T>();
         // Note: Files are sorted in-place during pack.
         // TODO: We can generate the PoolData in parallel; which could save us ~10ms on packing huge 1500+ file archives.
-        _poolData = StringPool.Pack(files);
-        Init(blocks, files, _poolData.Length);
+        builder._poolData = StringPool.Pack(files);
+        builder.Init(blocks, files, builder._poolData.Length);
+        return builder;
     }
 
     /// <inheritdoc />
@@ -76,7 +81,8 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
 
     ~TableOfContentsBuilder() => Dispose();
 
-    private void Init(List<IBlock<T>> blocks, Span<T> relativeFilePaths, int poolSize)
+    private void Init<TWithRelativePath>(List<IBlock<T>> blocks, Span<TWithRelativePath> relativeFilePaths, int poolSize)
+        where TWithRelativePath : IHasRelativePath
     {
         // Set ToC version based on biggest decompressed file size.
         ulong largestFileSize = 0;

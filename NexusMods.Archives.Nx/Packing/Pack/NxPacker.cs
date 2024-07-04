@@ -18,14 +18,32 @@ public static class NxPacker
     /// </summary>
     /// <param name="files">The files to be packed.</param>
     /// <param name="settings">Settings to use in the packing operation.</param>
-    public static unsafe void Pack(PackerFile[] files, PackerSettings settings)
+    public static void Pack(PackerFile[] files, PackerSettings settings)
     {
         // Init Packing Code
         settings.Sanitize();
         files.SortBySizeAscending();
         var groups = GroupFiles.Do(files);
         var blocks = MakeBlocks.Do(groups, settings.BlockSize, settings.ChunkSize, settings.SolidBlockAlgorithm, settings.ChunkedFileAlgorithm);
-        using var toc = new TableOfContentsBuilder<PackerFile>(blocks, files);
+        PackWithBlocksAndFiles(files.AsSpan(), settings, blocks);
+    }
+
+    /// <summary>
+    ///     Packs an `.nx` file using the specified relative paths and blocks to pack.
+    /// </summary>
+    /// <param name="relativePaths">
+    ///     Contains all of the relative paths which should exist within the archive.
+    ///     This should cover all relative paths to be packed by the <paramref name="blocks"/>.
+    /// </param>
+    /// <param name="settings">The settings used to pack the archive.</param>
+    /// <param name="blocks">
+    ///     Listing of all blocks to be packed.
+    ///     These blocks should contain all files listed in <paramref name="relativePaths"/>.
+    /// </param>
+    internal static unsafe void PackWithBlocksAndFiles<TWithRelativePath>(Span<TWithRelativePath> relativePaths, PackerSettings settings, List<IBlock<PackerFile>> blocks)
+        where TWithRelativePath : IHasRelativePath
+    {
+        using var toc = TableOfContentsBuilder<PackerFile>.Create(blocks, relativePaths);
 
         // Let's go!
         var stream = settings.Output;
