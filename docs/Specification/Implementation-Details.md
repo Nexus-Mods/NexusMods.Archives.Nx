@@ -43,6 +43,10 @@ To do this, we will perform the following steps:
 - Files are sorted by size. (optimize for blocks)  
 - Files are then grouped by extension. (optimize for ratio) [while preserving sorting]  
 - These groups are chunked into SOLID blocks (and huge files into Chunk blocks).  
+    - They are ordered by size descending to maximize CPU utilization. 
+    - Chunked blocks appear first. 
+        - These are always bigger than SOLID blocks, but cannot be reordered relative to each other as they are sequential.
+    - Sorted SOLID blocks are then added to chunked blocks.
 - We assign the groups to individual blocks using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.  
 
 !!! note
@@ -101,10 +105,11 @@ What this means is that if any of the blocks being processed in parallel takes
 considerably longer to compress than the others, the entire pipeline will be
 bottlenecked by that single block; reducing the overall efficiency.
 
-!!! note "Normally this is a non-issue."
+Because the operation of compressing a block is much slower than copying it from
+an existing file to another (by magnitudes), it is recommended that all copied
+blocks are processed first before starting to compress new blocks.
 
-    Because we group the files, sort them by size and then group them into blocks,
-    we will often end up in a situation where there are many blocks of similar size
-    in a sequence.
+In that vain, consider placing all the blocks which do a raw copy at the end,
+since they are the fastest to process.
 
 [from-existing-nx-block]: https://github.com/Nexus-Mods/NexusMods.Archives.Nx/blob/ce09b2099f28293ca30a3c634160f1c539ef297c/NexusMods.Archives.Nx/FileProviders/FromExistingNxBlock.cs

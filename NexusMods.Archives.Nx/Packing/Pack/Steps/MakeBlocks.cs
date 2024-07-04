@@ -2,11 +2,15 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 
+using System.Runtime.InteropServices;
+using NexusMods.Archives.Nx.Utilities;
+
 namespace NexusMods.Archives.Nx.Packing.Pack.Steps;
 
 /// <summary>
 ///     This is a step of the .NX packing process that involves creating
 ///     blocks from groups of files created by <see cref="GroupFiles"/>.
+///     (In ascending size order)
 ///
 ///     The input is a dictionary of file groups, where the key is the file extension.
 ///     Inside each group, is a sorted list of files by size.
@@ -37,7 +41,8 @@ internal static class MakeBlocks
         CompressionPreference chunkedBlockAlgorithm = CompressionPreference.NoPreference)
         where T : IHasFileSize, IHasSolidType, IHasCompressionPreference, ICanProvideFileData, IHasRelativePath
     {
-        var blocks = new List<IBlock<T>>();
+        var chunkedBlocks = new List<IBlock<T>>();
+        var solidBlocks = new List<(int size, IBlock<T> block)>();
         var currentBlock = new List<T>();
         long currentBlockSize = 0;
 
@@ -59,13 +64,13 @@ internal static class MakeBlocks
                 // Note: This is not a typo; we treat items above block size as chunked, for convenience.
                 if (item.FileSize > blockSize)
                 {
-                    ChunkItem(item, blocks, chunkSize, chunkedBlockAlgorithm);
+                    ChunkItem(item, chunkedBlocks, chunkSize, chunkedBlockAlgorithm);
                     continue;
                 }
 
                 if (item.SolidType == SolidPreference.NoSolid)
                 {
-                    blocks.Add(new SolidBlock<T>(new List<T> { item }, item.CompressionPreference));
+                    solidBlocks.Add(((int)item.FileSize, new SolidBlock<T>(new List<T> { item }, item.CompressionPreference)));
                     continue;
                 }
 
@@ -80,7 +85,7 @@ internal static class MakeBlocks
                 {
                     // [Cold Path] Add the current block if it has any items and start a new block
                     if (currentBlock.Count > 0)
-                        blocks.Add(new SolidBlock<T>(currentBlock, solidBlockAlgorithm));
+                        solidBlocks.Add(((int)currentBlockSize, new SolidBlock<T>(currentBlock, solidBlockAlgorithm)));
 
                     currentBlock = new List<T> { item };
                     currentBlockSize = item.FileSize;
@@ -90,13 +95,32 @@ internal static class MakeBlocks
 
         // If we have any items left, make sure to append them.
         if (currentBlock.Count > 0)
-            blocks.Add(new SolidBlock<T>(currentBlock, solidBlockAlgorithm));
+            solidBlocks.Add(((int)currentBlockSize, new SolidBlock<T>(currentBlock, solidBlockAlgorithm)));
 
-        return blocks;
+        // Sort the SOLID blocks by size in descending order
+        solidBlocks.Sort((a, b) => b.size.CompareTo(a.size));
+
+        // Note(sewer): Chunked blocks cannot be reordered due to their nature of being
+        // sequential. However we can sort the solid blocks to improve compression efficiency.
+        // Append the solid blocks to the chunked blocks.
+#if NET5_0_OR_GREATER
+        var sortedBlocksSpan = CollectionsMarshal.AsSpan(solidBlocks);
+        for (var x = 0; x < sortedBlocksSpan.Length; x++)
+        {
+            chunkedBlocks.Add(sortedBlocksSpan[x].block);
+#else
+        for (var x = 0; x < solidBlocks.Count; x++)
+        {
+            chunkedBlocks.Add(solidBlocks[x].block);
+#endif
+        }
+
+        // Sort the final blocks by size, to improve compression efficiency.
+        return chunkedBlocks;
     }
 
-    private static void ChunkItem<T>(T item, List<IBlock<T>> blocks, int chunkSize,
-        CompressionPreference chunkedBlockAlgorithm)
+    private static void ChunkItem<T>(T item, List<IBlock<T>> blocks,
+        int chunkSize, CompressionPreference chunkedBlockAlgorithm)
         where T : IHasFileSize, IHasSolidType, IHasCompressionPreference, ICanProvideFileData, IHasRelativePath
     {
         var sizeLeft = (ulong)item.FileSize;

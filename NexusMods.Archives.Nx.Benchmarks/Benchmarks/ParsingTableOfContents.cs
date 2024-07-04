@@ -26,6 +26,7 @@ public class ParsingTableOfContents
     internal TableOfContentsBuilder<PackerFileForBenchmarking> Builder { get; set; } = null!;
     internal byte[] PrebuiltData { get; set; } = null!;
     internal PackerFileForBenchmarking[] Files { get; set; } = null!;
+
     internal List<IBlock<PackerFileForBenchmarking>> Blocks { get; set; } = null!;
     public Dictionary<string, List<PackerFileForBenchmarking>> Groups { get; set; } = null!;
 
@@ -34,7 +35,8 @@ public class ParsingTableOfContents
     {
         var entries = Assets.GetYakuzaFileEntries();
         Files = entries.Take(N).Select(x => new PackerFileForBenchmarking(x.RelativePath, x.FileSize)).ToArray();
-        CreateToc();
+        CreateToc(out var blocks);
+        Blocks = blocks;
     }
 
     // Size Reporting
@@ -46,12 +48,16 @@ public class ParsingTableOfContents
     }
 
     [Benchmark]
-    public int CreateTable() => CreateToc();
+    public int CreateTable() => CreateToc(out _);
 
-    //[Benchmark]
-    public void InitTableData() => InitTocData();
+    [Benchmark]
+    public int InitTableData()
+    {
+        var data = InitTocData();
+        return data.Count; // prevent dead code elimination.
+    }
 
-    //[Benchmark]
+    [Benchmark]
     public void InitTable()
     {
         using var toc = InitToc();
@@ -68,23 +74,23 @@ public class ParsingTableOfContents
 
     private TableOfContentsBuilder<PackerFileForBenchmarking> InitToc() => new(Blocks, Files);
 
-    private void InitTocData()
+    private List<IBlock<PackerFileForBenchmarking>> InitTocData()
     {
         // Generate blocks.
         Groups = GroupFiles.Do(Files);
-        Blocks = MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
+        return MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
     }
 
-    private unsafe int CreateToc()
+    private unsafe int CreateToc(out List<IBlock<PackerFileForBenchmarking>> blocks)
     {
         Builder.Dispose();
 
         // Generate blocks.
         Groups = GroupFiles.Do(Files);
-        Blocks = MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
+        blocks = MakeBlocks.Do(Groups, SolidBlockSize, ChunkSize);
 
         // Generate TOC.
-        Builder = new TableOfContentsBuilder<PackerFileForBenchmarking>(Blocks, Files);
+        Builder = new TableOfContentsBuilder<PackerFileForBenchmarking>(blocks, Files);
         foreach (var unused in Files)
         {
             ref var _ = ref Builder.GetAndIncrementFileAtomic();
