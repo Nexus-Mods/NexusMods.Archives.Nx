@@ -18,14 +18,23 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// <param name="State">Stores the shared state of all chunks.</param>
 /// <param name="Compression">Stores the shared state of all chunks.</param>
 internal record ChunkedFileFromExistingNxBlock<T>
-    (nuint StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockFromExistingNxState State, CompressionPreference Compression) : IBlock<T>
+    (ulong StartOffset, int ChunkSize, int ChunkIndex, ChunkedBlockFromExistingNxState State, CompressionPreference Compression) : IBlock<T>
     where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <inheritdoc />
-    public ulong LargestItemSize() => (ulong)State.FileLength;
+    public ulong LargestItemSize() => State.FileLength;
 
     /// <inheritdoc />
     public bool CanCreateChunks() => true;
+
+    /// <inheritdoc />
+    public int FileCount() => 1;
+
+    /// <inheritdoc />
+    public void AppendFilesUnsafe(ref int currentIndex, HasRelativePathWrapper[] paths)
+    {
+        paths.DangerousGetReferenceAt(currentIndex++) = State.RelativePath;
+    }
 
     /// <inheritdoc />
     public void ProcessBlock(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, PackerArrayPools pools)

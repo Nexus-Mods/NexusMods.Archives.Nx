@@ -26,6 +26,15 @@ internal record ChunkedFileBlock<T>
     public bool CanCreateChunks() => true;
 
     /// <inheritdoc />
+    public int FileCount() => 1;
+
+    /// <inheritdoc />
+    public void AppendFilesUnsafe(ref int currentIndex, HasRelativePathWrapper[] paths)
+    {
+        paths.DangerousGetReferenceAt(currentIndex++) = State.File.RelativePath;
+    }
+
+    /// <inheritdoc />
     public unsafe void ProcessBlock(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, PackerArrayPools pools)
     {
         using var allocation = pools.ChunkPool.Rent(settings.ChunkSize);

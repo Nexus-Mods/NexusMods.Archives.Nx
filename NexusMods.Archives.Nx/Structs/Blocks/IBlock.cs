@@ -24,6 +24,19 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
     public bool CanCreateChunks();
 
     /// <summary>
+    ///     Returns the number of files in this block.
+    /// </summary>
+    public int FileCount();
+
+    /// <summary>
+    ///     Unsafely appends relative file paths in Nx to the current array of paths.
+    ///     Ignores bound checks.
+    /// </summary>
+    /// <param name="currentIndex">Current index to insert into.</param>
+    /// <param name="paths">The array to insert paths into.</param>
+    public void AppendFilesUnsafe(ref int currentIndex, HasRelativePathWrapper[] paths);
+
+    /// <summary>
     ///     Processes this block during the packing operation with the specified settings.
     /// </summary>
     /// <param name="tocBuilder">Used for updating the table of contents.</param>

@@ -6,6 +6,10 @@ using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
+#if NET5_0_OR_GREATER
+using System.Runtime.InteropServices;
+#endif
+
 namespace NexusMods.Archives.Nx.Packing.Pack;
 
 /// <summary>
@@ -21,11 +25,46 @@ public static class NxPacker
     public static void Pack(PackerFile[] files, PackerSettings settings)
     {
         // Init Packing Code
-        settings.Sanitize();
-        files.SortBySizeAscending();
-        var groups = GroupFiles.Do(files);
-        var blocks = MakeBlocks.Do(groups, settings.BlockSize, settings.ChunkSize, settings.SolidBlockAlgorithm, settings.ChunkedFileAlgorithm);
+        var blocks = InitPack(files, settings);
         PackWithBlocksAndFiles(files.AsSpan(), settings, blocks);
+    }
+
+    /// <summary>
+    ///     Packs a new '.nx' file using the specified settings.
+    /// </summary>
+    /// <param name="files">The files to be packed.</param>
+    /// <param name="copiedBlocks">Existing blocks that are sourced from external sources.</param>
+    /// <param name="settings">Settings to use in the packing operation.</param>
+    internal static void PackWithExistingBlocks(PackerFile[] files, List<IBlock<PackerFile>> copiedBlocks, PackerSettings settings)
+    {
+        // Init Packing Code
+        var blocks = InitPack(files, settings);
+
+        // Add existing files to the list.
+        var newFileCount = 0;
+        foreach (var block in blocks)
+            newFileCount += block.FileCount();
+
+        foreach (var block in copiedBlocks)
+            newFileCount += block.FileCount();
+
+        var newFiles = Polyfills.AllocateUninitializedArray<HasRelativePathWrapper>(newFileCount);
+        var insertIdx = 0;
+        for (; insertIdx < files.Length; insertIdx++)
+            newFiles.DangerousGetReferenceAt(insertIdx) = files[insertIdx].RelativePath;
+
+        // Skips IEnumerator.
+#if NET5_0_OR_GREATER
+        foreach (var block in CollectionsMarshal.AsSpan(copiedBlocks))
+#else
+        foreach (var block in copiedBlocks)
+#endif
+        {
+            block.AppendFilesUnsafe(ref insertIdx, newFiles);
+        }
+
+        blocks.AddRange(copiedBlocks);
+        PackWithBlocksAndFiles(newFiles.AsSpan(), settings, blocks);
     }
 
     /// <summary>
@@ -40,7 +79,7 @@ public static class NxPacker
     ///     Listing of all blocks to be packed.
     ///     These blocks should contain all files listed in <paramref name="relativePaths"/>.
     /// </param>
-    internal static unsafe void PackWithBlocksAndFiles<TWithRelativePath>(Span<TWithRelativePath> relativePaths, PackerSettings settings, List<IBlock<PackerFile>> blocks)
+    private static unsafe void PackWithBlocksAndFiles<TWithRelativePath>(Span<TWithRelativePath> relativePaths, PackerSettings settings, List<IBlock<PackerFile>> blocks)
         where TWithRelativePath : IHasRelativePath
     {
         using var toc = TableOfContentsBuilder<PackerFile>.Create(blocks, relativePaths);
@@ -89,6 +128,16 @@ public static class NxPacker
             toc.Build(headerDataPtr + sizeof(NativeFileHeader), sizeof(NativeFileHeader), tocSize);
             stream.Write(headerData, 0, headerData.Length);
         }
+    }
+
+    private static List<IBlock<PackerFile>> InitPack(PackerFile[] files, PackerSettings settings)
+    {
+        settings.Sanitize();
+
+        // Sort into groups and blocks.
+        files.SortBySizeAscending();
+        var groups = GroupFiles.Do(files);
+        return MakeBlocks.Do(groups, settings.BlockSize, settings.ChunkSize, settings.SolidBlockAlgorithm, settings.ChunkedFileAlgorithm);
     }
 
     private class BlockData

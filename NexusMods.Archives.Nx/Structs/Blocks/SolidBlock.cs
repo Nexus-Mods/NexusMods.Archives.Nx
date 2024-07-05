@@ -37,6 +37,16 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
     }
 
     /// <inheritdoc />
+    public int FileCount() => Items.Count;
+
+    /// <inheritdoc />
+    public void AppendFilesUnsafe(ref int currentIndex, HasRelativePathWrapper[] paths)
+    {
+        foreach (var item in Items)
+            paths.DangerousGetReferenceAt(currentIndex++) = item.RelativePath;
+    }
+
+    /// <inheritdoc />
     public bool CanCreateChunks() => false;
 
     /// <inheritdoc />

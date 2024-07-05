@@ -6,6 +6,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Structs;
+using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Packing;
@@ -28,6 +29,11 @@ public class NxPackerBuilder
     ///     List of files to pack.
     /// </summary>
     public List<PackerFile> Files { get; private set; } = new();
+
+    /// <summary>
+    ///     All existing blocks that are sourced from external, existing Nx archives.
+    /// </summary>
+    private List<IBlock<PackerFile>> ExistingBlocks { get; } = new();
 
     /// <summary>
     ///     Adds all files under given folder to the output.
@@ -137,6 +143,17 @@ public class NxPackerBuilder
         };
 
         SetFileOptions(file, options);
+        Files.Add(file);
+        return this;
+    }
+
+    /// <summary>
+    ///     Adds an already internally created <see cref="PackerFile"/> directly
+    ///     to the packer input.
+    /// </summary>
+    /// <param name="file">The block to add to the compressor input.</param>
+    public NxPackerBuilder AddPackerFile(PackerFile file)
+    {
         Files.Add(file);
         return this;
     }
@@ -282,11 +299,35 @@ public class NxPackerBuilder
     /// <returns>The output stream.</returns>
     public Stream Build(bool disposeOutput = true)
     {
-        NxPacker.Pack(Files.ToArray(), Settings);
+        if (ExistingBlocks.Count > 0)
+            NxPacker.PackWithExistingBlocks(Files.ToArray(), ExistingBlocks, Settings);
+        else
+            NxPacker.Pack(Files.ToArray(), Settings);
+
         if (disposeOutput)
             Settings.Output.Dispose();
 
         return Settings.Output;
+    }
+
+    /// <summary>
+    ///     Adds a SOLID block that's backed by an existing Nx archive.
+    /// </summary>
+    /// <param name="block">The block to add to the compressor input.</param>
+    internal NxPackerBuilder AddSolidBlockFromExistingArchive(SolidBlockFromExistingNxBlock<PackerFile> block)
+    {
+        ExistingBlocks.Add(block);
+        return this;
+    }
+
+    /// <summary>
+    ///     Adds a SOLID block that's backed by an existing Nx archive.
+    /// </summary>
+    /// <param name="block">The block to add to the compressor input.</param>
+    internal NxPackerBuilder AddChunkedFileFromExistingArchiveBlock(ChunkedFileFromExistingNxBlock<PackerFile> block)
+    {
+        ExistingBlocks.Add(block);
+        return this;
     }
 
     private void DisposeExistingStream()

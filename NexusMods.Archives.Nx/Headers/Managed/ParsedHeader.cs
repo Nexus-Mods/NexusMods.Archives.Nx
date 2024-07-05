@@ -24,7 +24,7 @@ public class ParsedHeader : TableOfContents
     /// </summary>
     public void Init()
     {
-        var currentOffset = (nuint)Header.HeaderPageBytes;
+        var currentOffset = (ulong)Header.HeaderPageBytes;
         var numBlocks = Blocks.Length;
         BlockOffsets = Polyfills.AllocateUninitializedArray<ulong>(numBlocks);
         if (numBlocks <= 0)
@@ -39,19 +39,19 @@ public class ParsedHeader : TableOfContents
         int x;
         for (x = 0; x < unrolledBlocks; x += 4)
         {
-            currentOffset += (nuint)Unsafe.Add(ref blocksRef, x).CompressedSize;
+            currentOffset += (ulong)Unsafe.Add(ref blocksRef, x).CompressedSize;
             currentOffset = currentOffset.RoundUp4096();
             Unsafe.Add(ref blockOffsetsRef, x + 1) = currentOffset;
 
-            currentOffset += (nuint)Unsafe.Add(ref blocksRef, x + 1).CompressedSize;
+            currentOffset += (ulong)Unsafe.Add(ref blocksRef, x + 1).CompressedSize;
             currentOffset = currentOffset.RoundUp4096();
             Unsafe.Add(ref blockOffsetsRef, x + 2) = currentOffset;
 
-            currentOffset += (nuint)Unsafe.Add(ref blocksRef, x + 2).CompressedSize;
+            currentOffset += (ulong)Unsafe.Add(ref blocksRef, x + 2).CompressedSize;
             currentOffset = currentOffset.RoundUp4096();
             Unsafe.Add(ref blockOffsetsRef, x + 3) = currentOffset;
 
-            currentOffset += (nuint)Unsafe.Add(ref blocksRef, x + 3).CompressedSize;
+            currentOffset += (ulong)Unsafe.Add(ref blocksRef, x + 3).CompressedSize;
             currentOffset = currentOffset.RoundUp4096();
             if (x + 4 < numBlocks)
                 Unsafe.Add(ref blockOffsetsRef, x + 4) = currentOffset;

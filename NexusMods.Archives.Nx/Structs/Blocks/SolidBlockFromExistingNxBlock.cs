@@ -17,7 +17,7 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// <param name="StartOffset">Starting offset of the compressed block.</param>
 /// <param name="BlockSize">Size of the compressed block at <paramref name="StartOffset"/>.</param>
 /// <param name="Compression">Compression method used by the data.</param>
-internal record SolidBlockFromExistingNxBlock<T>(List<PathedFileEntry> Items, IFileDataProvider NxSource, nuint StartOffset, int BlockSize, CompressionPreference Compression) : IBlock<T>
+internal record SolidBlockFromExistingNxBlock<T>(List<PathedFileEntry> Items, IFileDataProvider NxSource, ulong StartOffset, int BlockSize, CompressionPreference Compression) : IBlock<T>
     where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
 {
     /// <inheritdoc />
@@ -37,6 +37,20 @@ internal record SolidBlockFromExistingNxBlock<T>(List<PathedFileEntry> Items, IF
         }
 
         return largestSize;
+    }
+
+    /// <inheritdoc />
+    public int FileCount() => Items.Count;
+
+    /// <inheritdoc />
+    public void AppendFilesUnsafe(ref int currentIndex, HasRelativePathWrapper[] paths)
+    {
+#if NET5_0_OR_GREATER
+        foreach (var item in CollectionsMarshal.AsSpan(Items))
+#else
+        foreach (var item in Items)
+#endif
+            paths.DangerousGetReferenceAt(currentIndex++) = item.FilePath;
     }
 
     /// <inheritdoc />

@@ -10,6 +10,7 @@ using NexusMods.Archives.Nx.Tests.Utilities;
 using NexusMods.Hashing.xxHash64;
 using NxPackerBuilder = NexusMods.Archives.Nx.Packing.NxPackerBuilder;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
@@ -252,7 +253,7 @@ public class PackingTests
         }
     }
 
-    private PackerFile[] GetRandomDummyFiles(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
+    internal static PackerFile[] GetRandomDummyFiles(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
     {
         var output = new MemoryStream();
         settings = new PackerSettings
@@ -285,7 +286,7 @@ public class PackingTests
         return fixture.CreateMany<PackerFile>(numFiles).ToArray();
     }
 
-    private byte[] MakeDummyFile(int length)
+    internal static byte[] MakeDummyFile(int length)
     {
         var result = Polyfills.AllocateUninitializedArray<byte>(length);
         for (var x = 0; x < length; x++)
@@ -294,7 +295,7 @@ public class PackingTests
         return result;
     }
 
-    private static void AssertExtracted(OutputArrayProvider[] extracted)
+    internal static void AssertExtracted(OutputArrayProvider[] extracted)
     {
         for (var index = 0; index < extracted.Length; index++)
         {
@@ -309,7 +310,7 @@ public class PackingTests
         }
     }
 
-    private Stream PackWithFilesFromDirectory(string directoryPath)
+    internal static Stream PackWithFilesFromDirectory(string directoryPath)
     {
         var output = new MemoryStream();
         var builder = new NxPackerBuilder();
@@ -318,7 +319,7 @@ public class PackingTests
         return builder.Build(false);
     }
 
-    private Dictionary<ulong, string> CreateHashToStringMap(string hashesFilePath)
+    internal static Dictionary<ulong, string> CreateHashToStringMap(string hashesFilePath)
     {
         var hashToPathMap = new Dictionary<ulong, string>();
 
