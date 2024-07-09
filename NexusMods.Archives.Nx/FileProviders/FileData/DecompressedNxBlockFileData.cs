@@ -27,7 +27,6 @@ internal class DecompressedNxBlockFileData : IFileData
         _block = block;
         Data = (byte*)_block.GetData() + fileStartOffset;
         DataLength = fileLength;
-        block.Acquire();
     }
 
     /// <inheritdoc />

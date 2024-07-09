@@ -9,6 +9,7 @@ using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
@@ -35,7 +36,6 @@ public class PackingWithExistingNxDataTests
 
         // Create a new archive using a solid block from the initial archive
         var newBuilder = new NxPackerBuilder();
-        newBuilder.WithMaxNumThreads(1);
         newBuilder.WithOutput(new MemoryStream());
 
         var solidBlock = CreateSolidBlockFromExistingNxBlock(provider, header, 0);
@@ -103,6 +103,77 @@ public class PackingWithExistingNxDataTests
         Assert.True(extractedFiles[0].Data.Length > 0);
 
         // Verify the contents of the extracted file
+        PackingTests.AssertExtracted(extractedFiles);
+    }
+
+    [Theory]
+    [AutoData]
+    public void PackWithFromExistingPartialSolidBlock_ShouldPackAndUnpackCorrectly(IFixture fixture)
+    {
+        /*
+            This test works by creating a Nx file with a single SOLID block, then
+            creating a new archive composed of all the files in the SOLID block.
+
+            We do this by extracting the files from the SOLID block, i.e. through
+            the use of `FromExistingNxBlock` as opposed
+        */
+
+        // Create an initial Nx archive with a large SOLID block
+        var initialFiles = PackingTests.GetRandomDummyFiles(fixture, 64, 1024, 2048, out var settings);
+        settings.BlockSize = 1048575;
+
+        using var initialArchive = CreateInitialArchive(initialFiles, settings);
+        initialArchive.Position = 0;
+
+        var provider = new FromStreamProvider(initialArchive);
+        var header = HeaderParser.ParseHeader(provider);
+
+        // Create a new archive using *some* files from the SOLID block of the initial archive
+        var newBuilder = new NxPackerBuilder();
+        newBuilder.WithOutput(new MemoryStream());
+
+        var block = header.Blocks[0];
+        var blockOffset = header.BlockOffsets[0];
+        var compression = header.BlockCompressions[0];
+
+        var items = new List<PathedFileEntry>();
+        foreach (var entry in header.Entries)
+        {
+            items.Add(new PathedFileEntry
+            {
+                Entry = entry,
+                FilePath = header.Pool[entry.FilePathIndex]
+            });
+        }
+
+        // Create a shared LazyRefCounterDecompressedNxBlock
+        var lazyBlock = new LazyRefCounterDecompressedNxBlock(provider, blockOffset, (ulong)block.CompressedSize, compression);
+
+        // Add multiple files from the SOLID block
+        foreach (var item in items)
+        {
+            var fromExistingNxBlock = new FromExistingNxBlock(lazyBlock, item.Entry);
+            lazyBlock.ConsiderFile(item.Entry);
+            newBuilder.AddPackerFile(new PackerFile
+            {
+                RelativePath = item.FilePath,
+                FileSize = (long)item.Entry.DecompressedSize,
+                FileDataProvider = fromExistingNxBlock
+            });
+        }
+
+        using var newArchive = newBuilder.Build(false);
+        Assert.Equal(0, lazyBlock.InternalGetRefCount());
+        newArchive.Position = 0;
+
+        // Unpack the new archive in memory
+        var unpacker = new NxUnpackerBuilder(new FromStreamProvider(newArchive));
+        var allFileEntries = unpacker.GetPathedFileEntries();
+        Assert.Equal(items.Count, allFileEntries.Length);
+        unpacker.AddFilesWithArrayOutput(allFileEntries, out var extractedFiles);
+        unpacker.Extract();
+
+        // Verify the contents of the extracted files
         PackingTests.AssertExtracted(extractedFiles);
     }
 

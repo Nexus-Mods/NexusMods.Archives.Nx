@@ -23,15 +23,15 @@ namespace NexusMods.Archives.Nx.FileProviders;
 ///     is only called once on this provider during packing from any implementation
 ///     of <see cref="IBlock{T}"/>. We then do reference counting around that.
 ///
-///     This behaviour is asserted via the tests. If it does not hold true,
-///     the test will fail.
+///     This behaviour is asserted via the tests (see <see cref="LazyRefCounterDecompressedNxBlock.InternalGetRefCount"/>).
+///     If it does not hold true, the test will fail.
 /// </remarks>
 internal class FromExistingNxBlock : IFileDataProvider
 {
     /// <summary>
     ///     Contains the decompressed chunk of data.
     /// </summary>
-    public required LazyRefCounterDecompressedNxBlock LazyRefCounterDecompressedNxBlock { get; init; }
+    private LazyRefCounterDecompressedNxBlock LazyRefCounterDecompressedNxBlock { get; init; }
 
     /// <summary>
     ///     Size of the file in the decompressed block.
@@ -51,6 +51,7 @@ internal class FromExistingNxBlock : IFileDataProvider
         LazyRefCounterDecompressedNxBlock = block;
         DecompressedBlockOffset = entry.DecompressedBlockOffset;
         FileSize = entry.DecompressedSize;
+        block.Acquire();
     }
 
     /// <inheritdoc />
@@ -164,6 +165,11 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
         if (maxOffset > _numBytesToDecompress)
             _numBytesToDecompress = maxOffset;
     }
+
+    /// <summary>
+    ///     For test use only.
+    /// </summary>
+    internal int InternalGetRefCount() => _refCount;
 
     /// <summary>
     ///     This retrieves the raw data and length of the block.
