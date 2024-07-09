@@ -80,8 +80,10 @@ public class PackingWithExistingNxDataTests
 
         // Create a new archive using a chunked block from the initial archive
         var newBuilder = new NxPackerBuilder();
-        newBuilder.WithMaxNumThreads(1);
-        newBuilder.WithOutput(new MemoryStream());
+        settings.Output = new MemoryStream();
+        // Note: In higher level APIs we need an assertion that chunk size is
+        //       consistent between the two archives.
+        newBuilder.WithSettings(settings);
 
         var chunkedBlocks = CreateChunkedFileFromExistingNxBlock(provider, header, 0);
         foreach (var block in chunkedBlocks)
@@ -95,10 +97,12 @@ public class PackingWithExistingNxDataTests
         var allFileEntries = unpacker.GetPathedFileEntries();
         unpacker.AddFilesWithArrayOutput(allFileEntries, out var extractedFiles);
         unpacker.Extract();
+
+        // Assert a file was extracted
         Assert.True(allFileEntries.Length > 0);
         Assert.True(extractedFiles[0].Data.Length > 0);
 
-        // Verify the contents of the extracted files
+        // Verify the contents of the extracted file
         PackingTests.AssertExtracted(extractedFiles);
     }
 

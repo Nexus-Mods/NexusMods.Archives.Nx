@@ -388,3 +388,5 @@ static NexusMods.Archives.Nx.Utilities.Compression.MaxAllocForCompressSize(int s
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.EnumerationOptions! options) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
 static NexusMods.Archives.Nx.Utilities.FileFinder.GetFiles(string! directoryPath, System.IO.SearchOption searchOption) -> System.Collections.Generic.List<NexusMods.Archives.Nx.Structs.PackerFile!>!
+NexusMods.Archives.Nx.Packing.NxPackerBuilder.AddPackerFile(NexusMods.Archives.Nx.Structs.PackerFile! file) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
+NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithSettings(NexusMods.Archives.Nx.Structs.PackerSettings! settings) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!

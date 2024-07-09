@@ -28,12 +28,13 @@ internal record ChunkedFileFromExistingNxBlock<T>
     public bool CanCreateChunks() => true;
 
     /// <inheritdoc />
-    public int FileCount() => 1;
+    public int FileCount() => ChunkIndex == 0 ? 1 : 0; // Only first chunk should be counted.
 
     /// <inheritdoc />
     public void AppendFilesUnsafe(ref int currentIndex, HasRelativePathWrapper[] paths)
     {
-        paths.DangerousGetReferenceAt(currentIndex++) = State.RelativePath;
+        if (ChunkIndex == 0)
+            paths.DangerousGetReferenceAt(currentIndex++) = State.RelativePath;
     }
 
     /// <inheritdoc />

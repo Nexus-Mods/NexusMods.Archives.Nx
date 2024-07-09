@@ -294,6 +294,18 @@ public class NxPackerBuilder
     }
 
     /// <summary>
+    ///     Sets all the settings at once, discarding any previously
+    ///     set settings.
+    /// </summary>
+    /// <param name="settings">The settings to assign.</param>
+    /// <returns>The builder.</returns>
+    public NxPackerBuilder WithSettings(PackerSettings settings)
+    {
+        Settings = settings;
+        return this;
+    }
+
+    /// <summary>
     ///     Builds the archive in the configured destination.
     /// </summary>
     /// <returns>The output stream.</returns>
