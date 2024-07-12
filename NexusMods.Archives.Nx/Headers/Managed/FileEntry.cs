@@ -44,6 +44,12 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     public Hash AsHash => Hashing.xxHash64.Hash.From(Hash);
 
     /// <summary>
+    ///     Returns true if the file has 1 or more chunks.
+    /// </summary>
+    /// <param name="chunkSizeBytes">Size of single chunk in archive.</param>
+    public bool IsChunked(int chunkSizeBytes) => (DecompressedSize / (ulong)chunkSizeBytes) >= 1;
+
+    /// <summary>
     ///     Calculated via <see cref="DecompressedSize" /> divided by Chunk Size.
     /// </summary>
     /// <param name="chunkSizeBytes">Size of single chunk in archive.</param>

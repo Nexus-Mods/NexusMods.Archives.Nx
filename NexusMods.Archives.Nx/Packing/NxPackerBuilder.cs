@@ -30,10 +30,6 @@ public class NxPackerBuilder
     /// </summary>
     public List<PackerFile> Files { get; private set; } = new();
 
-    /// <summary>
-    ///     All existing blocks that are sourced from external, existing Nx archives.
-    /// </summary>
-    private List<IBlock<PackerFile>> ExistingBlocks { get; } = new();
 
     /// <summary>
     ///     Adds all files under given folder to the output.
@@ -311,35 +307,11 @@ public class NxPackerBuilder
     /// <returns>The output stream.</returns>
     public Stream Build(bool disposeOutput = true)
     {
-        if (ExistingBlocks.Count > 0)
-            NxPacker.PackWithExistingBlocks(Files.ToArray(), ExistingBlocks, Settings);
-        else
-            NxPacker.Pack(Files.ToArray(), Settings);
-
+        NxPacker.Pack(Files.ToArray(), Settings);
         if (disposeOutput)
             Settings.Output.Dispose();
 
         return Settings.Output;
-    }
-
-    /// <summary>
-    ///     Adds a SOLID block that's backed by an existing Nx archive.
-    /// </summary>
-    /// <param name="block">The block to add to the compressor input.</param>
-    internal NxPackerBuilder AddSolidBlockFromExistingArchive(SolidBlockFromExistingNxBlock<PackerFile> block)
-    {
-        ExistingBlocks.Add(block);
-        return this;
-    }
-
-    /// <summary>
-    ///     Adds a SOLID block that's backed by an existing Nx archive.
-    /// </summary>
-    /// <param name="block">The block to add to the compressor input.</param>
-    internal NxPackerBuilder AddChunkedFileFromExistingArchiveBlock(ChunkedFileFromExistingNxBlock<PackerFile> block)
-    {
-        ExistingBlocks.Add(block);
-        return this;
     }
 
     private void DisposeExistingStream()

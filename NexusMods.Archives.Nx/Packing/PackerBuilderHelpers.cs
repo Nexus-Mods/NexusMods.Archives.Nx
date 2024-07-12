@@ -1,4 +1,8 @@
+using System.Runtime.CompilerServices;
+using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Structs;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
@@ -8,7 +12,8 @@ using NexusMods.Archives.Nx.Utilities;
 namespace NexusMods.Archives.Nx.Packing;
 
 /// <summary>
-///     Helper methods for the <see cref="NxPackerBuilder"/>.
+///     Helper methods that can be used for manually constructing reused chunks to be used
+///     with <see cref="NxPackerBuilder"/>. For internal low level use, and testing.
 /// </summary>
 internal class PackerBuilderHelpers
 {
@@ -20,8 +25,8 @@ internal class PackerBuilderHelpers
         int blockIndex)
     {
         var block = header.Blocks[blockIndex];
-        var blockOffset = header.BlockOffsets[blockIndex];
-        var compression = header.BlockCompressions[blockIndex];
+        var blockOffset = header.BlockOffsets.DangerousGetReferenceAt(blockIndex);
+        var compression = header.BlockCompressions.DangerousGetReferenceAt(blockIndex);
 
         var items = new List<PathedFileEntry>();
         foreach (var entry in header.Entries)
@@ -37,7 +42,7 @@ internal class PackerBuilderHelpers
         }
 
         return new SolidBlockFromExistingNxBlock<PackerFile>(
-            items,
+            items.ToArray(),
             nxSource,
             blockOffset,
             block.CompressedSize,
@@ -47,38 +52,69 @@ internal class PackerBuilderHelpers
 
     /// <summary/>
     /// <param name="nxSource">Provides the ability to read from an .nx archive.</param>
-    /// <param name="header">The header of the NX file represented by <paramref name="nxSource"/></param>
+    /// <param name="header">The header of the NX file represented by <paramref name="nxSource"/>. Used for metadata only.</param>
     /// <param name="entry">The entry of the individual item in the archive.</param>
-    internal static ChunkedFileFromExistingNxBlock<PackerFile>[] CreateChunkedFileFromExistingNxBlock(IFileDataProvider nxSource, ParsedHeader header,
-        FileEntry entry)
+    /// <param name="blocks"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void CreateChunkedFileFromExistingNxBlock(IFileDataProvider nxSource, ParsedHeader header,
+        FileEntry entry, List<IBlock<PackerFile>> blocks)
     {
         var chunkSize = header.Header.ChunkSizeBytes;
         var numChunks = entry.GetChunkCount(chunkSize);
-        var result = Polyfills.AllocateUninitializedArray<ChunkedFileFromExistingNxBlock<PackerFile>>(numChunks);
+        var sharedState = new ChunkedBlockFromExistingNxState
+        {
+            NumChunks = numChunks,
+            NxSource = nxSource,
+            RelativePath = header.Pool.DangerousGetReferenceAt(entry.FilePathIndex),
+            FileLength = entry.DecompressedSize,
+            FileHash = entry.Hash
+        };
 
         for (var chunkIndex = 0; chunkIndex < numChunks; chunkIndex++)
         {
             var blockIndex = entry.FirstBlockIndex + chunkIndex;
-            var block = header.Blocks[blockIndex];
-            var blockOffset = header.BlockOffsets[blockIndex];
-            var compression = header.BlockCompressions[blockIndex];
+            var block = header.Blocks[blockIndex]; // Indices below guaranteed by virtue of length equality.
+            var blockOffset = header.BlockOffsets.DangerousGetReferenceAt(blockIndex);
+            var compression = header.BlockCompressions.DangerousGetReferenceAt(blockIndex);
 
-            result.DangerousGetReferenceAt(chunkIndex) = new ChunkedFileFromExistingNxBlock<PackerFile>(
+            blocks.Add(new ChunkedFileFromExistingNxBlock<PackerFile>(
                 blockOffset,
                 block.CompressedSize,
                 chunkIndex,
-                new ChunkedBlockFromExistingNxState
-                {
-                    NumChunks = numChunks,
-                    NxSource = nxSource,
-                    RelativePath = header.Pool.DangerousGetReferenceAt(entry.FilePathIndex),
-                    FileLength = entry.DecompressedSize,
-                    FileHash = entry.Hash
-                },
+                sharedState,
                 compression
-            );
+            ));
+        }
+    }
+
+    /// <summary>
+    ///     Adds a number of files from a SOLID block in an existing .nx archive
+    ///     to a <paramref name="builder"/>.
+    /// </summary>
+    /// <param name="builder">The builder to add the files to.</param>
+    /// <param name="nxSource">Allows you to access the source archive.*</param>
+    /// <param name="blockOffset">Offset of the block in the <paramref name="nxSource"/></param>
+    /// <param name="blockSize">Size of the block at <paramref name="blockOffset"/> in <paramref name="nxSource"/></param>
+    /// <param name="compression">The compression used in this block.</param>
+    /// <param name="items">The files belonging to this block that should be added.</param>
+    internal static LazyRefCounterDecompressedNxBlock AddPartialSolidBlock(NxPackerBuilder builder, FromStreamProvider nxSource, ulong blockOffset,
+        BlockSize blockSize, CompressionPreference compression, List<PathedFileEntry> items)
+    {
+        var lazyBlock = new LazyRefCounterDecompressedNxBlock(nxSource, blockOffset, (ulong)blockSize.CompressedSize, compression);
+
+        // Add multiple files from the SOLID block
+        foreach (var item in items)
+        {
+            var fromExistingNxBlock = new FromExistingNxBlock(lazyBlock, item.Entry);
+            lazyBlock.ConsiderFile(item.Entry);
+            builder.AddPackerFile(new PackerFile
+            {
+                RelativePath = item.FilePath,
+                FileSize = (long)item.Entry.DecompressedSize,
+                FileDataProvider = fromExistingNxBlock
+            });
         }
 
-        return result;
+        return lazyBlock;
     }
 }

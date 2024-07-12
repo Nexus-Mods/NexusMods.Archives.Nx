@@ -4,23 +4,22 @@ using FluentAssertions;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Packing;
-using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
-using NexusMods.Archives.Nx.Structs.Blocks;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
-public class PackingWithExistingNxDataTests
+public class NxRepackerBuilderTests
 {
     [Theory]
     [AutoData]
-    public void PackWithExistingSolidBlock_ShouldPackAndUnpackCorrectly(IFixture fixture)
+    public void RepackWithExistingSolidBlock_ShouldRepackAndUnpackCorrectly(IFixture fixture)
     {
         /*
             This test works by creating an Nx file with a single SOLID block, then
             creating a new archive with the contents of a single SOLID block
             from the first archive.
         */
+
         // Create an initial Nx archive
         var initialFiles = PackingTests.GetRandomDummyFiles(fixture, 64, 1024, 2048, out var settings);
         settings.BlockSize = 1048575;
@@ -32,17 +31,17 @@ public class PackingWithExistingNxDataTests
         var header = HeaderParser.ParseHeader(provider);
 
         // Create a new archive using a solid block from the initial archive
-        var newBuilder = new NxRepackerBuilder();
-        newBuilder.WithOutput(new MemoryStream());
+        var repackerBuilder = new NxRepackerBuilder();
+        repackerBuilder.WithOutput(new MemoryStream());
 
-        var solidBlock = PackerBuilderHelpers.CreateSolidBlockFromExistingNxBlock(provider, header, 0);
-        newBuilder.AddBlock(solidBlock);
+        // Add all files from the initial archive
+        repackerBuilder.AddFilesFromNxArchive(provider, header, header.Entries.AsSpan());
 
-        using var newArchive = newBuilder.Build(false);
-        newArchive.Position = 0;
+        using var repackedArchive = repackerBuilder.Build(false);
+        repackedArchive.Position = 0;
 
         // Unpack the new archive in memory
-        var unpacker = new NxUnpackerBuilder(new FromStreamProvider(newArchive));
+        var unpacker = new NxUnpackerBuilder(new FromStreamProvider(repackedArchive));
         var allFileEntries = unpacker.GetPathedFileEntries();
         allFileEntries.Length.Should().BeGreaterThan(0);
         unpacker.AddFilesWithArrayOutput(allFileEntries, out var extractedFiles);
@@ -54,15 +53,8 @@ public class PackingWithExistingNxDataTests
 
     [Theory]
     [AutoData]
-    public void PackWithExistingChunkedBlock_ShouldPackAndUnpackCorrectly(IFixture fixture)
+    public void RepackWithExistingChunkedBlock_ShouldRepackAndUnpackCorrectly(IFixture fixture)
     {
-        /*
-            This test works by creating a Nx file with a single file that has
-            been chunked into 7.5 pieces.
-
-            We then try to create a second Nx file which is derivative from
-            the chunk in the first file.
-        */
         const int chunkSize = 1024 * 128;
         const int fileSize = (int)(chunkSize * 7.5);
 
@@ -75,17 +67,13 @@ public class PackingWithExistingNxDataTests
         var provider = new FromStreamProvider(initialArchive);
         var header = HeaderParser.ParseHeader(provider);
 
-        // Create a new archive using a chunked block from the initial archive
+        // Create a new archive using the chunked block from the initial archive
         var newBuilder = new NxRepackerBuilder();
         settings.Output = new MemoryStream();
-        // Note: In higher level APIs we need an assertion that chunk size is
-        //       consistent between the two archives.
         newBuilder.WithSettings(settings);
 
-        var chunkedBlocks = new List<IBlock<PackerFile>>();
-        PackerBuilderHelpers.CreateChunkedFileFromExistingNxBlock(provider, header, header.Entries[0], chunkedBlocks);
-        foreach (var block in chunkedBlocks)
-            newBuilder.AddBlock(block);
+        // Add the chunked file from the initial archive
+        newBuilder.AddFileFromNxArchive(provider, header, header.Entries[0]);
 
         using var newArchive = newBuilder.Build(false);
         newArchive.Position = 0;
@@ -106,16 +94,8 @@ public class PackingWithExistingNxDataTests
 
     [Theory]
     [AutoData]
-    public void PackWithFromExistingPartialSolidBlock_ShouldPackAndUnpackCorrectly(IFixture fixture)
+    public void RepackWithPartialSolidBlock_ShouldRepackAndUnpackCorrectly(IFixture fixture)
     {
-        /*
-            This test works by creating a Nx file with a single SOLID block, then
-            creating a new archive composed of all the files in the SOLID block.
-
-            We do this by extracting the files from the SOLID block, i.e. through
-            the use of `FromExistingNxBlock` as opposed
-        */
-
         // Create an initial Nx archive with a large SOLID block
         var initialFiles = PackingTests.GetRandomDummyFiles(fixture, 64, 1024, 2048, out var settings);
         settings.BlockSize = 1048575;
@@ -127,33 +107,20 @@ public class PackingWithExistingNxDataTests
         var header = HeaderParser.ParseHeader(provider);
 
         // Create a new archive using *some* files from the SOLID block of the initial archive
-        var newBuilder = new NxPackerBuilder();
-        newBuilder.WithOutput(new MemoryStream());
+        var repackerBuilder = new NxRepackerBuilder();
+        repackerBuilder.WithOutput(new MemoryStream());
 
-        var block = header.Blocks[0];
-        var blockOffset = header.BlockOffsets[0];
-        var compression = header.BlockCompressions[0];
+        // Add only half of the files from the initial archive
+        var filesToRepack = header.Entries.Take(header.Entries.Length / 2).ToArray();
+        repackerBuilder.AddFilesFromNxArchive(provider, header, filesToRepack.AsSpan());
 
-        var items = new List<PathedFileEntry>();
-        foreach (var entry in header.Entries)
-        {
-            items.Add(new PathedFileEntry
-            {
-                Entry = entry,
-                FilePath = header.Pool[entry.FilePathIndex]
-            });
-        }
-
-        var lazyBlock = PackerBuilderHelpers.AddPartialSolidBlock(newBuilder, provider, blockOffset, block, compression, items);
-
-        using var newArchive = newBuilder.Build(false);
-        lazyBlock.InternalGetRefCount().Should().Be(0);
-        newArchive.Position = 0;
+        using var repackedArchive = repackerBuilder.Build(false);
+        repackedArchive.Position = 0;
 
         // Unpack the new archive in memory
-        var unpacker = new NxUnpackerBuilder(new FromStreamProvider(newArchive));
+        var unpacker = new NxUnpackerBuilder(new FromStreamProvider(repackedArchive));
         var allFileEntries = unpacker.GetPathedFileEntries();
-        allFileEntries.Length.Should().Be(items.Count);
+        allFileEntries.Length.Should().Be(filesToRepack.Length);
         unpacker.AddFilesWithArrayOutput(allFileEntries, out var extractedFiles);
         unpacker.Extract();
 

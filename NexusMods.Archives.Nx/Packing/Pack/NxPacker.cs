@@ -59,9 +59,7 @@ public static class NxPacker
 #else
         foreach (var block in copiedBlocks)
 #endif
-        {
             block.AppendFilesUnsafe(ref insertIdx, newFiles);
-        }
 
         blocks.AddRange(copiedBlocks);
         PackWithBlocksAndFiles(newFiles.AsSpan(), settings, blocks);
@@ -79,7 +77,8 @@ public static class NxPacker
     ///     Listing of all blocks to be packed.
     ///     These blocks should contain all files listed in <paramref name="relativePaths"/>.
     /// </param>
-    private static unsafe void PackWithBlocksAndFiles<TWithRelativePath>(Span<TWithRelativePath> relativePaths, PackerSettings settings, List<IBlock<PackerFile>> blocks)
+    private static unsafe void PackWithBlocksAndFiles<TWithRelativePath>(Span<TWithRelativePath> relativePaths, PackerSettings settings,
+        List<IBlock<PackerFile>> blocks)
         where TWithRelativePath : IHasRelativePath
     {
         using var toc = TableOfContentsBuilder<PackerFile>.Create(blocks, relativePaths);
