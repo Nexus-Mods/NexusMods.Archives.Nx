@@ -128,6 +128,43 @@ public class NxRepackerBuilderTests
         PackingTests.AssertExtracted(extractedFiles);
     }
 
+    [Theory]
+    [AutoData]
+    public void RepackWithMixedChunkSizes_ShouldThrowException(IFixture fixture)
+    {
+        // Create two initial Nx archives with different chunk sizes
+        var files1 = PackingTests.GetRandomDummyFiles(fixture, 2, 1024 * 1024, 2 * 1024 * 1024, out var settings1);
+        settings1.ChunkSize = 1024 * 128; // 128 KB chunks
+
+        var files2 = PackingTests.GetRandomDummyFiles(fixture, 2, 1024 * 1024, 2 * 1024 * 1024, out var settings2);
+        settings2.ChunkSize = 1024 * 256; // 256 KB chunks
+
+        using var archive1 = CreateInitialArchive(files1, settings1);
+        using var archive2 = CreateInitialArchive(files2, settings2);
+
+        archive1.Position = 0;
+        archive2.Position = 0;
+
+        var provider1 = new FromStreamProvider(archive1);
+        var provider2 = new FromStreamProvider(archive2);
+
+        var header1 = HeaderParser.ParseHeader(provider1);
+        var header2 = HeaderParser.ParseHeader(provider2);
+
+        // Create a new NxRepackerBuilder
+        var repackerBuilder = new NxRepackerBuilder();
+        repackerBuilder.WithOutput(new MemoryStream());
+
+        // Add files from the first archive
+        repackerBuilder.AddFilesFromNxArchive(provider1, header1, header1.Entries.AsSpan());
+
+        // Attempt to add files from the second archive with a different chunk size
+        // This should throw an ArgumentException
+        Action action = () => repackerBuilder.AddFilesFromNxArchive(provider2, header2, header2.Entries.AsSpan());
+        action.Should().Throw<ArgumentException>()
+            .WithMessage("All chunked files must have the same chunk size.");
+    }
+
     private Stream CreateInitialArchive(Span<PackerFile> files, PackerSettings settings)
     {
         var builder = new NxPackerBuilder();

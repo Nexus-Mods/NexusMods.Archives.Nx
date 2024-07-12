@@ -244,7 +244,6 @@ public class NxRepackerBuilder : NxPackerBuilder
 
     private static void ThrowMixedChunkSizes() => throw new ArgumentException("All chunked files must have the same chunk size.");
 
-
     /// <summary>
     ///     Contains all the data associated with a single Nx source.
     /// </summary>
