@@ -148,11 +148,6 @@ public class NxRepackerBuilder : NxPackerBuilder
         // Later down the road, if the file count per block matches the old file,
         // the blocks may be copied verbatim.
 
-        // TODO: There's a missing micro-optimization here.
-        // Since we know the total item count ahead of time, we could allocate a single buffer
-        // and store all of the items in there. This would be cache friendlier.
-        // Time didn't allow for this yet (requires benchmarking et al.), but
-        // it's a good refinement for the future.
         using var blockList = new BlockList<FileEntry>(blockCount, sourceData.Header.Entries.Length);
         foreach (var entry in sourceData.Entries)
         {
