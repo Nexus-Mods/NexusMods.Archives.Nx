@@ -12,9 +12,9 @@ internal unsafe struct BlockList<T> : IDisposable where T : unmanaged
 {
     private readonly void* _data;
     private T* _currentItem;
+    private readonly int _blockCount;
 #if DEBUG
     private readonly T* _maxItem;
-    private readonly int _blockCount;
 #endif
 
     private FixedSizeList<T>* Blocks => (FixedSizeList<T>*)_data;
@@ -31,9 +31,9 @@ internal unsafe struct BlockList<T> : IDisposable where T : unmanaged
         var itemSectionSize = sizeof(T) * maxNumItems;
         _data = Polyfills.AllocNativeMemory((UIntPtr)(blockSectionSize + itemSectionSize));
         _currentItem = (T*)((byte*)_data + blockSectionSize);
+        _blockCount = blockCount;
 
 #if DEBUG
-        _blockCount = blockCount;
         _maxItem = _currentItem + maxNumItems;
 #endif
 
