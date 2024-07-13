@@ -1,3 +1,8 @@
+NexusMods.Archives.Nx.FileProviders.FromFilePathProvider
+NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.FilePath.get -> string!
+NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.FilePath.init -> void
+NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.FromFilePathProvider() -> void
+NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.GetFileData(ulong start, ulong length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.IsChunked(int chunkSizeBytes) -> bool
 NexusMods.Archives.Nx.Packing.NxRepackerBuilder
 NexusMods.Archives.Nx.Packing.NxRepackerBuilder.AddFileFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!

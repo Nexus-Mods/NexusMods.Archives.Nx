@@ -30,7 +30,6 @@ public class NxPackerBuilder
     /// </summary>
     public List<PackerFile> Files { get; private set; } = new();
 
-
     /// <summary>
     ///     Adds all files under given folder to the output.
     /// </summary>

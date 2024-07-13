@@ -5,6 +5,7 @@ using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
+using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
 using Spectre.Console;
@@ -50,12 +51,23 @@ var packCommand = new Command("pack", "Pack files to an archive.")
 
 packCommand.Handler = CommandHandler.Create<string, string, int?, int?, int?, int?, CompressionPreference?, CompressionPreference?, int?>(Pack);
 
+// Merge Command
+var mergeCommand = new Command("merge", "Merge multiple .nx archives into a single archive")
+{
+    new Option<string[]>("--sources", "Source .nx archives to merge.") { IsRequired = true, AllowMultipleArgumentsPerToken = true },
+    new Option<string>("--output", "Output path for the merged archive.") { IsRequired = true },
+    maxNumThreads
+};
+
+mergeCommand.Handler = CommandHandler.Create<string[], string, int?>(Merge);
+
 // Root command
 var rootCommand = new RootCommand
 {
     extractCommand,
     packCommand,
-    benchmarkCommand
+    benchmarkCommand,
+    mergeCommand
 };
 
 // Parse the incoming args and invoke the handler
@@ -135,7 +147,7 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? sol
     var ms = packingTimeTaken.ElapsedMilliseconds;
     Console.WriteLine("Packed in {0}ms", ms);
     Console.WriteLine("Throughput {0:###.00}MiB/s", builder.Files.Sum(x => x.FileSize) / (float)ms / 1024F);
-    Console.WriteLine("Size {0} Bytes", builder.Settings.Output.Length);
+    Console.WriteLine("Size {0:F2} MiB", BytesToMiB((ulong)builder.Settings.Output.Length));
     builder.Settings.Output.Dispose();
 }
 
@@ -171,3 +183,52 @@ void Benchmark(string source, int? threads, int? attempts)
     Console.WriteLine("Average {0:###.00}ms", averageMs);
     Console.WriteLine("Throughput {0:###.00}GiB/s", outputs.Sum(x => (long)x.Data.Length) / averageMs / 1048576F);
 }
+
+void Merge(string[] sources, string output, int? threads)
+{
+    Console.WriteLine($"Merging {sources.Length} archives into {output} with [{threads}] threads.");
+
+    var builder = new NxDeduplicatingRepackerBuilder();
+    ulong totalInputSize = 0;
+    ulong totalDecompressedSize = 0;
+
+    if (threads.HasValue)
+        builder.WithMaxNumThreads(threads.Value);
+
+    foreach (var source in sources)
+    {
+        var provider = new FromFilePathProvider { FilePath = source };
+        var fileInfo = new FileInfo(source);
+
+        using var fileData = provider.GetFileData(0, (ulong)fileInfo.Length);
+        totalInputSize += fileData.DataLength;
+        var header = HeaderParser.ParseHeader(provider);
+        builder.AddFilesFromNxArchive(provider, header, header.Entries.AsSpan());
+
+        foreach (var entry in header.Entries)
+            totalDecompressedSize += entry.DecompressedSize;
+    }
+
+    var mergeTimeTaken = Stopwatch.StartNew();
+
+    // Progress Reporting.
+    AnsiConsole.Progress()
+        .Start(ctx =>
+        {
+            var mergeTask = ctx.AddTask("[green]Merging Archives[/]");
+            var progress = new Progress<double>(d => mergeTask.Value = d * 100);
+            builder.WithProgress(progress);
+            builder.WithOutput(File.Create(output));
+            builder.Build(false);
+        });
+
+    var outputSize = builder.Settings.Output.Length;
+    var ms = mergeTimeTaken.ElapsedMilliseconds;
+    Console.WriteLine("Merged in {0}ms", ms);
+    Console.WriteLine("Input Size: {0:F2} MiB", BytesToMiB(totalInputSize));
+    Console.WriteLine("Output Size: {0:F2} MiB", BytesToMiB((ulong)outputSize));
+    Console.WriteLine("Compression Ratio: {0:P2}", (double)outputSize / totalInputSize);
+    Console.WriteLine("Throughput {0:###.00}MiB/s", totalDecompressedSize / (float)ms / 1024F);
+}
+
+static float BytesToMiB(ulong bytes) => bytes / 1024F / 1024F;
