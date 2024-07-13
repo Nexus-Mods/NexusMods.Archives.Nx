@@ -103,7 +103,8 @@ public class NxRepackerBuilder : NxPackerBuilder
     public new Stream Build(bool disposeOutput = true)
     {
         // Update ChunkSize if not already set.
-        WithChunkSize(32768 << _chunkSizeByte);
+        if (_chunkSizeByte != byte.MaxValue)
+            WithChunkSize(32768 << _chunkSizeByte);
 
         var blocks = new List<IBlock<PackerFile>>();
         var files = new List<PackerFile>();
