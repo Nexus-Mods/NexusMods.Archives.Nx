@@ -31,12 +31,12 @@ public class NxRepackerBuilder : NxPackerBuilder
     private byte _chunkSizeByte = byte.MaxValue;
 
     /// <summary>
-    ///     Adds an existing chunked file to the archive.
-    ///     Use this overload if you know a file is chunked,
+    ///     Adds an existing file from an Nx archive to the repack operation.
     /// </summary>
-    /// <param name="nxSource">Source for an underlying `Nx` archive.</param>
-    /// <param name="header">Pre-parsed header for the given `Nx` archive.</param>
-    /// <param name="entry">The entry for the file.</param>
+    /// <param name="nxSource">The source of the Nx archive data.</param>
+    /// <param name="header">The parsed header of the source Nx archive.</param>
+    /// <param name="entry">The file entry to add from the source archive.</param>
+    /// <returns>The current instance of NxRepackerBuilder.</returns>
     public NxRepackerBuilder AddFileFromNxArchive(IFileDataProvider nxSource, ParsedHeader header, FileEntry entry)
     {
         UpdateChunkSize(header);
@@ -52,12 +52,12 @@ public class NxRepackerBuilder : NxPackerBuilder
     }
 
     /// <summary>
-    ///     Adds an existing chunked file to the archive.
-    ///     Use this overload if you know a file is chunked,
+    ///     Adds multiple existing files from an Nx archive to the repack operation.
     /// </summary>
-    /// <param name="nxSource">Source for an underlying `Nx` archive.</param>
-    /// <param name="header">Pre-parsed header for the given `Nx` archive.</param>
-    /// <param name="entries">The entry for the file.</param>
+    /// <param name="nxSource">The source of the Nx archive data.</param>
+    /// <param name="header">The parsed header of the source Nx archive.</param>
+    /// <param name="entries">A span of file entries to add from the source archive.</param>
+    /// <returns>The current instance of NxRepackerBuilder.</returns>
     public NxRepackerBuilder AddFilesFromNxArchive(IFileDataProvider nxSource, ParsedHeader header, Span<FileEntry> entries)
     {
         UpdateChunkSize(header);
@@ -74,12 +74,12 @@ public class NxRepackerBuilder : NxPackerBuilder
     }
 
     /// <summary>
-    ///     Adds an existing chunked file to the archive.
-    ///     Use this overload if you know a file is chunked,
+    ///     Adds multiple existing files from an Nx archive to the repack operation.
     /// </summary>
-    /// <param name="nxSource">Source for an underlying `Nx` archive.</param>
-    /// <param name="header">Pre-parsed header for the given `Nx` archive.</param>
-    /// <param name="entries">The entry for the file.</param>
+    /// <param name="nxSource">The source of the Nx archive data.</param>
+    /// <param name="header">The parsed header of the source Nx archive.</param>
+    /// <param name="entries">An enumerable collection of file entries to add from the source archive.</param>
+    /// <returns>The current instance of NxRepackerBuilder.</returns>
     public NxRepackerBuilder AddFilesFromNxArchive(IFileDataProvider nxSource, ParsedHeader header, IEnumerable<FileEntry> entries)
     {
         UpdateChunkSize(header);
