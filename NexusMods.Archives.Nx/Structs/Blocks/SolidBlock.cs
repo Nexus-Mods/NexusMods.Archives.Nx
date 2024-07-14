@@ -81,8 +81,6 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 // Check for deduplication
                 if (deduplicationState != null)
                 {
-                    var length = (ulong)Math.Min(4096, (int)data.DataLength);
-                    var hash4096 = XxHash64Algorithm.HashBytes(data.Data, length);
                     if (deduplicationState.TryFindDuplicateByFullHash(file.Hash, out var existingFile))
                     {
                         // If a duplicate is found, update the file entry to point to the existing file
@@ -93,7 +91,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
 
                     // If not a duplicate, add to deduplication state
                     lock (deduplicationState)
-                        deduplicationState.AddFileHash(hash4096, file.Hash, blockIndex);
+                        deduplicationState.AddFileHash(0, file.Hash, blockIndex);
                 }
 
                 file.FirstBlockIndex = blockIndex;
