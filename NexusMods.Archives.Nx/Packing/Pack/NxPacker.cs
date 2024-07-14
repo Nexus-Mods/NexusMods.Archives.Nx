@@ -95,9 +95,9 @@ public static class NxPacker
         {
             // Pack the Blocks
             // Note: Blocks must be packed 'in-order' for chunked files; because their blocks need to be sequential.
+            using (var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null))
             using (var sched = new OrderedTaskScheduler(settings.MaxNumThreads))
             {
-                using var pool = new PackerArrayPools(settings.MaxNumThreads, settings.BlockSize, toc.CanCreateChunks ? settings.ChunkSize : null);
                 var context = new BlockContext
                 {
                     Settings = settings,
