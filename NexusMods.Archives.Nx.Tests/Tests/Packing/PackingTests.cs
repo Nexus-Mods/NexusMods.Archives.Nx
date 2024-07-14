@@ -7,7 +7,7 @@ using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Hashing.xxHash64;
+using NexusMods.Archives.Nx.Utilities;
 using NxPackerBuilder = NexusMods.Archives.Nx.Packing.NxPackerBuilder;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 // ReSharper disable MemberCanBePrivate.Global
@@ -43,7 +43,7 @@ public class PackingTests
         {
             var entryData = unpacker.ExtractFilesInMemory(new[] { entry.Entry }, unpackSettings);
             var entryHash = entryData[0].Data.XxHash64();
-            entryHash.Value.Should().Be(entry.Entry.Hash); // Verify extracted file hash matches the stored header data.
+            entryHash.Should().Be(entry.Entry.Hash); // Verify extracted file hash matches the stored header data.
             entryHashes.Add(entry.Entry.Hash);
         }
 
@@ -105,9 +105,8 @@ public class PackingTests
         {
             var extractedHash = ext.Data.XxHash64();
             var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
-            var savedHash = Hash.From(ext.Entry.Hash);
             extractedHash.Should().Be(expectedHash);
-            savedHash.Should().Be(expectedHash);
+            ext.Entry.Hash.Should().Be(expectedHash);
         }
 
         // Verify data.
@@ -168,18 +167,17 @@ public class PackingTests
             unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
                 new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
+        // Verify data.
+        AssertExtracted(extracted);
+
         // Assert hashes are correct
         foreach (var ext in extracted)
         {
             var extractedHash = ext.Data.XxHash64();
             var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
-            var savedHash = Hash.From(ext.Entry.Hash);
             extractedHash.Should().Be(expectedHash);
-            savedHash.Should().Be(expectedHash);
+            ext.Entry.Hash.Should().Be(expectedHash);
         }
-
-        // Verify data.
-        AssertExtracted(extracted);
     }
 
     [Theory]
@@ -331,4 +329,30 @@ public class PackingTests
 
         return hashToPathMap;
     }
+}
+
+/// <summary>
+///     Extension methods tied to arrays.
+/// </summary>
+public static class ArrayExtensions
+{
+    /// <summary>
+    /// Hashes the given <see cref="Span{T}"/> of bytes using xxHash64.
+    /// </summary>
+    /// <param name="data">The data to hash.</param>
+    /// <returns>Hash for the given data.</returns>
+    public static ulong XxHash64(this byte[] data) => ((ReadOnlySpan<byte>)data).XxHash64();
+}
+
+/// <summary>
+/// Extensions related to <see cref="Span{T}"/>(s) and their heap sibling <see cref="Memory{T}"/>.
+/// </summary>
+public static class SpanExtensions
+{
+    /// <summary>
+    /// Hashes the given <see cref="Span{T}"/> of bytes using xxHash64.
+    /// </summary>
+    /// <param name="data">The data to hash.</param>
+    /// <returns>Hash for the given data.</returns>
+    public static ulong XxHash64(this ReadOnlySpan<byte> data) => XxHash64Algorithm.HashBytes(data);
 }

@@ -1,4 +1,6 @@
+#if DEBUG
 using System.Diagnostics;
+#endif
 using System.Runtime.CompilerServices;
 
 namespace NexusMods.Archives.Nx.Utilities;

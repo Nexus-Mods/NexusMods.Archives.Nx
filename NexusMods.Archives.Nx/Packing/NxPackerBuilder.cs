@@ -301,6 +301,16 @@ public class NxPackerBuilder
     }
 
     /// <summary>
+    ///     Enables file deduplication during packing.
+    /// </summary>
+    /// <returns>The builder.</returns>
+    public NxPackerBuilder WithDeduplication()
+    {
+        Settings.DeduplicationState = new DeduplicationState();
+        return this;
+    }
+
+    /// <summary>
     ///     Builds the archive in the configured destination.
     /// </summary>
     /// <returns>The output stream.</returns>

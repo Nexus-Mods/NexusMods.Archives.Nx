@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Native.Structs;
 using NexusMods.Archives.Nx.Utilities;
-using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Headers.Managed;
 
@@ -37,11 +36,6 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     public int FirstBlockIndex;
 
     // Properties & Methods
-
-    /// <summary>
-    ///     [u64] Returns the current entry hash as a ValueObject.
-    /// </summary>
-    public Hash AsHash => Hashing.xxHash64.Hash.From(Hash);
 
     /// <summary>
     ///     Returns true if the file has 1 or more chunks.

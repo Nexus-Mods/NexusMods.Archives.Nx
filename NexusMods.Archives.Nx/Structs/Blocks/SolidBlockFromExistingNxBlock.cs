@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Interfaces;

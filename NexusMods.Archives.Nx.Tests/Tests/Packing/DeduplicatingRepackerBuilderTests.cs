@@ -3,6 +3,8 @@ using NexusMods.Archives.Nx.Interfaces;
 using Moq;
 using FluentAssertions;
 
+namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
+
 public class DeduplicatingRepackerBuilderTests
 {
     [Fact]

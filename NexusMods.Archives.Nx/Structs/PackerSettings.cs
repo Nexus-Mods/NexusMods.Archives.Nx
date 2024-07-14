@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Structs;
@@ -7,6 +8,12 @@ namespace NexusMods.Archives.Nx.Structs;
 /// <summary>
 ///     Controls the behaviour of the packer.
 /// </summary>
+/// <remarks>
+///     This class is not thread safe and stores mutable state tied to the packer.
+///     For example, the progress.
+///
+///     Please clone settings for each packer instance.
+/// </remarks>
 [PublicAPI]
 public class PackerSettings
 {
@@ -14,6 +21,11 @@ public class PackerSettings
     ///     Reports progress back to the process.
     /// </summary>
     public IProgress<double>? Progress { get; set; }
+
+    /// <summary>
+    ///     If not null, files are deduplicated, otherwise set this to null.
+    /// </summary>
+    public DeduplicationState? DeduplicationState { get; set; }
 
     /// <summary>
     ///     The stream to which data is output to.

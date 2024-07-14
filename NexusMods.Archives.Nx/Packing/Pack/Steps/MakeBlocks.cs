@@ -2,7 +2,6 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using System.Runtime.InteropServices;
-using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Packing.Pack.Steps;
 
