@@ -45,8 +45,17 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     /// <inheritdoc />
     public unsafe void ProcessBlock(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, PackerArrayPools pools)
     {
-        if (State.NumChunks == SkipProcessingNumChunks)
+        // By definition, this is only true after the entire file is processed via
+        // deduplication, therefore simply finishing processing to increment index is valid.
+        if (State.ShouldSkipProcessing())
+        {
+            // Taking lock is technically not needed, except concurrent calls to
+            // EndProcessingBlock could technically cause issues as other threads
+            // on WaitForBlockTurn could have their index skipped.
+            BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+            BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
             return;
+        }
 
         using var data = State.File.FileDataProvider.GetFileData(StartOffset, (uint)ChunkSize);
         var dataPtr = data.Data;
@@ -54,8 +63,16 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
 
         // Check if there's already a duplicate file.
         var duplState = settings.DeduplicationState;
-        if (TryDeduplicate(tocBuilder, settings, blockIndex, duplState, dataLen, dataPtr))
-            return;
+        ulong hash4096 = 0;
+        if (CanDeduplicateOnFirstChunk(duplState))
+        {
+            hash4096 = CalculateHash4096(dataLen, dataPtr);
+            if (IsDuplicate(duplState, dataLen, dataPtr, hash4096, out var deduplicatedFile, out var fullHash))
+            {
+                ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, fullHash);
+                return;
+            }
+        }
 
         // If we reach here, it means we need to compress and process the block
         using var allocation = pools.ChunkPool.Rent(settings.ChunkSize);
@@ -66,8 +83,34 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             var compressed = BlockHelpers.Compress(Compression, settings.ChunkedCompressionLevel, data, allocationPtr, allocSpan.Length,
                 out var asCopy);
 
-            BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
-            ref var fileEntry = ref State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex, new Span<byte>(data.Data, (int)data.DataLength),
+            // Take lock.
+            BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+
+            // Note: It's possible a previous thread hasn't called AddToDeduplicator
+            // by the time this thread performed the same check above.
+            // Reaching this does indicate some performance loss, since
+            // we called Compress already, however in practice it should only
+            // happen when the very previous file is a duplicate.
+            if (CanDeduplicateOnFirstChunk(duplState))
+            {
+                if (IsDuplicate(duplState, dataLen, dataPtr, hash4096, out var deduplicatedFile, out var fullHash))
+                {
+                    ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, fullHash);
+                    return;
+                }
+            }
+
+            // In the case of State.ShouldSkipProcessing(), this should return true
+            // if ProcessDeduplicate was called in a previous block.
+            // Thread safety is guaranteed by the lock in StartProcessingBlock.
+            if (State.ShouldSkipProcessing())
+            {
+                BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
+                return;
+            }
+
+            ref var fileEntry = ref State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex,
+                new Span<byte>(data.Data, (int)data.DataLength),
                 asCopy);
             AddToDeduplicator(ref fileEntry, duplState);
             BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
@@ -75,31 +118,43 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe bool TryDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex,
-        DeduplicationState? duplState, ulong dataLen, byte* dataPtr)
+    private unsafe bool IsDuplicate(DeduplicationState? duplState, ulong dataLen, byte* dataPtr, ulong hash4096, out DeduplicatedFile deduplicatedFile, out ulong fullHash)
     {
-        if (duplState == null || ChunkIndex != 0)
-            return false;
-
-        DeduplicatedFile deduplicatedFile;
-        ulong fullHash;
-        var shortLen = Math.Min(4096, dataLen);
-        var hash4096 = XxHash64Algorithm.HashBytes(dataPtr, shortLen);
-        lock (duplState)
+        deduplicatedFile = default;
+        fullHash = default;
+        lock (duplState!)
         {
             if (!duplState.HasPotentialDuplicate(hash4096))
                 return false;
 
             fullHash = CalculateFullFileHash(dataPtr, dataLen);
-            if (!duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedFile))
-                return false;
+            return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedFile);
         }
+    }
 
-        BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CanDeduplicateOnFirstChunk(DeduplicationState? duplState) => duplState != null && ChunkIndex == 0;
+
+    /// <summary/>
+    /// <remarks>
+    ///     This sets `State.ShouldSkipProcessing()` == true.
+    ///     Meaning all other chunks will skip processing.
+    /// </remarks>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ProcessDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, DeduplicatedFile deduplicatedFile,
+        ulong fullHash)
+    {
+        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
         State.AddFileEntryToToc(tocBuilder, deduplicatedFile.BlockIndex, fullHash);
-        BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
         State.NumChunks = SkipProcessingNumChunks;
-        return true;
+        BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
+    }
+
+    private static unsafe ulong CalculateHash4096(ulong dataLen, byte* dataPtr)
+    {
+        var shortLen = Math.Min(4096, dataLen);
+        var hash4096 = XxHash64Algorithm.HashBytes(dataPtr, shortLen);
+        return hash4096;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,6 +176,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 using var curChunkData = State.File.FileDataProvider.GetFileData(currentStartOffset, (uint)ChunkSize);
                 hashAlgo.AppendHash(curChunkData.Data, curChunkData.DataLength);
                 currentStartOffset += (ulong)ChunkSize;
+                chunkIndex++;
             }
 
             var remainingFileLength = (ulong)State.File.FileSize - currentStartOffset;
@@ -233,4 +289,11 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         file.Hash = hash;
         return ref file;
     }
+
+    /// <summary>
+    ///     True if this file has been handled by deduplication and
+    ///     processing of chunks should be skipped.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool ShouldSkipProcessing() => NumChunks == SkipProcessingNumChunks;
 }

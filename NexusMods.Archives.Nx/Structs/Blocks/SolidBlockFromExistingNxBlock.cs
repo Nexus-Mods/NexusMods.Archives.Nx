@@ -71,7 +71,7 @@ internal record SolidBlockFromExistingNxBlock<T>(PathedFileEntry[] Items, IFileD
         blockCompression = Compression;
 
         using var rawCompressedData = NxSource.GetFileData(StartOffset, (uint)BlockSize);
-        BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
+        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
         BlockHelpers.WriteToOutput(settings.Output, new Span<byte>(rawCompressedData.Data, BlockSize));
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }

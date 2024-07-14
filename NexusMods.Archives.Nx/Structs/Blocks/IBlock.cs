@@ -65,7 +65,7 @@ internal static class BlockHelpers
         destinationPtr, destinationLength, out asCopy);
 
     /// <summary>
-    ///     Calls to this method should be wrapped with <see cref="StartProcessingBlock{T}"/> and <see cref="EndProcessingBlock{T}"/>.
+    ///     Calls to this method should be wrapped with <see cref="WaitForBlockTurn{T}"/> and <see cref="EndProcessingBlock{T}"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteToOutput(Stream output, PackerPoolRental compressedBlock, int numBytes)
@@ -76,7 +76,7 @@ internal static class BlockHelpers
     }
 
     /// <summary>
-    ///     Calls to this method should be wrapped with <see cref="StartProcessingBlock{T}"/> and <see cref="EndProcessingBlock{T}"/>.
+    ///     Calls to this method should be wrapped with <see cref="WaitForBlockTurn{T}"/> and <see cref="EndProcessingBlock{T}"/>.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteToOutput(Stream output, Span<byte> compressedBlock)
@@ -97,7 +97,8 @@ internal static class BlockHelpers
     ///     written to. The lock happens on the <paramref name="builder"/>
     ///     with the currently processed block index being used.
     /// </summary>
-    internal static void StartProcessingBlock<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WaitForBlockTurn<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();

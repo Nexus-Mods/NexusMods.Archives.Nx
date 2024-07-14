@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
 /// <summary>

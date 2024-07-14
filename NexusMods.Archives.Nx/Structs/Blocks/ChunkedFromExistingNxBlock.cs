@@ -94,7 +94,7 @@ internal class ChunkedBlockFromExistingNxState
         PackerSettings settings, int blockIndex, CompressionPreference compression) where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
     {
         // Write out actual block.
-        BlockHelpers.StartProcessingBlock(tocBuilder, blockIndex);
+        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
         BlockHelpers.WriteToOutput(settings.Output, blockData);
 
         // Update Block Details
