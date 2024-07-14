@@ -112,6 +112,11 @@ internal static class BlockHelpers
         }
     }
 
+    /// <summary>
+    ///     Warning: Calling this from multiple threads in parallel is not legal.
+    ///     It will cause a deadlock in <see cref="WaitForBlockTurn{T}"/>
+    ///     as individual threads' blockindex can be skipped.
+    /// </summary>
     internal static void EndProcessingBlock<T>(TableOfContentsBuilder<T> builder, IProgress<double>? progress) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
         // Advance to next block.
