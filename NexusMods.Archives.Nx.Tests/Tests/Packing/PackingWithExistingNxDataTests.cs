@@ -167,7 +167,6 @@ public class PackingWithExistingNxDataTests
         builder.WithOutput(settings.Output);
         builder.WithBlockSize(settings.BlockSize);
         builder.WithChunkSize(settings.ChunkSize);
-        builder.WithDeduplication();
 
         foreach (var file in files)
             builder.AddPackerFile(file);

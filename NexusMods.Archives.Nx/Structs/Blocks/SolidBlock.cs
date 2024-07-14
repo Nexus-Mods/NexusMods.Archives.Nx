@@ -59,6 +59,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
         var decompressedSpan = decompressedAlloc.Span;
         fixed (byte* decompressedPtr = decompressedSpan)
         {
+            var deduplicationState = settings.DeduplicationState;
 #if NET5_0_OR_GREATER
             var itemSpan = CollectionsMarshal.AsSpan(Items);
             for (var x = 0; x < itemSpan.Length; x++)
@@ -74,10 +75,29 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 using var data = item.FileDataProvider.GetFileData(0, (uint)item.FileSize);
                 ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
                 file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[item.RelativePath];
-                file.FirstBlockIndex = blockIndex;
                 file.DecompressedSize = data.DataLength;
-                file.DecompressedBlockOffset = decompressedBlockOffset;
                 file.Hash = XxHash64Algorithm.HashBytes(data.Data, data.DataLength);
+
+                // Check for deduplication
+                if (deduplicationState != null)
+                {
+                    var length = (ulong)Math.Min(4096, (int)data.DataLength);
+                    var hash4096 = XxHash64Algorithm.HashBytes(data.Data, length);
+                    if (deduplicationState.TryFindDuplicateByFullHash(file.Hash, out var existingFile))
+                    {
+                        // If a duplicate is found, update the file entry to point to the existing file
+                        file.FirstBlockIndex = existingFile.BlockIndex;
+                        file.DecompressedBlockOffset = 0; // The offset in the original file
+                        continue; // Skip copying data for this file
+                    }
+
+                    // If not a duplicate, add to deduplication state
+                    lock (deduplicationState)
+                        deduplicationState.AddFileHash(hash4096, file.Hash, blockIndex);
+                }
+
+                file.FirstBlockIndex = blockIndex;
+                file.DecompressedBlockOffset = decompressedBlockOffset;
 
                 // Copy to SOLID block
                 Buffer.MemoryCopy(data.Data, decompressedPtr + decompressedBlockOffset,
@@ -85,6 +105,14 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
 
                 // Next file time!
                 decompressedBlockOffset += (int)data.DataLength;
+            }
+
+            // This can happen if a whole block is deduplicated
+            if (decompressedBlockOffset == 0)
+            {
+                BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+                BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
+                return;
             }
 
             var compressedSpan = compressedAlloc.Span;

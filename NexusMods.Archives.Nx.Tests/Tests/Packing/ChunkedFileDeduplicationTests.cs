@@ -4,14 +4,13 @@ using NexusMods.Archives.Nx.Packing;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
-public class DeduplicationTests
+public class ChunkedFileDeduplicationTests
 {
     [Fact]
     public void DeduplicateChunkedBlocks_IdenticalFiles_HaveSameStartingBlockIndex()
     {
         // Arrange
         var fileContent = PackingTests.MakeDummyFile(2 * 1024 * 1024); // 2 MB file
-        File.WriteAllBytes("/home/sewer/Temp/test.bin", fileContent);
 
         var packerBuilder = new NxPackerBuilder();
         packerBuilder.WithChunkSize(1024 * 1024); // 1 MB chunks
@@ -32,4 +31,6 @@ public class DeduplicationTests
         fileEntries.Length.Should().Be(2);
         fileEntries[1].Entry.FirstBlockIndex.Should().Be(fileEntries[0].Entry.FirstBlockIndex);
     }
+
+
 }
