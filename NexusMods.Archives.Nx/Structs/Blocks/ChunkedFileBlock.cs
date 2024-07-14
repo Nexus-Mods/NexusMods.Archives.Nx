@@ -10,8 +10,6 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 
 internal class ChunkedFileBlockConstants
 {
-    internal const int SkipProcessingNumChunks = -1;
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsLastChunk(int numChunks, int chunkIndex) => chunkIndex == numChunks - 1;
 }
@@ -50,10 +48,11 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         var duplState = settings.DeduplicationState;
         if (CanDeduplicateOnNonFirstChunk(duplState))
         {
-            BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+            State.WaitForDeduplicationResult();
 
-            if (State.ShouldSkipProcessing())
+            if (State.DuplicateState == DeduplicationCheckState.Duplicate)
             {
+                BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
                 BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
                 return;
             }
@@ -73,6 +72,9 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, fullHash);
                 return;
             }
+
+            // Note: Setting to NotDuplicate here is invalid, because it may be a duplicate
+            // later in the second check inside the WaitForBlockTurn block.
         }
 
         // If we reach here, it means we need to compress and process the block
@@ -99,6 +101,8 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                     ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, fullHash);
                     return;
                 }
+
+                State.DuplicateState = DeduplicationCheckState.NotDuplicate;
             }
 
             ref var fileEntry = ref State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex,
@@ -141,7 +145,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     {
         BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
         State.AddFileEntryToToc(tocBuilder, deduplicatedFile.BlockIndex, fullHash);
-        State.NumChunks = SkipProcessingNumChunks;
+        State.DuplicateState = DeduplicationCheckState.Duplicate;
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
 
@@ -224,6 +228,13 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public int NumChunks;
 
     /// <summary>
+    ///     When deduplication is on, this flag confirms that the file is not a duplicate.
+    /// </summary>
+    public DeduplicationCheckState DuplicateState = DeduplicationCheckState.Unknown;
+
+    // If we make more data, shrink DeduplicationCheckState to byte.
+
+    /// <summary>
     ///     File associated with this chunked block.
     /// </summary>
     public T File { get; init; } = default!;
@@ -286,9 +297,28 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     }
 
     /// <summary>
-    ///     True if this file has been handled by deduplication and
-    ///     processing of chunks should be skipped.
+    ///     Waits until we know if a non-first chunk can be deduplicated.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool ShouldSkipProcessing() => NumChunks == SkipProcessingNumChunks;
+    internal void WaitForDeduplicationResult()
+    {
+        // Wait until it's our turn to write.
+        var spinWait = new SpinWait();
+        while (DuplicateState == DeduplicationCheckState.Unknown)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            spinWait.SpinOnce(-1);
+#else
+            spinWait.SpinOnce();
+#endif
+        }
+    }
+}
+
+// ReSharper disable once EnumUnderlyingTypeIsInt
+internal enum DeduplicationCheckState : int
+{
+    Unknown,
+    Duplicate,
+    NotDuplicate
 }
