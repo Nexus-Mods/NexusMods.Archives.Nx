@@ -96,6 +96,8 @@ internal static class BlockHelpers
     ///     Locks the output stream to which the raw compressed block data is being
     ///     written to. The lock happens on the <paramref name="builder"/>
     ///     with the currently processed block index being used.
+    ///
+    ///     Call <see cref="EndProcessingBlock{T}"/> when done.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WaitForBlockTurn<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData

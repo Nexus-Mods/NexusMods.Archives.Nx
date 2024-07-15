@@ -1,4 +1,4 @@
-//using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
@@ -54,8 +54,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             //var waitTime = Stopwatch.StartNew();
             //var isWaitState = State.DuplicateState == DeduplicationCheckState.Unknown;
             State.WaitForDeduplicationResult();
-            //if (isWaitState)
-            //    Console.WriteLine($"Waited for deduplication result for {waitTime.ElapsedMilliseconds}ms. File: {State.File.RelativePath} Chunk: {ChunkIndex}");
+            //ProfileLogStallDuration(tocBuilder, blockIndex, isWaitState, waitTime);
 
             if (State.DuplicateState == DeduplicationCheckState.Duplicate)
             {
@@ -71,6 +70,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
 
         // Check if there's already a duplicate file.
         ulong shortHash = 0;
+        var isCurrentBlockIdx = false;
         if (CanDeduplicateOnFirstChunk(duplState))
         {
             shortHash = CalculateShortHash(dataLen, dataPtr);
@@ -80,8 +80,12 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 return;
             }
 
-            // Note: Setting to NotDuplicate here is invalid, because it may be a duplicate
-            // later in the second check inside the WaitForBlockTurn block.
+            // There's a possibility that last block has finished processing so
+            // we can set the state to NotDuplicate early.
+            // If this is not the case however, we need to re-check later.
+            isCurrentBlockIdx = tocBuilder.CurrentBlock == blockIndex;
+            if (isCurrentBlockIdx)
+                State.DuplicateState = DeduplicationCheckState.NotDuplicate;
         }
 
         // If we reach here, it means we need to compress and process the block
@@ -89,6 +93,17 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         var allocSpan = allocation.Span;
         fixed (byte* allocationPtr = allocSpan)
         {
+            // Process the shared mutable state (hash) of this chunk.
+            //
+            // It's desireable to process this outside the lock marked by WaitForBlockTurn
+            // because the chunked file has its own shared state independent of the file
+            // as a whole. We could be hashing the file while another thread is writing the
+            // disk.
+            State.WaitForChunkIndexTurn(ChunkIndex);
+            ref var fileEntry = ref State.UpdateFileHashAndToc(ChunkIndex, tocBuilder, blockIndex, new Span<byte>(data.Data, (int)data.DataLength));
+            AddToDeduplicatorIfNeeded(ref fileEntry, duplState);
+            State.EndProcessingChunk();
+
             // Proceed with normal block processing
             var compressed = BlockHelpers.Compress(Compression, settings.ChunkedCompressionLevel, data, allocationPtr, allocSpan.Length,
                 out var asCopy);
@@ -96,12 +111,12 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // Take lock.
             BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
 
-            // Note: It's possible a previous thread hasn't called AddToDeduplicator
-            // by the time this thread performed the same check above.
+            // Note: It's possible a previous thread processing another Chunked File
+            // hasn't called AddToDeduplicatorIfNeeded by the time this thread performed the same check above.
             // Reaching this does indicate some performance loss, since
             // we called Compress already, however in practice it should only
             // happen when the very previous file is a duplicate.
-            if (CanDeduplicateOnFirstChunk(duplState))
+            if (!isCurrentBlockIdx && CanDeduplicateOnFirstChunk(duplState))
             {
                 if (IsDuplicate(duplState, dataLen, dataPtr, shortHash, out var deduplicatedFile, out var fullHash))
                 {
@@ -112,10 +127,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 State.DuplicateState = DeduplicationCheckState.NotDuplicate;
             }
 
-            ref var fileEntry = ref State.UpdateState(ChunkIndex, allocation, compressed, tocBuilder, settings, blockIndex,
-                new Span<byte>(data.Data, (int)data.DataLength),
-                asCopy);
-            AddToDeduplicator(ref fileEntry, duplState);
+            State.WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy);
             BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
         }
     }
@@ -193,12 +205,9 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe void AddToDeduplicator(ref FileEntry fileEntry, ChunkedDeduplicationState? duplState)
+    private unsafe void AddToDeduplicatorIfNeeded(ref FileEntry fileEntry, ChunkedDeduplicationState? duplState)
     {
-        if (Unsafe.IsNullRef(ref fileEntry))
-            return;
-
-        if (duplState == null)
+        if (Unsafe.IsNullRef(ref fileEntry) || duplState == null)
             return;
 
         // File is at least ChunkSize long, by definition.
@@ -209,6 +218,15 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         {
             duplState.AddFileHash(shortHash, fileEntry.Hash, fileEntry.FirstBlockIndex);
         }
+    }
+
+    private void ProfileLogStallDuration(TableOfContentsBuilder<T> tocBuilder, int blockIndex, bool isWaitState,
+        Stopwatch waitTime)
+    {
+        if (isWaitState)
+            Console.WriteLine($"CHUNKED DEDUPE STALL {waitTime.ElapsedMilliseconds}ms. " +
+                              $"F: {State.File.RelativePath} ChunkIdx: {ChunkIndex} " +
+                              $"BlockIdx: {blockIndex} TocBlockIdx: {tocBuilder.CurrentBlock}");
     }
 
     /// <inheritdoc />
@@ -246,6 +264,14 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     public T File { get; init; } = default!;
 
     /// <summary>
+    ///     Current index of the chunk which is holding the lock.
+    /// </summary>
+    /// <remarks>
+    ///     If this is -1, skip processing all blocks.
+    /// </remarks>
+    private int _currentChunkIndex;
+
+    /// <summary>
     ///     Instance of the Nexus xxHash64 hasher.
     /// </summary>
     private XxHash64Algorithm _hash = new(0);
@@ -253,17 +279,15 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     /// <summary>
     ///     Sets the specific index as processed and updates internal state.
     /// </summary>
-    /// <param name="chunkIndex">The index to set.</param>
     /// <param name="compData">The compressed data for block.</param>
     /// <param name="compressedSize">Size of the data after compression.</param>
     /// <param name="tocBuilder">Builds table of contents.</param>
     /// <param name="settings">Packer settings.</param>
     /// <param name="blockIndex">Index of currently packed block.</param>
-    /// <param name="rawChunkData">Raw data of decompressed chunk (before compression)</param>
     /// <param name="asCopy">Whether block was compressed using 'copy' compression.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref FileEntry UpdateState(int chunkIndex, PackerPoolRental compData, int compressedSize, TableOfContentsBuilder<T> tocBuilder,
-        PackerSettings settings, int blockIndex, Span<byte> rawChunkData, bool asCopy)
+    public void WriteBlock(PackerPoolRental compData, int compressedSize, TableOfContentsBuilder<T> tocBuilder,
+        PackerSettings settings, int blockIndex, bool asCopy)
     {
         // Write out actual block.
         BlockHelpers.WriteToOutput(settings.Output, compData, compressedSize);
@@ -275,8 +299,21 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
 
         ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
         blockCompression = asCopy ? CompressionPreference.Copy : Compression;
+    }
 
+    /// <summary>
+    ///     Updates the current file hash and adds the file to the table of contents
+    ///     if processing the final chunk.
+    /// </summary>
+    /// <param name="chunkIndex">The index of the current chunk</param>
+    /// <param name="tocBuilder">Builds table of contents.</param>
+    /// <param name="blockIndex">Index of currently packed block.</param>
+    /// <param name="rawChunkData">Raw data of decompressed chunk (before compression)</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref FileEntry UpdateFileHashAndToc(int chunkIndex, TableOfContentsBuilder<T> tocBuilder, int blockIndex, Span<byte> rawChunkData)
+    {
         // Update file details once all chunks are done.
+        // ReSharper disable once InvertIf
         if (!IsLastChunk(NumChunks, chunkIndex))
         {
             _hash.AppendHash(rawChunkData);
@@ -319,6 +356,34 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
 #endif
         }
     }
+
+    /// <summary>
+    ///     Locks processing of inner mutable shared data (e.g. hash) until
+    ///     it is time for chunk with <paramref name="chunkIndex"/> to be processed.
+    ///
+    ///     Call <see cref="EndProcessingChunk"/> when done.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void WaitForChunkIndexTurn(int chunkIndex)
+    {
+        // Wait until it's our turn to write.
+        var spinWait = new SpinWait();
+        while (_currentChunkIndex != chunkIndex)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            spinWait.SpinOnce(-1);
+#else
+            spinWait.SpinOnce();
+#endif
+        }
+    }
+
+    /// <summary>
+    ///     Warning: Calling this from multiple threads in parallel is not legal.
+    ///     It will cause a deadlock in <see cref="WaitForChunkIndexTurn"/>
+    ///     as individual threads' chunkindex can be skipped.
+    /// </summary>
+    internal void EndProcessingChunk() => Interlocked.Increment(ref _currentChunkIndex);
 }
 
 // ReSharper disable once EnumUnderlyingTypeIsInt
