@@ -81,6 +81,29 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 // Check for deduplication
                 if (deduplicationState != null)
                 {
+                    /*
+                        Note:
+
+                        If you are reading this code (myself included), you may
+                        think that it's technically possible to miss a duplicate here.
+
+                        It is not.
+
+                        When grouping files in blocks for packing, the files are
+                        sorted by size (ascending). Files above block size
+                        (but below chunk size) are treated as chunked files
+                        with a single chunk.
+
+                        In other words, duplicates will always be placed adjacent
+                        in a SOLID block, i.e. as the next item in this 'for loop'
+                        on the same thread.
+
+                        If a duplicate file happens to be at the end of one block
+                        then the start of the next block, that is also not an issue.
+                        Access to the state is synchronized, so regardless of which
+                        block is processed first, the file will be deduplicated.
+                    */
+
                     lock (deduplicationState)
                     {
                         if (deduplicationState.TryFindDuplicateByFullHash(file.Hash, out var existingFile))
