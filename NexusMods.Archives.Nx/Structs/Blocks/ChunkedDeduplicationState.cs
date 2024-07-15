@@ -13,16 +13,16 @@ public class ChunkedDeduplicationState
     private Dictionary<ulong, DeduplicatedChunkedFile> HashToChunkedFileDetails = new();
 
     /// <summary>
-    ///     Contains a set of 4096-byte hashes that have been seen.
+    ///     Contains a set of short hashes (typically of 4096 bytes) that have been seen.
     /// </summary>
-    private HashSet<ulong> Hash4096Set { get; } = new();
+    private HashSet<ulong> ShortHashSet { get; } = new();
 
     /// <summary>
     ///     Resets the state of this deduplication state.
     /// </summary>
     internal void Reset()
     {
-        Hash4096Set.Clear();
+        ShortHashSet.Clear();
         HashToChunkedFileDetails.Clear();
     }
 
@@ -31,7 +31,7 @@ public class ChunkedDeduplicationState
     /// </summary>
     /// <param name="hash4096">The hash of the first 4096 bytes of the file.</param>
     /// <returns>True if the hash has been seen before, false otherwise.</returns>
-    internal bool HasPotentialDuplicate(ulong hash4096) => Hash4096Set.Contains(hash4096);
+    internal bool HasPotentialDuplicate(ulong hash4096) => ShortHashSet.Contains(hash4096);
 
     /// <summary>
     ///     Attempts to find a duplicate file based on its full hash.
@@ -45,12 +45,12 @@ public class ChunkedDeduplicationState
     /// <summary>
     ///     Adds a new file hash to the deduplication state.
     /// </summary>
-    /// <param name="hash4096">The hash of the first 4096 bytes of the file.</param>
+    /// <param name="shortHash">The hash of the first 'X' bytes of the file.</param>
     /// <param name="fullHash">The full hash of the file.</param>
     /// <param name="blockIndex">The index of the block containing this file.</param>
-    internal void AddFileHash(ulong hash4096, ulong fullHash, int blockIndex)
+    internal void AddFileHash(ulong shortHash, ulong fullHash, int blockIndex)
     {
-        Hash4096Set.Add(hash4096);
+        ShortHashSet.Add(shortHash);
         HashToChunkedFileDetails[fullHash] = new DeduplicatedChunkedFile { BlockIndex = blockIndex };
     }
 }

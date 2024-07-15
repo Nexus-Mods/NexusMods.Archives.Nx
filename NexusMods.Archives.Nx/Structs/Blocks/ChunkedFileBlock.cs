@@ -10,6 +10,8 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 
 internal class ChunkedFileBlockConstants
 {
+    internal const int ShortHashLength = 4096;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsLastChunk(int numChunks, int chunkIndex) => chunkIndex == numChunks - 1;
 }
@@ -63,11 +65,11 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         var dataLen = data.DataLength;
 
         // Check if there's already a duplicate file.
-        ulong hash4096 = 0;
+        ulong shortHash = 0;
         if (CanDeduplicateOnFirstChunk(duplState))
         {
-            hash4096 = CalculateHash4096(dataLen, dataPtr);
-            if (IsDuplicate(duplState, dataLen, dataPtr, hash4096, out var deduplicatedFile, out var fullHash))
+            shortHash = CalculateShortHash(dataLen, dataPtr);
+            if (IsDuplicate(duplState, dataLen, dataPtr, shortHash, out var deduplicatedFile, out var fullHash))
             {
                 ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, fullHash);
                 return;
@@ -96,7 +98,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // happen when the very previous file is a duplicate.
             if (CanDeduplicateOnFirstChunk(duplState))
             {
-                if (IsDuplicate(duplState, dataLen, dataPtr, hash4096, out var deduplicatedFile, out var fullHash))
+                if (IsDuplicate(duplState, dataLen, dataPtr, shortHash, out var deduplicatedFile, out var fullHash))
                 {
                     ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, fullHash);
                     return;
@@ -114,13 +116,13 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe bool IsDuplicate(ChunkedDeduplicationState? duplState, ulong dataLen, byte* dataPtr, ulong hash4096, out DeduplicatedChunkedFile deduplicatedChunkedFile, out ulong fullHash)
+    private unsafe bool IsDuplicate(ChunkedDeduplicationState? duplState, ulong dataLen, byte* dataPtr, ulong shortHash, out DeduplicatedChunkedFile deduplicatedChunkedFile, out ulong fullHash)
     {
         deduplicatedChunkedFile = default;
         fullHash = default;
         lock (duplState!)
         {
-            if (!duplState.HasPotentialDuplicate(hash4096))
+            if (!duplState.HasPotentialDuplicate(shortHash))
                 return false;
 
             fullHash = CalculateFullFileHash(dataPtr, dataLen);
@@ -149,11 +151,10 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
 
-    private static unsafe ulong CalculateHash4096(ulong dataLen, byte* dataPtr)
+    private static unsafe ulong CalculateShortHash(ulong dataLen, byte* dataPtr)
     {
-        var shortLen = Math.Min(4096, dataLen);
-        var hash4096 = XxHash64Algorithm.HashBytes(dataPtr, shortLen);
-        return hash4096;
+        var shortLen = Math.Min(ShortHashLength, dataLen);
+        return XxHash64Algorithm.HashBytes(dataPtr, shortLen);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -196,12 +197,12 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             return;
 
         // File is at least ChunkSize long, by definition.
-        var shortLen = Math.Min(4096, (ulong)ChunkSize);
-        using var first4096 = State.File.FileDataProvider.GetFileData(0, (uint)shortLen);
-        var hash4096 = XxHash64Algorithm.HashBytes(first4096.Data, shortLen);
+        var shortLen = Math.Min(ShortHashLength, (ulong)ChunkSize);
+        using var firstShortHashBytes = State.File.FileDataProvider.GetFileData(0, (uint)shortLen);
+        var shortHash = XxHash64Algorithm.HashBytes(firstShortHashBytes.Data, shortLen);
         lock (duplState)
         {
-            duplState.AddFileHash(hash4096, fileEntry.Hash, fileEntry.FirstBlockIndex);
+            duplState.AddFileHash(shortHash, fileEntry.Hash, fileEntry.FirstBlockIndex);
         }
     }
 
