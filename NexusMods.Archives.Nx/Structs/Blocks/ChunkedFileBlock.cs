@@ -1,3 +1,4 @@
+//using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
@@ -50,7 +51,11 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         var duplState = settings.ChunkedDeduplicationState;
         if (CanDeduplicateOnNonFirstChunk(duplState))
         {
+            //var waitTime = Stopwatch.StartNew();
+            //var isWaitState = State.DuplicateState == DeduplicationCheckState.Unknown;
             State.WaitForDeduplicationResult();
+            //if (isWaitState)
+            //    Console.WriteLine($"Waited for deduplication result for {waitTime.ElapsedMilliseconds}ms. File: {State.File.RelativePath} Chunk: {ChunkIndex}");
 
             if (State.DuplicateState == DeduplicationCheckState.Duplicate)
             {
