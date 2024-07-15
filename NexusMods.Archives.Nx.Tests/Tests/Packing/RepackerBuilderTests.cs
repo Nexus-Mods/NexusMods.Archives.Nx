@@ -33,6 +33,7 @@ public class NxRepackerBuilderTests
         // Create a new archive using a solid block from the initial archive
         var repackerBuilder = new NxRepackerBuilder();
         repackerBuilder.WithOutput(new MemoryStream());
+        repackerBuilder.WithSolidDeduplication(false);
 
         // Add all files from the initial archive
         repackerBuilder.AddFilesFromNxArchive(provider, header, header.Entries.AsSpan());
@@ -172,6 +173,7 @@ public class NxRepackerBuilderTests
         builder.WithBlockSize(settings.BlockSize);
         builder.WithChunkSize(settings.ChunkSize);
         builder.WithMaxNumThreads(settings.MaxNumThreads);
+        builder.WithSolidDeduplication(false);
 
         foreach (var file in files)
             builder.AddPackerFile(file);

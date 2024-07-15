@@ -14,7 +14,7 @@ public class ChunkedFileDeduplicationTests
 
         var packerBuilder = new NxPackerBuilder();
         packerBuilder.WithChunkSize(1024 * 1024); // 1 MB chunks
-        packerBuilder.WithDeduplication();
+        packerBuilder.WithChunkedDeduplication();
 
         // Act
         // Add the same file twice with different names

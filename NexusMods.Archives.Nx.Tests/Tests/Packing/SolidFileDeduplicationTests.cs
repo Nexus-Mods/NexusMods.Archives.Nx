@@ -15,7 +15,7 @@ public class SolidBlockDeduplicationTests
 
         var packerBuilder = new NxPackerBuilder();
         packerBuilder.WithBlockSize(1024 * 1024); // 1 MB SOLID blocks
-        packerBuilder.WithDeduplication();
+        packerBuilder.WithSolidDeduplication();
 
         // Act
         // Add the same file twice with different names
@@ -58,7 +58,7 @@ public class SolidBlockDeduplicationTests
 
         var packerBuilder = new NxPackerBuilder();
         packerBuilder.WithBlockSize(1024 * 1024); // 1 MB SOLID blocks
-        packerBuilder.WithDeduplication();
+        packerBuilder.WithSolidDeduplication();
 
         // Act
         packerBuilder.AddFile(fileContent1, new AddFileParams { RelativePath = "file1.bin" });

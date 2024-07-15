@@ -46,22 +46,24 @@ var packCommand = new Command("pack", "Pack files to an archive.")
     new Option<int?>("--chunkedlevel", () => defaultPackerSettings.ChunkedCompressionLevel, "Compression level to use for chunks of large data. ZStandard has Range -5 - 22. LZ4 has Range: 1 - 12."),
     new Option<CompressionPreference?>("--solid-algorithm", () => defaultPackerSettings.SolidBlockAlgorithm, "Compression algorithm used for compressing SOLID blocks."),
     new Option<CompressionPreference?>("--chunked-algorithm", () => defaultPackerSettings.ChunkedFileAlgorithm, "Compression algorithm used for compressing chunked files."),
-    new Option<bool>("--deduplicate", () => false, "Enable file deduplication during packing."),
+    new Option<bool>("--deduplicate-chunked", () => false, "Enable CHUNKED block file deduplication during packing."),
+    new Option<bool>("--deduplicate-solid", () => true, "Enable SOLID block file deduplication during packing."),
     maxNumThreads
 };
 
-packCommand.Handler = CommandHandler.Create<string, string, int?, int?, int?, int?, CompressionPreference?, CompressionPreference?, int?, bool>(Pack);
+packCommand.Handler = CommandHandler.Create<string, string, int?, int?, int?, int?, CompressionPreference?, CompressionPreference?, int?, bool, bool>(Pack);
 
 // Merge Command
 var mergeCommand = new Command("merge", "Merge multiple .nx archives into a single archive")
 {
     new Option<string[]>("--sources", "Source .nx archives to merge.") { IsRequired = true, AllowMultipleArgumentsPerToken = true },
     new Option<string>("--output", "Output path for the merged archive.") { IsRequired = true },
-    new Option<bool>("--deduplicate", () => false, "Enable file deduplication during merging."),
+    new Option<bool>("--deduplicate-chunked", () => false, "Enable CHUNKED block file deduplication during merging."),
+    new Option<bool>("--deduplicate-solid", () => true, "Enable SOLID block file deduplication during merging."),
     maxNumThreads
 };
 
-mergeCommand.Handler = CommandHandler.Create<string[], string, int?, bool>(Merge);
+mergeCommand.Handler = CommandHandler.Create<string[], string, int?, bool, bool>(Merge);
 
 // Root command
 var rootCommand = new RootCommand
@@ -104,9 +106,9 @@ void Extract(string source, string target, int? threads)
     Console.WriteLine("Unpacked in {0}ms", unpackingTimeTaken.ElapsedMilliseconds);
 }
 
-void Pack(string source, string target, int? blocksize, int? chunksize, int? solidLevel, int? chunkedLevel, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads, bool deduplicate)
+void Pack(string source, string target, int? blocksize, int? chunksize, int? solidLevel, int? chunkedLevel, CompressionPreference? solidAlgorithm, CompressionPreference? chunkedAlgorithm, int? threads, bool deduplicateChunked, bool deduplicateSolid)
 {
-    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], solidLevel [{solidLevel}], chunkedLevel [{chunkedLevel}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}], deduplicate [{deduplicate}].");
+    Console.WriteLine($"Packing {source} to {target} with {threads} threads, blocksize [{blocksize}], chunksize [{chunksize}], solidLevel [{solidLevel}], chunkedLevel [{chunkedLevel}], solidAlgorithm [{solidAlgorithm}], chunkedAlgorithm [{chunkedAlgorithm}], deduplicate [chunked: {deduplicateChunked} solid: {deduplicateSolid}].");
 
     var builder = new NxPackerBuilder();
     builder.AddFolder(source);
@@ -133,8 +135,8 @@ void Pack(string source, string target, int? blocksize, int? chunksize, int? sol
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
 
-    if (deduplicate)
-        builder.WithDeduplication();
+    builder.WithChunkedDeduplication(deduplicateChunked);
+    builder.WithSolidDeduplication(deduplicateSolid);
 
     var packingTimeTaken = Stopwatch.StartNew();
 
@@ -189,9 +191,9 @@ void Benchmark(string source, int? threads, int? attempts)
     Console.WriteLine("Throughput {0:###.00}GiB/s", outputs.Sum(x => (long)x.Data.Length) / averageMs / 1048576F);
 }
 
-void Merge(string[] sources, string output, int? threads, bool deduplicate)
+void Merge(string[] sources, string output, int? threads, bool deduplicateChunked, bool deduplicateSolid)
 {
-    Console.WriteLine($"Merging {sources.Length} archives into {output} with [{threads}] threads [deduplicate: {deduplicate}].");
+    Console.WriteLine($"Merging {sources.Length} archives into {output} with [{threads}] threads [deduplicate-chunked: {deduplicateChunked}, deduplicate-solid: {deduplicateSolid}].");
 
     var builder = new NxDeduplicatingRepackerBuilder();
     ulong totalInputSize = 0;
@@ -200,8 +202,8 @@ void Merge(string[] sources, string output, int? threads, bool deduplicate)
     if (threads.HasValue)
         builder.WithMaxNumThreads(threads.Value);
 
-    if (deduplicate)
-        builder.WithDeduplication();
+    builder.WithChunkedDeduplication(deduplicateChunked);
+    builder.WithSolidDeduplication(deduplicateSolid);
 
     foreach (var source in sources)
     {

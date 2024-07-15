@@ -5,12 +5,12 @@ namespace NexusMods.Archives.Nx.Structs.Blocks;
 /// <summary>
 ///     This represents the shared state used during deduplication.
 /// </summary>
-public class DeduplicationState
+public class ChunkedDeduplicationState
 {
     /// <summary>
     ///     Contains a mapping of file hashes to pre-assigned block indexes.
     /// </summary>
-    private Dictionary<ulong, DeduplicatedFile> HashToFileDetails = new();
+    private Dictionary<ulong, DeduplicatedChunkedFile> HashToChunkedFileDetails = new();
 
     /// <summary>
     ///     Contains a set of 4096-byte hashes that have been seen.
@@ -23,7 +23,7 @@ public class DeduplicationState
     internal void Reset()
     {
         Hash4096Set.Clear();
-        HashToFileDetails.Clear();
+        HashToChunkedFileDetails.Clear();
     }
 
     /// <summary>
@@ -37,10 +37,10 @@ public class DeduplicationState
     ///     Attempts to find a duplicate file based on its full hash.
     /// </summary>
     /// <param name="fullHash">The full hash of the file.</param>
-    /// <param name="existingFile">The existing file details if a duplicate is found.</param>
+    /// <param name="existingChunkedFile">The existing file details if a duplicate is found.</param>
     /// <returns>True if a duplicate is found, false otherwise.</returns>
-    internal bool TryFindDuplicateByFullHash(ulong fullHash, out DeduplicatedFile existingFile) =>
-        HashToFileDetails.TryGetValue(fullHash, out existingFile);
+    internal bool TryFindDuplicateByFullHash(ulong fullHash, out DeduplicatedChunkedFile existingChunkedFile) =>
+        HashToChunkedFileDetails.TryGetValue(fullHash, out existingChunkedFile);
 
     /// <summary>
     ///     Adds a new file hash to the deduplication state.
@@ -51,14 +51,14 @@ public class DeduplicationState
     internal void AddFileHash(ulong hash4096, ulong fullHash, int blockIndex)
     {
         Hash4096Set.Add(hash4096);
-        HashToFileDetails[fullHash] = new DeduplicatedFile { BlockIndex = blockIndex };
+        HashToChunkedFileDetails[fullHash] = new DeduplicatedChunkedFile { BlockIndex = blockIndex };
     }
 }
 
 /// <summary>
 ///     Represents a file index to use for deduplication.
 /// </summary>
-internal struct DeduplicatedFile
+internal struct DeduplicatedChunkedFile
 {
     /// <summary>
     ///     The block index of the file.

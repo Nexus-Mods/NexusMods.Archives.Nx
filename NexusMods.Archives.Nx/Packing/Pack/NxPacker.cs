@@ -81,7 +81,6 @@ public static class NxPacker
         List<IBlock<PackerFile>> blocks)
         where TWithRelativePath : IHasRelativePath
     {
-        settings.DeduplicationState?.Reset();
         using var toc = TableOfContentsBuilder<PackerFile>.Create(blocks, relativePaths);
 
         // Let's go!

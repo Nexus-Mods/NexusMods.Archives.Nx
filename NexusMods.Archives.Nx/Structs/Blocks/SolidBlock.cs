@@ -59,7 +59,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
         var decompressedSpan = decompressedAlloc.Span;
         fixed (byte* decompressedPtr = decompressedSpan)
         {
-            var deduplicationState = settings.DeduplicationState;
+            var deduplicationState = settings.SolidDeduplicationState;
 #if NET5_0_OR_GREATER
             var itemSpan = CollectionsMarshal.AsSpan(Items);
             for (var x = 0; x < itemSpan.Length; x++)
@@ -81,17 +81,17 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 // Check for deduplication
                 if (deduplicationState != null)
                 {
-                    if (deduplicationState.TryFindDuplicateByFullHash(file.Hash, out var existingFile))
-                    {
-                        // If a duplicate is found, update the file entry to point to the existing file
-                        file.FirstBlockIndex = existingFile.BlockIndex;
-                        file.DecompressedBlockOffset = 0; // The offset in the original file
-                        continue; // Skip copying data for this file
-                    }
-
-                    // If not a duplicate, add to deduplication state
                     lock (deduplicationState)
-                        deduplicationState.AddFileHash(0, file.Hash, blockIndex);
+                    {
+                        if (deduplicationState.TryFindDuplicateByFullHash(file.Hash, out var existingFile))
+                        {
+                            file.FirstBlockIndex = existingFile.BlockIndex;
+                            file.DecompressedBlockOffset = existingFile.DecompressedBlockOffset;
+                            continue;
+                        }
+
+                        deduplicationState.AddFileHash(file.Hash, blockIndex, decompressedBlockOffset);
+                    }
                 }
 
                 file.FirstBlockIndex = blockIndex;

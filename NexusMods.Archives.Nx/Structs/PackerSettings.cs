@@ -23,9 +23,16 @@ public class PackerSettings
     public IProgress<double>? Progress { get; set; }
 
     /// <summary>
-    ///     If not null, files are deduplicated, otherwise set this to null.
+    ///     If not null, chunked files are deduplicated, otherwise set this to null.
+    ///     Chunked deduplication encurs a small amount of overhead for each file.
     /// </summary>
-    public DeduplicationState? DeduplicationState { get; set; }
+    public ChunkedDeduplicationState? ChunkedDeduplicationState { get; set; }
+
+    /// <summary>
+    ///     If not null, files are deduplicated, otherwise set this to null.
+    ///     Solid deduplication encurs a small amount of overhead for each block.
+    /// </summary>
+    public SolidDeduplicationState? SolidDeduplicationState { get; set; } = new();
 
     /// <summary>
     ///     The stream to which data is output to.
@@ -85,6 +92,8 @@ public class PackerSettings
     /// </summary>
     public void Sanitize()
     {
+        ChunkedDeduplicationState?.Reset();
+        SolidDeduplicationState?.Reset();
         if (SolidBlockAlgorithm == CompressionPreference.NoPreference || !CompressionPreferenceExtensions.IsDefined(SolidBlockAlgorithm))
             SolidBlockAlgorithm = CompressionPreference.ZStandard;
 

@@ -45,7 +45,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     {
         // By definition, this is only true after the entire file is processed via
         // deduplication, therefore simply finishing processing to increment index is valid.
-        var duplState = settings.DeduplicationState;
+        var duplState = settings.ChunkedDeduplicationState;
         if (CanDeduplicateOnNonFirstChunk(duplState))
         {
             State.WaitForDeduplicationResult();
@@ -114,9 +114,9 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe bool IsDuplicate(DeduplicationState? duplState, ulong dataLen, byte* dataPtr, ulong hash4096, out DeduplicatedFile deduplicatedFile, out ulong fullHash)
+    private unsafe bool IsDuplicate(ChunkedDeduplicationState? duplState, ulong dataLen, byte* dataPtr, ulong hash4096, out DeduplicatedChunkedFile deduplicatedChunkedFile, out ulong fullHash)
     {
-        deduplicatedFile = default;
+        deduplicatedChunkedFile = default;
         fullHash = default;
         lock (duplState!)
         {
@@ -124,15 +124,15 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 return false;
 
             fullHash = CalculateFullFileHash(dataPtr, dataLen);
-            return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedFile);
+            return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedChunkedFile);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool CanDeduplicateOnFirstChunk(DeduplicationState? duplState) => duplState != null && ChunkIndex == 0;
+    private bool CanDeduplicateOnFirstChunk(ChunkedDeduplicationState? duplState) => duplState != null && ChunkIndex == 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool CanDeduplicateOnNonFirstChunk(DeduplicationState? duplState) => duplState != null && ChunkIndex != 0;
+    private bool CanDeduplicateOnNonFirstChunk(ChunkedDeduplicationState? duplState) => duplState != null && ChunkIndex != 0;
 
     /// <summary/>
     /// <remarks>
@@ -140,11 +140,11 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     ///     Meaning all other chunks will skip processing.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, DeduplicatedFile deduplicatedFile,
+    private void ProcessDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, DeduplicatedChunkedFile deduplicatedChunkedFile,
         ulong fullHash)
     {
         BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
-        State.AddFileEntryToToc(tocBuilder, deduplicatedFile.BlockIndex, fullHash);
+        State.AddFileEntryToToc(tocBuilder, deduplicatedChunkedFile.BlockIndex, fullHash);
         State.DuplicateState = DeduplicationCheckState.Duplicate;
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
@@ -187,7 +187,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe void AddToDeduplicator(ref FileEntry fileEntry, DeduplicationState? duplState)
+    private unsafe void AddToDeduplicator(ref FileEntry fileEntry, ChunkedDeduplicationState? duplState)
     {
         if (Unsafe.IsNullRef(ref fileEntry))
             return;

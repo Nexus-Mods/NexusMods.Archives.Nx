@@ -301,12 +301,24 @@ public class NxPackerBuilder
     }
 
     /// <summary>
-    ///     Enables file deduplication during packing.
+    ///     Enables file deduplication during packing for Chunked Blocks.
+    ///     Chunked deduplication encurs a small amount of overhead for each file.
     /// </summary>
     /// <returns>The builder.</returns>
-    public NxPackerBuilder WithDeduplication()
+    public NxPackerBuilder WithChunkedDeduplication(bool enable = true)
     {
-        Settings.DeduplicationState = new DeduplicationState();
+        Settings.ChunkedDeduplicationState = enable ? new ChunkedDeduplicationState() : null;
+        return this;
+    }
+
+    /// <summary>
+    ///     Enables file deduplication during packing for Solid Blocks.
+    ///     Solid deduplication has virtually no overhead.
+    /// </summary>
+    /// <returns>The builder.</returns>
+    public NxPackerBuilder WithSolidDeduplication(bool enable = true)
+    {
+        Settings.SolidDeduplicationState = enable ? new SolidDeduplicationState() : null;
         return this;
     }
 
