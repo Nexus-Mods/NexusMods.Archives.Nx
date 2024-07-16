@@ -179,7 +179,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         // If this is not the case however, we need to re-check later.
         var previousBlocksProcessed = tocBuilder.CurrentBlock == blockIndex;
         State.ShortHash = CalculateShortHash(dataLen, dataPtr);
-        if (IsDuplicate(duplState!, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out var deduplicatedFile))
+        if (IsDuplicate(duplState!, State.ShortHash, ref State.FinalHash, out var deduplicatedFile))
         {
             ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash);
             return;
@@ -214,7 +214,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 // with zstd version as zstd is dictating this.
                 previousBlocksProcessed = tocBuilder.CurrentBlock == blockIndex;
                 // ReSharper disable once AccessToModifiedClosure
-                if (IsDuplicate(duplState!, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
+                if (IsDuplicate(duplState!, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
                 {
                     ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash);
                     return CompressFirstBlockIsDuplicateError;
@@ -235,7 +235,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // In the rare event, if the previous block gets locked up processing for a long time
             // we have to check for possible duplicates one final time. Now that it's guaranteed
             // that 'previousBlocksProcessed == true' by definition.
-            if (IsDuplicate(duplState!, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
+            if (IsDuplicate(duplState!, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
             {
                 ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash, false);
                 return;
@@ -256,7 +256,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe bool IsDuplicate(ChunkedDeduplicationState duplState, ulong dataLen, byte* dataPtr, ulong shortHash,
+    private unsafe bool IsDuplicate(ChunkedDeduplicationState duplState, ulong shortHash,
         ref ulong fullHash, out DeduplicatedChunkedFile deduplicatedChunkedFile)
     {
         deduplicatedChunkedFile = default;
@@ -264,7 +264,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             return false;
 
         if (!IsHashValid(fullHash))
-            fullHash = CalculateFullFileHash(dataPtr, dataLen);
+            fullHash = CalculateFullFileHash();
 
         return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedChunkedFile);
     }
@@ -294,32 +294,10 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe ulong CalculateFullFileHash(byte* dataPtr, ulong dataLen)
+    private unsafe ulong CalculateFullFileHash()
     {
-        ulong fullHash;
-        var numChunks = State.NumChunks;
-        var chunkIndex = ChunkIndex;
-        if (IsLastChunk(numChunks, chunkIndex))
-            fullHash = XxHash64Algorithm.HashBytes(dataPtr, dataLen);
-        else
-        {
-            var hashAlgo = new XxHash64Algorithm(0);
-            hashAlgo.AppendHash(dataPtr, dataLen);
-            chunkIndex++;
-            var currentStartOffset = (ulong)ChunkSize;
-            while (!IsLastChunk(numChunks, chunkIndex))
-            {
-                using var curChunkData = State.File.FileDataProvider.GetFileData(currentStartOffset, (uint)ChunkSize);
-                hashAlgo.AppendHash(curChunkData.Data, curChunkData.DataLength);
-                currentStartOffset += (ulong)ChunkSize;
-                chunkIndex++;
-            }
-
-            var remainingFileLength = (ulong)State.File.FileSize - currentStartOffset;
-            using var lastChunkData = State.File.FileDataProvider.GetFileData(currentStartOffset, remainingFileLength);
-            fullHash = hashAlgo.GetFinalHash(lastChunkData.Data, lastChunkData.DataLength);
-        }
-
+        using var data = State.File.FileDataProvider.GetFileData(StartOffset, (ulong)State.File.FileSize);
+        var fullHash = XxHash64Algorithm.HashBytes(data.Data, data.DataLength);
         return fullHash;
     }
 
