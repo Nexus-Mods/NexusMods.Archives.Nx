@@ -147,7 +147,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // finished processing.
             if (State.DuplicateState == DeduplicationCheckState.Duplicate)
             {
-                ReturnWhenDuplicate(tocBuilder, settings, blockIndex);
+                ReturnWhenDuplicate(tocBuilder, settings, blockIndex, false);
                 return;
             }
 
@@ -234,7 +234,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // that 'previousBlocksProcessed == true' by definition.
             if (IsDuplicate(duplState, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
             {
-                ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash);
+                ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash, false);
                 return;
             }
 
@@ -277,9 +277,11 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, DeduplicatedChunkedFile deduplicatedChunkedFile,
-        ulong fullHash)
+        ulong fullHash, bool waitForBlock = true)
     {
-        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+        if (waitForBlock)
+            BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+
         State.AddFileEntryToTocAtomic(tocBuilder, deduplicatedChunkedFile.BlockIndex, fullHash);
         State.DuplicateState = DeduplicationCheckState.Duplicate;
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
@@ -321,9 +323,10 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         return fullHash;
     }
 
-    private static void ReturnWhenDuplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex)
+    private static void ReturnWhenDuplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, bool waitForBlockTurn = true)
     {
-        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+        if (waitForBlockTurn)
+            BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
 
