@@ -75,7 +75,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             }
             else
             {
-                var finalHash = State.Hash.GetFinalHash(data.Data, data.DataLength);
+                var finalHash = State.FinalHash == 0 ? State.Hash.GetFinalHash(data.Data, data.DataLength) : State.FinalHash;
                 State.AddFileEntryToTocAtomic(tocBuilder, FirstBlockIndex(blockIndex, numChunks), finalHash);
             }
             State.EndProcessingChunk();
@@ -117,10 +117,14 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 return;
             }
 
-            if (!isLastChunk)
-                State.Hash.AppendHash(data.Data, data.DataLength);
-            else if (State.FinalHash == 0)
-                State.FinalHash = State.Hash.GetFinalHash(data.Data, data.DataLength);
+            if (State.FinalHash == 0)
+            {
+                if (!isLastChunk)
+                    State.Hash.AppendHash(data.Data, data.DataLength);
+                else
+                    State.FinalHash = State.Hash.GetFinalHash(data.Data, data.DataLength);
+            }
+
             State.EndProcessingChunk();
 
             // Proceed with normal block processing
