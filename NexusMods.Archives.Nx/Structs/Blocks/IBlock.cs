@@ -60,6 +60,12 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
 /// </summary>
 internal static class BlockHelpers
 {
+#if DEBUG
+    private static int s_lastThreadId = -1;
+    private static int s_isProcessing = 0;
+    private static readonly ThreadLocal<bool> s_isWaitingForTurn = new ThreadLocal<bool>(() => false);
+#endif
+
     internal static unsafe int Compress(CompressionPreference compression, int compressionLevel, IFileData data, byte* destinationPtr,
         int destinationLength, out bool asCopy) => Compression.Compress(compression, compressionLevel, data.Data, (int)data.DataLength,
         destinationPtr, destinationLength, out asCopy);
@@ -106,6 +112,13 @@ internal static class BlockHelpers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WaitForBlockTurn<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
+#if DEBUG
+        if (s_isWaitingForTurn.Value)
+            throw new InvalidOperationException("WaitForBlockTurn called without a corresponding EndProcessingBlock");
+
+        s_isWaitingForTurn.Value = true;
+#endif
+
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
         while (builder.CurrentBlock != blockIndex)
@@ -125,10 +138,34 @@ internal static class BlockHelpers
     /// </summary>
     internal static void EndProcessingBlock<T>(TableOfContentsBuilder<T> builder, IProgress<double>? progress) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
-        // Advance to next block.
-        var lastBlock = builder.GetAndIncrementBlockIndexAtomic();
+#if DEBUG
+        try
+        {
+            DetectConcurrentAccess();
+#endif
+            // Advance to next block.
+            var lastBlock = builder.GetAndIncrementBlockIndexAtomic();
 
-        // Report progress.
-        progress?.Report(lastBlock / (float)builder.Toc.Blocks.Length);
+            // Report progress.
+            progress?.Report(lastBlock / (float)builder.Toc.Blocks.Length);
+#if DEBUG
+        }
+        finally
+        {
+            Interlocked.Exchange(ref s_isProcessing, 0);
+        }
+#endif
     }
+
+#if DEBUG
+    private static void DetectConcurrentAccess()
+    {
+        var currentThreadId = Thread.CurrentThread.ManagedThreadId;
+
+        if (Interlocked.CompareExchange(ref s_isProcessing, 1, 0) != 0)
+            throw new InvalidOperationException($"Concurrent access detected in EndProcessingBlock. Current Thread ID: {currentThreadId}, Last Thread ID: {s_lastThreadId}");
+
+        Interlocked.Exchange(ref s_lastThreadId, currentThreadId);
+    }
+#endif
 }

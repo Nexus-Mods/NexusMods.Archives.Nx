@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
@@ -417,6 +418,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ref FileEntry AddFileEntryToTocAtomic(TableOfContentsBuilder<T> tocBuilder, int firstBlockIndex, ulong hash)
     {
+        Debug.Assert(hash != 0);
         ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
         file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[File.RelativePath];
         file.FirstBlockIndex = firstBlockIndex;
@@ -483,6 +485,8 @@ internal static class NonGenericCode
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void AddToDeduplicator(ref FileEntry fileEntry, ChunkedDeduplicationState duplState, ulong shortHash)
     {
+        Debug.Assert(shortHash != 0);
+        Debug.Assert(fileEntry.Hash != 0);
         lock (duplState)
         {
             duplState.AddFileHash(shortHash, fileEntry.Hash, fileEntry.FirstBlockIndex);
