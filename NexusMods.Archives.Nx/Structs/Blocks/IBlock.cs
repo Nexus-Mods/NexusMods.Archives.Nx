@@ -64,6 +64,10 @@ internal static class BlockHelpers
         int destinationLength, out bool asCopy) => Compression.Compress(compression, compressionLevel, data.Data, (int)data.DataLength,
         destinationPtr, destinationLength, out asCopy);
 
+    internal static unsafe int CompressStreamed(CompressionPreference compression, int compressionLevel, IFileData data, byte* destinationPtr,
+        int destinationLength, Func<int> terminateEarly, out bool asCopy) => Compression.CompressStreamed(compression, compressionLevel, data.Data, (int)data.DataLength,
+        destinationPtr, destinationLength, terminateEarly, out asCopy);
+
     /// <summary>
     ///     Calls to this method should be wrapped with <see cref="WaitForBlockTurn{T}"/> and <see cref="EndProcessingBlock{T}"/>.
     /// </summary>

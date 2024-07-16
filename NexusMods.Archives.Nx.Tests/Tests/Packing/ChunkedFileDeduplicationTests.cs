@@ -29,6 +29,7 @@ public class ChunkedFileDeduplicationTests
 
         // Assert
         fileEntries.Length.Should().Be(2);
+        fileEntries[0].Entry.Hash.Should().NotBe(0);
         fileEntries[1].Entry.FirstBlockIndex.Should().Be(fileEntries[0].Entry.FirstBlockIndex);
     }
 
