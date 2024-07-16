@@ -8,14 +8,24 @@ public class SolidDeduplicationState
     /// <summary>
     ///     Contains a mapping of file hashes to pre-assigned block indexes.
     /// </summary>
-    private Dictionary<ulong, DeduplicatedSolidFile> HashToSolidFileDetails = new();
+    private Dictionary<ulong, DeduplicatedSolidFile> _hashToSolidFileDetails = new();
 
     /// <summary>
     ///     Resets the state of this deduplication state.
     /// </summary>
     internal void Reset()
     {
-        HashToSolidFileDetails.Clear();
+        _hashToSolidFileDetails.Clear();
+    }
+
+    /// <summary>
+    ///     Ensures the internal dictionary has a specific capacity.
+    /// </summary>
+    internal void EnsureCapacity(int numItems)
+    {
+        #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+        _hashToSolidFileDetails.EnsureCapacity(numItems);
+        #endif
     }
 
     /// <summary>
@@ -25,7 +35,7 @@ public class SolidDeduplicationState
     /// <param name="existingSolidFile">The existing file details if a duplicate is found.</param>
     /// <returns>True if a duplicate is found, false otherwise.</returns>
     internal bool TryFindDuplicateByFullHash(ulong fullHash, out DeduplicatedSolidFile existingSolidFile) =>
-        HashToSolidFileDetails.TryGetValue(fullHash, out existingSolidFile);
+        _hashToSolidFileDetails.TryGetValue(fullHash, out existingSolidFile);
 
     /// <summary>
     ///     Adds a new file hash to the deduplication state.
@@ -35,7 +45,7 @@ public class SolidDeduplicationState
     /// <param name="decompressedOffset">Offset of the decompressed file in the block.</param>
     internal void AddFileHash(ulong fullHash, int blockIndex, int decompressedOffset)
     {
-        HashToSolidFileDetails[fullHash] = new DeduplicatedSolidFile
+        _hashToSolidFileDetails[fullHash] = new DeduplicatedSolidFile
         {
             BlockIndex = blockIndex,
             DecompressedBlockOffset = decompressedOffset

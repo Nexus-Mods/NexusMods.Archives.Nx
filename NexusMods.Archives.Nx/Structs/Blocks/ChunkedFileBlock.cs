@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
-using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 using static NexusMods.Archives.Nx.Structs.Blocks.NonGenericCode;
@@ -176,7 +175,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         // If this is not the case however, we need to re-check later.
         var previousBlocksProcessed = tocBuilder.CurrentBlock == blockIndex;
         State.ShortHash = CalculateShortHash(dataLen, dataPtr);
-        if (IsDuplicate(duplState, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out var deduplicatedFile))
+        if (IsDuplicate(duplState!, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out var deduplicatedFile))
         {
             ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash);
             return;
@@ -211,7 +210,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 // with zstd version as zstd is dictating this.
                 previousBlocksProcessed = tocBuilder.CurrentBlock == blockIndex;
                 // ReSharper disable once AccessToModifiedClosure
-                if (IsDuplicate(duplState, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
+                if (IsDuplicate(duplState!, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
                 {
                     ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash);
                     return CompressFirstBlockIsDuplicateError;
@@ -232,7 +231,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // In the rare event, if the previous block gets locked up processing for a long time
             // we have to check for possible duplicates one final time. Now that it's guaranteed
             // that 'previousBlocksProcessed == true' by definition.
-            if (IsDuplicate(duplState, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
+            if (IsDuplicate(duplState!, dataLen, dataPtr, State.ShortHash, ref State.FinalHash, out deduplicatedFile))
             {
                 ProcessDeduplicate(tocBuilder, settings, blockIndex, deduplicatedFile, State.FinalHash, false);
                 return;
@@ -253,20 +252,17 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe bool IsDuplicate(ChunkedDeduplicationState? duplState, ulong dataLen, byte* dataPtr, ulong shortHash,
+    private unsafe bool IsDuplicate(ChunkedDeduplicationState duplState, ulong dataLen, byte* dataPtr, ulong shortHash,
         ref ulong fullHash, out DeduplicatedChunkedFile deduplicatedChunkedFile)
     {
         deduplicatedChunkedFile = default;
-        lock (duplState!)
-        {
-            if (!duplState.HasPotentialDuplicate(shortHash))
-                return false;
+        if (!duplState.HasPotentialDuplicate(shortHash))
+            return false;
 
-            if (!IsHashValid(fullHash))
-                fullHash = CalculateFullFileHash(dataPtr, dataLen);
+        if (!IsHashValid(fullHash))
+            fullHash = CalculateFullFileHash(dataPtr, dataLen);
 
-            return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedChunkedFile);
-        }
+        return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedChunkedFile);
     }
 
 
@@ -522,10 +518,7 @@ internal static class NonGenericCode
     {
         Debug.Assert(shortHash != 0);
         Debug.Assert(fileEntry.Hash != 0);
-        lock (duplState)
-        {
-            duplState.AddFileHash(shortHash, fileEntry.Hash, fileEntry.FirstBlockIndex);
-        }
+        duplState.AddFileHash(shortHash, fileEntry.Hash, fileEntry.FirstBlockIndex);
     }
 }
 

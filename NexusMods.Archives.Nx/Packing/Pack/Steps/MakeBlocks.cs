@@ -2,6 +2,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using System.Runtime.InteropServices;
+using NexusMods.Archives.Nx.Structs;
 
 namespace NexusMods.Archives.Nx.Packing.Pack.Steps;
 
@@ -36,7 +37,9 @@ internal static class MakeBlocks
 {
     internal static List<IBlock<T>> Do<T>(Dictionary<string, List<T>> groups, int blockSize, int chunkSize,
         CompressionPreference solidBlockAlgorithm = CompressionPreference.NoPreference,
-        CompressionPreference chunkedBlockAlgorithm = CompressionPreference.NoPreference)
+        CompressionPreference chunkedBlockAlgorithm = CompressionPreference.NoPreference,
+        SolidDeduplicationState? solidDeduplicationState = null,
+        ChunkedDeduplicationState? chunkedDeduplicationState = null)
         where T : IHasFileSize, IHasSolidType, IHasCompressionPreference, ICanProvideFileData, IHasRelativePath
     {
         var chunkedBlocks = new List<IBlock<T>>();
@@ -97,6 +100,10 @@ internal static class MakeBlocks
 
         // Sort the SOLID blocks by size in descending order
         solidBlocks.Sort((a, b) => b.size.CompareTo(a.size));
+
+        // Ensure the deduplicators know about the block numbers.
+        solidDeduplicationState?.EnsureCapacity(solidBlocks.Count);
+        chunkedDeduplicationState?.EnsureCapacity(chunkedBlocks.Count);
 
         // Note(sewer): Chunked blocks cannot be reordered due to their nature of being
         // sequential. However we can sort the solid blocks to improve compression efficiency.

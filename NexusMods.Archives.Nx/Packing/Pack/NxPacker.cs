@@ -136,7 +136,7 @@ public static class NxPacker
         // Sort into groups and blocks.
         files.SortBySizeAscending();
         var groups = GroupFiles.Do(files);
-        return MakeBlocks.Do(groups, settings.BlockSize, settings.ChunkSize, settings.SolidBlockAlgorithm, settings.ChunkedFileAlgorithm);
+        return MakeBlocks.Do(groups, settings.BlockSize, settings.ChunkSize, settings.SolidBlockAlgorithm, settings.ChunkedFileAlgorithm, settings.SolidDeduplicationState, settings.ChunkedDeduplicationState);
     }
 
     private class BlockData
