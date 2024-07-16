@@ -456,16 +456,12 @@ From extended testing, the general conclusions are.
 
 - Performance is lost when files have same short hash but different content.
     - This is common in some textures, as many may have transparent borders.
-    - This leads to a read of the full file, just for the hash to be discarded.
-    - 
-
+    - This leads to a read of the full file prematurely, when not necessary.
+    - Huge files with same first 4096 bytes lead to slowdown.
 - Realistic max overhead is ~5% of throughput.
-
-
-- Deduplication can significantly reduce file sizes, especially for mods with many duplicate files.
-- The impact on packing time is generally minimal, and in some cases, deduplication can even improve packing speed.
-- Larger chunk sizes (16M vs 1M) tend to offer slightly better performance and compression.
-- The benefits of deduplication are most noticeable in larger mods or collections of mods.
+    - In practise it's however within margin of error (~2%). 
+- Successful finding of duplicates improves packing speed.
+    - Because we need to compress less.
 
 ## Comparison to Common Archiving Solutions
 
