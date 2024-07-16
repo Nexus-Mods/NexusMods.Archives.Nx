@@ -111,7 +111,13 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // Note: The first chunk can also be the last, because files can have 1 chunk.
             var numChunks = State.NumChunks;
             var isLastChunk = ChunkIndex == numChunks - 1;
-            State.WaitForChunkIndexTurn(ChunkIndex);
+            if (State.WaitForChunkIndexTurnCancelOnDuplicate(ChunkIndex))
+            {
+                // Return early on found duplicate.
+                ReturnWhenDuplicate(tocBuilder, settings, blockIndex);
+                return;
+            }
+
             if (!isLastChunk)
                 State.Hash.AppendHash(data.Data, data.DataLength);
             else if (State.FinalHash == 0)
@@ -447,6 +453,32 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
             spinWait.SpinOnce();
 #endif
         }
+    }
+
+    /// <summary>
+    ///     Locks processing of inner mutable shared data (e.g. hash) until
+    ///     it is time for chunk with <paramref name="chunkIndex"/> to be processed.
+    ///
+    ///     Call <see cref="EndProcessingChunk"/> when done.
+    /// </summary>
+    /// <returns>
+    ///     True if the operation was canceled due to a duplicate.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool WaitForChunkIndexTurnCancelOnDuplicate(int chunkIndex)
+    {
+        // Wait until it's our turn to write.
+        var spinWait = new SpinWait();
+        while (_currentChunkIndex != chunkIndex && DuplicateState != DeduplicationCheckState.Duplicate)
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            spinWait.SpinOnce(-1);
+#else
+            spinWait.SpinOnce();
+#endif
+        }
+
+        return DuplicateState == DeduplicationCheckState.Duplicate;
     }
 
     /// <summary>

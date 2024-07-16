@@ -61,9 +61,9 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
 internal static class BlockHelpers
 {
 #if DEBUG
-    private static int s_lastThreadId = -1;
-    private static int s_isProcessing = 0;
-    private static readonly ThreadLocal<bool> s_isWaitingForTurn = new ThreadLocal<bool>(() => false);
+    private static int _lastThreadId = -1;
+    private static int _isProcessing = 0;
+    private static readonly ThreadLocal<bool> _curThreadIsWaitingForTurn = new(() => false);
 #endif
 
     internal static unsafe int Compress(CompressionPreference compression, int compressionLevel, IFileData data, byte* destinationPtr,
@@ -113,10 +113,10 @@ internal static class BlockHelpers
     internal static void WaitForBlockTurn<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
 #if DEBUG
-        if (s_isWaitingForTurn.Value)
+        if (_curThreadIsWaitingForTurn.Value)
             throw new InvalidOperationException("WaitForBlockTurn called without a corresponding EndProcessingBlock");
 
-        s_isWaitingForTurn.Value = true;
+        _curThreadIsWaitingForTurn.Value = true;
 #endif
 
         // Wait until it's our turn to write.
@@ -152,7 +152,8 @@ internal static class BlockHelpers
         }
         finally
         {
-            Interlocked.Exchange(ref s_isProcessing, 0);
+            Interlocked.Exchange(ref _isProcessing, 0);
+            _curThreadIsWaitingForTurn.Value = false;
         }
 #endif
     }
@@ -162,10 +163,10 @@ internal static class BlockHelpers
     {
         var currentThreadId = Thread.CurrentThread.ManagedThreadId;
 
-        if (Interlocked.CompareExchange(ref s_isProcessing, 1, 0) != 0)
-            throw new InvalidOperationException($"Concurrent access detected in EndProcessingBlock. Current Thread ID: {currentThreadId}, Last Thread ID: {s_lastThreadId}");
+        if (Interlocked.CompareExchange(ref _isProcessing, 1, 0) != 0)
+            throw new InvalidOperationException($"Concurrent access detected in EndProcessingBlock. Current Thread ID: {currentThreadId}, Last Thread ID: {_lastThreadId}");
 
-        Interlocked.Exchange(ref s_lastThreadId, currentThreadId);
+        Interlocked.Exchange(ref _lastThreadId, currentThreadId);
     }
 #endif
 }
