@@ -436,7 +436,7 @@ And with 16MB chunks as an additional point of reference:
 | Scenario   | Time (ms) | Throughput    | Size (MiB) |
 |------------|-----------|---------------|------------|
 | Solid Only | 43,572    | 394.93 MiB/s  | 5,349.69   |
-| Dedupe All | 8,483     | 2015.61 MiB/s | 277.67     |
+| Dedupe All | 8,005     | 2135.97 MiB/s | 277.67     |
 
 !!! tip "Deduplication significantly reduced file size by about 95% and improved packing speed by over 3x."
 
