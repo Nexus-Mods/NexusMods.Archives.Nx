@@ -123,6 +123,16 @@ public class NxRepackerBuilder : NxPackerBuilder
         return Settings.Output;
     }
 
+    /// <summary>
+    ///     Adds an existing block that's been externally generated to the archive.
+    /// </summary>
+    /// <param name="block">The block to add to the compressor input.</param>
+    internal NxPackerBuilder AddBlock(IBlock<PackerFile> block)
+    {
+        ExistingBlocks.Add(block);
+        return this;
+    }
+
     private void MakeItemsFromNxFiles(List<IBlock<PackerFile>> blocks, List<PackerFile> files)
     {
         // This function makes blocks from our existing inputs, i.e.
@@ -164,9 +174,8 @@ public class NxRepackerBuilder : NxPackerBuilder
             if (!block.IsValid || block.Count <= 0)
                 continue;
 
-            // If there is only one file in the block, then the file is a chunked file,
-            // or a file with a single block. Either works here.
-            if (block.Count == 1)
+            var isChunkedFile = IsChunkedFile(block);
+            if (isChunkedFile)
             {
                 PackerBuilderHelpers.CreateChunkedFileFromExistingNxBlock(nxSource, sourceData.Header, block.AsSpan()[0], blocks);
             }
@@ -224,14 +233,33 @@ public class NxRepackerBuilder : NxPackerBuilder
         }
     }
 
-    /// <summary>
-    ///     Adds an existing block that's been externally generated to the archive.
-    /// </summary>
-    /// <param name="block">The block to add to the compressor input.</param>
-    internal NxPackerBuilder AddBlock(IBlock<PackerFile> block)
+    private static bool IsChunkedFile(FixedSizeList<FileEntry> block)
     {
-        ExistingBlocks.Add(block);
-        return this;
+        // If the file is a chunked file, one of the following has to be true:
+        // - There is only one file in the block.
+        //   - This could also mean it's just a file with a single block.
+        // OR
+        // - All files in the block refer to same block index (int) and offset (0).
+        //   - This means files got deduplicated.
+        var isChunkedFile = true;
+        if (block.Count <= 1)
+            return isChunkedFile;
+
+        var blockSpan = block.AsSpan();
+        var firstBlockIndex = blockSpan[0].FirstBlockIndex;
+        long decompressedBlockOffset = blockSpan[0].DecompressedBlockOffset;
+
+        for (var x = 1; x < blockSpan.Length; x++)
+        {
+            if (blockSpan[x].FirstBlockIndex == firstBlockIndex &&
+                blockSpan[x].DecompressedBlockOffset == decompressedBlockOffset)
+                continue;
+
+            isChunkedFile = false;
+            break;
+        }
+
+        return isChunkedFile;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
