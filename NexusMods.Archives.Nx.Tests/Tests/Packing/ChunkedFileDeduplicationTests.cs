@@ -30,8 +30,17 @@ public class ChunkedFileDeduplicationTests
         // Assert
         fileEntries.Length.Should().Be(2);
         fileEntries[0].Entry.Hash.Should().NotBe(0);
+        fileEntries[1].Entry.Hash.Should().Be(fileEntries[0].Entry.Hash);
         fileEntries[1].Entry.FirstBlockIndex.Should().Be(fileEntries[0].Entry.FirstBlockIndex);
+        fileEntries[0].Entry.DecompressedSize.Should().Be(2 * 1024 * 1024);
+        fileEntries[1].Entry.DecompressedSize.Should().Be(2 * 1024 * 1024);
+
+        // Extract and verify content
+        unpackerBuilder.AddFilesWithArrayOutput(fileEntries, out var extractedFiles);
+        unpackerBuilder.Extract();
+
+        extractedFiles.Length.Should().Be(2);
+        extractedFiles[0].Data.Should().Equal(fileContent);
+        extractedFiles[1].Data.Should().Equal(fileContent);
     }
-
-
 }
