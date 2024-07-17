@@ -166,14 +166,75 @@ public class NxRepackerBuilderTests
             .WithMessage("All chunked files must have the same chunk size.");
     }
 
-    private Stream CreateInitialArchive(Span<PackerFile> files, PackerSettings settings)
+    [Theory]
+    [AutoData]
+    public void RepackWithIdenticalChunkedFiles_CanRepackDeduplicatedData(IFixture fixture)
+    {
+        const int chunkSize = 1024 * 1024; // 1M chunks
+        const int blockSize = chunkSize - 1; // 1M blocks
+        const int fileSize = chunkSize * 3; // 3M file (3 chunks)
+
+        // Create an initial Nx archive with two identical chunked files
+        var initialFiles = PackingTests.GetRandomDummyFiles(fixture, 2, fileSize, fileSize, out var settings);
+        settings.BlockSize = blockSize;
+        settings.ChunkSize = chunkSize;
+
+        using var initialArchive = CreateInitialArchive(initialFiles, settings, true, true);
+        initialArchive.Position = 0;
+
+        var provider = new FromStreamProvider(initialArchive);
+        var header = HeaderParser.ParseHeader(provider);
+
+        // Create a new archive using the chunked files from the initial archive
+        var repackerBuilder = new NxRepackerBuilder();
+        settings.Output = new MemoryStream();
+        repackerBuilder.WithOutput(new MemoryStream());
+        repackerBuilder.WithSettings(settings);
+        repackerBuilder.WithChunkedDeduplication();
+
+        // Add both files from the initial archive
+        repackerBuilder.AddFilesFromNxArchive(provider, header, header.Entries.AsSpan());
+
+        using var repackedArchive = repackerBuilder.Build(false);
+        repackedArchive.Position = 0;
+
+        // Parse the repacked archive
+        var repackedProvider = new FromStreamProvider(repackedArchive);
+        var repackedHeader = HeaderParser.ParseHeader(repackedProvider);
+
+        // Assert
+        repackedHeader.Entries.Length.Should().Be(2, "Both files should be present in the repacked archive");
+        repackedHeader.Blocks.Length.Should().Be(6, "There should be only 3 or 6 unique chunks (depending on implementation detail)");
+
+        var file1 = repackedHeader.Entries[0];
+        var file2 = repackedHeader.Entries[1];
+
+        // NOTE: Uncomment once deduplication's added to the repacker
+        file1.Hash.Should().Be(file2.Hash, "Both files should have the same hash");
+        //file1.FirstBlockIndex.Should().Be(file2.FirstBlockIndex, "Both files should start at the same block");
+        file1.DecompressedBlockOffset.Should().Be(file2.DecompressedBlockOffset, "Both files should have the same block offset");
+        file1.DecompressedSize.Should().Be(file2.DecompressedSize, "Both files should have the same size");
+
+        // Unpack and verify content
+        var unpacker = new NxUnpackerBuilder(repackedProvider);
+        var allFileEntries = unpacker.GetPathedFileEntries();
+        unpacker.AddFilesWithArrayOutput(allFileEntries, out var extractedFiles);
+        unpacker.Extract();
+
+        extractedFiles.Length.Should().Be(2, "Both files should be extracted");
+        extractedFiles[0].Data.Should().Equal(extractedFiles[1].Data, "The content of both files should be identical");
+        extractedFiles[0].Data.Length.Should().Be(fileSize, "The extracted file size should match the original");
+    }
+
+    private Stream CreateInitialArchive(Span<PackerFile> files, PackerSettings settings, bool solidDeDuplication = false, bool chunkedDeDuplication = false)
     {
         var builder = new NxPackerBuilder();
         builder.WithOutput(settings.Output);
         builder.WithBlockSize(settings.BlockSize);
         builder.WithChunkSize(settings.ChunkSize);
         builder.WithMaxNumThreads(settings.MaxNumThreads);
-        builder.WithSolidDeduplication(false);
+        builder.WithSolidDeduplication(solidDeDuplication);
+        builder.WithChunkedDeduplication(chunkedDeDuplication);
 
         foreach (var file in files)
             builder.AddPackerFile(file);

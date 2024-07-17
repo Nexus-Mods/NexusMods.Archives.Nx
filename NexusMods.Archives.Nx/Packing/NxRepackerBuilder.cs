@@ -178,7 +178,9 @@ public class NxRepackerBuilder : NxPackerBuilder
             var isChunkedFile = IsChunkedFile(block);
             if (isChunkedFile)
             {
-                PackerBuilderHelpers.CreateChunkedFileFromExistingNxBlock(nxSource, sourceData.Header, block.AsSpan()[0], blocks);
+                var blockSpan = block.AsSpan();
+                foreach (var entry in blockSpan)
+                    PackerBuilderHelpers.CreateChunkedFileFromExistingNxBlock(nxSource, sourceData.Header, entry, blocks);
             }
             else
             {
