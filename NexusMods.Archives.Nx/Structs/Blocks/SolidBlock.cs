@@ -131,6 +131,15 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
             // This can happen if a whole block is deduplicated
             if (decompressedBlockOffset == 0)
             {
+                // Note: Blocks, BlockCompressions etc. were allocated from uninitialized
+                //       memory. Therefore we need to provide a value in the case that
+                //       they don't default to 0.
+                ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
+                blockSize.CompressedSize = 0;
+
+                ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
+                blockCompression = CompressionPreference.Copy;
+
                 BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
                 BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
                 return;
