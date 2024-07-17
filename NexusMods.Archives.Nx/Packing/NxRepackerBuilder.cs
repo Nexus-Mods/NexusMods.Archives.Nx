@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Packing.Unpack;
@@ -104,7 +105,7 @@ public class NxRepackerBuilder : NxPackerBuilder
     {
         // Update ChunkSize if not already set.
         if (_chunkSizeByte != byte.MaxValue)
-            WithChunkSize(32768 << _chunkSizeByte);
+            WithChunkSize(NativeFileHeader.BaseChunkSize << _chunkSizeByte);
 
         var blocks = new List<IBlock<PackerFile>>();
         var files = new List<PackerFile>();

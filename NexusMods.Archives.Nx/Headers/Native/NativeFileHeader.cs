@@ -19,6 +19,11 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     internal const int SizeBytes = 8;
 
+    /// <summary>
+    ///     Minimum size of chunk blocks in the Nx archive.
+    /// </summary>
+    internal const int BaseChunkSize = 32768;
+
     private const uint ExpectedMagic = 0x5355584E; // little endian 'SUXN'
 
     // Data layout.
@@ -54,7 +59,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
 
     /// <summary>
     ///     [u4] Gets or sets the block size in its encoded raw value.<br/>
-    ///     (Blocks are encoded as (32768 &lt;&lt; blockSize) - 1)
+    ///     (Blocks are encoded as (<see cref="BaseChunkSize"/> &lt;&lt; blockSize) - 1)
     /// </summary>
     public byte BlockSize
     {
@@ -119,7 +124,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     public int ChunkSizeBytes
     {
-        get => 32768 << ChunkSize;
+        get => BaseChunkSize << ChunkSize;
         set => ChunkSize = (byte)Math.Log(value >> 15, 2);
     }
 

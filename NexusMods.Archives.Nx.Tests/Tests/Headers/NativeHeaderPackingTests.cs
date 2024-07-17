@@ -133,7 +133,7 @@ public class NativeHeaderPackingTests
     }
 
     [Theory]
-    [InlineData(0, 32768)]
+    [InlineData(0, NativeFileHeader.BaseChunkSize)]
     [InlineData(1, 65536)]
     [InlineData(14, 536870912)]
     [InlineData(15, 1073741824)]

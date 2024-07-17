@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -108,7 +109,7 @@ public class PackerSettings
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
 
         BlockSize = Polyfills.Clamp(BlockSize, 4095, 67108863);
-        ChunkSize = Polyfills.Clamp(ChunkSize, 32768, 1073741824); // 1GiB because we can't pool more with standard ArrayPool.
+        ChunkSize = Polyfills.Clamp(ChunkSize, NativeFileHeader.BaseChunkSize, 1073741824); // 1GiB because we can't pool more with standard ArrayPool.
         if (ChunkSize <= BlockSize)
             ChunkSize = BlockSize + 1;
 
