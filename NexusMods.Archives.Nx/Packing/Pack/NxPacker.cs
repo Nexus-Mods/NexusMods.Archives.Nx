@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Packing.Pack.Steps;
@@ -51,7 +52,10 @@ public static class NxPacker
         var newFiles = Polyfills.AllocateUninitializedArray<HasRelativePathWrapper>(newFileCount);
         var insertIdx = 0;
         for (; insertIdx < files.Length; insertIdx++)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(files[insertIdx].RelativePath), "We're adding an empty file path to the list of files to pack.");
             newFiles.DangerousGetReferenceAt(insertIdx) = files[insertIdx].RelativePath;
+        }
 
         // Skips IEnumerator.
 #if NET5_0_OR_GREATER
