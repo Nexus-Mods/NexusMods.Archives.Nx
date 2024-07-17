@@ -284,6 +284,14 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
 
         State.AddFileEntryToTocAtomic(tocBuilder, deduplicatedChunkedFile.BlockIndex, fullHash);
         State.DuplicateState = DeduplicationCheckState.Duplicate;
+
+        // Note: Blocks, BlockCompressions etc. were allocated from uninitialized
+        //       memory. Therefore we need to provide a value in the case that
+        //       they don't default to 0.
+        var chunkCount = State.NumChunks;
+        for (var x = 0; x < chunkCount; x++)
+            State.WriteBlockDetailsToToc(0, tocBuilder, blockIndex + x, CompressionPreference.Copy);
+
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
 
@@ -390,13 +398,19 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         // Write out actual block.
         BlockHelpers.WriteToOutput(settings.Output, compData, compressedSize);
 
+        WriteBlockDetailsToToc(compressedSize, tocBuilder, blockIndex, asCopy ? CompressionPreference.Copy : Compression);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void WriteBlockDetailsToToc(int compressedSize, TableOfContentsBuilder<T> tocBuilder, int blockIndex, CompressionPreference compression)
+    {
         // Update Block Details
         var toc = tocBuilder.Toc;
         ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
         blockSize.CompressedSize = compressedSize;
 
         ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
-        blockCompression = asCopy ? CompressionPreference.Copy : Compression;
+        blockCompression = compression;
     }
 
     /// <summary>
