@@ -3,6 +3,7 @@ using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+using static NexusMods.Archives.Nx.Structs.Blocks.ChunkedCommon;
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -40,12 +41,36 @@ internal record ChunkedFileFromExistingNxBlock<T>
     /// <inheritdoc />
     public void ProcessBlock(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, PackerArrayPools pools)
     {
-        unsafe
-        {
-            using var data = State.NxSource.GetFileData(StartOffset, (uint)ChunkSize);
-            var dataSpan = new Span<byte>(data.Data, (int)data.DataLength);
-            State.UpdateState(ChunkIndex, dataSpan, tocBuilder, settings, blockIndex, Compression);
-        }
+        ProcessBlockWithoutDeduplication(tocBuilder, settings, blockIndex, pools);
+
+        /*
+           var isDedupeEnabled = settings.ChunkedDeduplicationState != null;
+
+           if (!isDedupeEnabled)
+           {
+               return;
+           }
+
+        if (ChunkIndex == 0)
+            ProcessFirstChunkDedupe(tocBuilder, settings, blockIndex, pools);
+        else
+            ProcessRemainingChunksDedupe(tocBuilder, settings, blockIndex, pools);
+        */
+    }
+
+    private unsafe void ProcessBlockWithoutDeduplication(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, PackerArrayPools pools)
+    {
+        using var data = State.NxSource.GetFileData(StartOffset, (uint)ChunkSize);
+        var dataSpan = new Span<byte>(data.Data, (int)data.DataLength);
+
+        // Take lock.
+        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
+        WriteBlock(dataSpan, tocBuilder, settings, blockIndex, false, Compression);
+
+        if (IsLastChunk(State.NumChunks, ChunkIndex))
+            AddFileEntryToTocAtomic(tocBuilder, FirstBlockIndex(blockIndex, State.NumChunks), State.FileHash, State.RelativePath, State.FileLength);
+
+        BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
 }
 
@@ -80,45 +105,4 @@ internal class ChunkedBlockFromExistingNxState
     ///     Known hash from existing file in original Nx archive.
     /// </summary>
     public required ulong FileHash { get; init; }
-
-    /// <summary>
-    ///     Sets the specific index as processed and updates internal state.
-    /// </summary>
-    /// <param name="chunkIndex">The index to set.</param>
-    /// <param name="blockData">The compressed data for the block.</param>
-    /// <param name="tocBuilder">Builds table of contents.</param>
-    /// <param name="settings">Packer settings.</param>
-    /// <param name="blockIndex">Index of currently packed block.</param>
-    /// <param name="compression">Type of compression used by the <paramref name="blockData"/>.</param>
-    public void UpdateState<T>(int chunkIndex, Span<byte> blockData, TableOfContentsBuilder<T> tocBuilder,
-        PackerSettings settings, int blockIndex, CompressionPreference compression) where T : IHasFileSize, ICanProvideFileData, IHasRelativePath
-    {
-        // Write out actual block.
-        BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
-        BlockHelpers.WriteToOutput(settings.Output, blockData);
-
-        // Update Block Details
-        var toc = tocBuilder.Toc;
-        ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
-        blockSize.CompressedSize = blockData.Length;
-
-        ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
-        blockCompression = compression;
-
-        // Update file details once all chunks are done.
-        if (chunkIndex != NumChunks - 1)
-        {
-            BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
-            return;
-        }
-
-        // Only executed on final thread, so we can end and increment early.
-        BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
-        ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
-        file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[RelativePath];
-        file.FirstBlockIndex = blockIndex + 1 - NumChunks; // All chunks (blocks) are sequentially queued/written.
-        file.DecompressedSize = FileLength;
-        file.DecompressedBlockOffset = 0;
-        file.Hash = FileHash;
-    }
 }

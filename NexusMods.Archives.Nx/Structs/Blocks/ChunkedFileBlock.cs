@@ -1,11 +1,10 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-using static NexusMods.Archives.Nx.Structs.Blocks.NonGenericCode;
+using static NexusMods.Archives.Nx.Structs.Blocks.ChunkedCommon;
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -67,7 +66,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // as a whole. We could be hashing the file while another thread is writing the
             // disk.
             var numChunks = State.NumChunks;
-            var isLastChunk = ChunkIndex == numChunks - 1;
+            var isLastChunk = IsLastChunk(numChunks, ChunkIndex);
             State.WaitForChunkIndexTurn(ChunkIndex);
             if (!isLastChunk)
             {
@@ -85,7 +84,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
 
             // Take lock.
             BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);
-            State.WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy);
+            WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy, State.Compression);
             BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
         }
     }
@@ -109,7 +108,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             // Process the shared mutable state (hash) of this chunk.
             // Note: The first chunk can also be the last, because files can have 1 chunk.
             var numChunks = State.NumChunks;
-            var isLastChunk = ChunkIndex == numChunks - 1;
+            var isLastChunk = IsLastChunk(numChunks, ChunkIndex);
             if (State.WaitForChunkIndexTurnCancelOnDuplicate(ChunkIndex))
             {
                 // Return early on found duplicate.
@@ -154,7 +153,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
                 return;
             }
 
-            State.WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy);
+            WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy, State.Compression);
 
             // If last block, we need to write out to ToC.
             if (isLastChunk)
@@ -195,7 +194,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         {
             // Process the shared mutable state (hash) of this chunk.
             var numChunks = State.NumChunks;
-            var isLastChunk = ChunkIndex == numChunks - 1;
+            var isLastChunk = IsLastChunk(numChunks, ChunkIndex);
             State.WaitForChunkIndexTurn(ChunkIndex);
             if (!isLastChunk)
                 State.Hash.AppendHash(data.Data, data.DataLength);
@@ -242,7 +241,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             }
 
             State.DuplicateState = DeduplicationCheckState.NotDuplicate;
-            State.WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy);
+            WriteBlock(allocation, compressed, tocBuilder, settings, blockIndex, asCopy, State.Compression);
 
             // If last block, we need to write out to ToC.
             if (isLastChunk)
@@ -290,7 +289,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         //       they don't default to 0.
         var chunkCount = State.NumChunks;
         for (var x = 0; x < chunkCount; x++)
-            State.WriteBlockDetailsToToc(0, tocBuilder, blockIndex + x, CompressionPreference.Copy);
+            WriteBlockDetailsToToc(0, tocBuilder, blockIndex + x, CompressionPreference.Copy);
 
         BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
     }
@@ -383,51 +382,11 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     private int _currentChunkIndex;
 
     /// <summary>
-    ///     Sets the specific index as processed and updates internal state.
-    /// </summary>
-    /// <param name="compData">The compressed data for block.</param>
-    /// <param name="compressedSize">Size of the data after compression.</param>
-    /// <param name="tocBuilder">Builds table of contents.</param>
-    /// <param name="settings">Packer settings.</param>
-    /// <param name="blockIndex">Index of currently packed block.</param>
-    /// <param name="asCopy">Whether block was compressed using 'copy' compression.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteBlock(PackerPoolRental compData, int compressedSize, TableOfContentsBuilder<T> tocBuilder,
-        PackerSettings settings, int blockIndex, bool asCopy)
-    {
-        // Write out actual block.
-        BlockHelpers.WriteToOutput(settings.Output, compData, compressedSize);
-
-        WriteBlockDetailsToToc(compressedSize, tocBuilder, blockIndex, asCopy ? CompressionPreference.Copy : Compression);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void WriteBlockDetailsToToc(int compressedSize, TableOfContentsBuilder<T> tocBuilder, int blockIndex, CompressionPreference compression)
-    {
-        // Update Block Details
-        var toc = tocBuilder.Toc;
-        ref var blockSize = ref toc.Blocks.DangerousGetReferenceAt(blockIndex);
-        blockSize.CompressedSize = compressedSize;
-
-        ref var blockCompression = ref toc.BlockCompressions.DangerousGetReferenceAt(blockIndex);
-        blockCompression = compression;
-    }
-
-    /// <summary>
     ///     Adds an entry to the table of contents for the current file.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal ref FileEntry AddFileEntryToTocAtomic(TableOfContentsBuilder<T> tocBuilder, int firstBlockIndex, ulong hash)
-    {
-        Debug.Assert(hash != 0);
-        ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
-        file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[File.RelativePath];
-        file.FirstBlockIndex = firstBlockIndex;
-        file.DecompressedSize = (ulong)File.FileSize;
-        file.DecompressedBlockOffset = 0;
-        file.Hash = hash;
-        return ref file;
-    }
+        => ref ChunkedCommon.AddFileEntryToTocAtomic(tocBuilder, firstBlockIndex, hash, File.RelativePath, (ulong)File.FileSize);
 
     /// <summary>
     ///     Locks processing of inner mutable shared data (e.g. hash) until
@@ -484,44 +443,4 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     internal void EndProcessingChunk() => Interlocked.Increment(ref _currentChunkIndex);
 }
 
-/// <summary>
-///     This stores the non-generic, static logic tied to <see cref="ChunkedFileBlock{T}"/>.
-///     This is to reduce code bloat generated at runtime for different instances of T.
-/// </summary>
-internal static class NonGenericCode
-{
-    internal const int ShortHashLength = 4096;
-    internal const int CompressFirstBlockIsDuplicateError = -1;
-    internal const int CompressNonFirstBlockIsDuplicated = -2;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool IsLastChunk(int numChunks, int chunkIndex) => chunkIndex == numChunks - 1;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static int FirstBlockIndex(int currentBlockIndex, int numChunks) => currentBlockIndex + 1 - numChunks;
-
-    /// <summary>
-    ///     Disclaimer: I *am* aware this is buggy behaviour if a real file has a
-    ///     hash of 0. I am choosing to ignore this due to the probability being
-    ///     too unlikely to matter in practice. Deduplication by hash only is by
-    ///     nature not perfectly safe.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool IsHashValid(ulong hash) => hash != 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void AddToDeduplicator(ref FileEntry fileEntry, ChunkedDeduplicationState duplState, ulong shortHash)
-    {
-        Debug.Assert(shortHash != 0);
-        Debug.Assert(fileEntry.Hash != 0);
-        duplState.AddFileHash(shortHash, fileEntry.Hash, fileEntry.FirstBlockIndex);
-    }
-}
-
-// ReSharper disable once EnumUnderlyingTypeIsInt
-internal enum DeduplicationCheckState : int
-{
-    Unknown,
-    Duplicate,
-    NotDuplicate
-}
