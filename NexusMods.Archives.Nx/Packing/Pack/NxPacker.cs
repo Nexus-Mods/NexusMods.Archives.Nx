@@ -65,8 +65,11 @@ public static class NxPacker
 #endif
             block.AppendFilesUnsafe(ref insertIdx, newFiles);
 
-        blocks.AddRange(copiedBlocks);
-        PackWithBlocksAndFiles(newFiles.AsSpan(), settings, blocks);
+        // Note: We handle the copied blocks first, even though they take
+        //       the shortest to process because deduplication means we may
+        //       reuse copied blocks in the new files.
+        copiedBlocks.AddRange(blocks);
+        PackWithBlocksAndFiles(newFiles.AsSpan(), settings, copiedBlocks);
     }
 
     /// <summary>

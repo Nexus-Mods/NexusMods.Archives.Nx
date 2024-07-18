@@ -247,7 +247,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             if (isLastChunk)
             {
                 ref var fileEntry = ref State.AddFileEntryToTocAtomic(tocBuilder, FirstBlockIndex(blockIndex, numChunks), State.FinalHash);
-                AddToDeduplicator(ref fileEntry, settings.ChunkedDeduplicationState!, State.ShortHash);
+                AddToDeduplicator(ref fileEntry, duplState!, State.ShortHash);
             }
 
             BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
@@ -268,15 +268,13 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
         return duplState.TryFindDuplicateByFullHash(fullHash, out deduplicatedChunkedFile);
     }
 
-
     /// <summary/>
     /// <remarks>
     ///     This sets `State.ShouldSkipProcessing()` == true.
     ///     Meaning all other chunks will skip processing.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, DeduplicatedChunkedFile deduplicatedChunkedFile,
-        ulong fullHash, bool waitForBlock = true)
+    private void ProcessDeduplicate(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex, DeduplicatedChunkedFile deduplicatedChunkedFile, ulong fullHash, bool waitForBlock = true)
     {
         if (waitForBlock)
             BlockHelpers.WaitForBlockTurn(tocBuilder, blockIndex);

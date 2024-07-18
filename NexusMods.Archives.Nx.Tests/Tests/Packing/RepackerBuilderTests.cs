@@ -167,8 +167,9 @@ public class NxRepackerBuilderTests
     }
 
     [Theory]
-    [AutoData]
-    public void RepackWithIdenticalChunkedFiles_CanRepackDeduplicatedData(IFixture fixture)
+    [InlineAutoData(true)]
+    [InlineAutoData(false)]
+    public void RepackWithIdenticalChunkedFiles_CanRepackDeduplicatedData(bool isDeduplicatedArchive, IFixture fixture)
     {
         const int chunkSize = 1024 * 1024; // 1M chunks
         const int blockSize = chunkSize - 1; // 1M blocks
@@ -190,7 +191,7 @@ public class NxRepackerBuilderTests
         settings.Output = new MemoryStream();
         repackerBuilder.WithOutput(new MemoryStream());
         repackerBuilder.WithSettings(settings);
-        repackerBuilder.WithChunkedDeduplication();
+        repackerBuilder.WithChunkedDeduplication(isDeduplicatedArchive);
 
         // Add both files from the initial archive
         repackerBuilder.AddFilesFromNxArchive(provider, header, header.Entries.AsSpan());
@@ -211,7 +212,9 @@ public class NxRepackerBuilderTests
 
         // NOTE: Uncomment once deduplication's added to the repacker
         file1.Hash.Should().Be(file2.Hash, "Both files should have the same hash");
-        //file1.FirstBlockIndex.Should().Be(file2.FirstBlockIndex, "Both files should start at the same block");
+        if (isDeduplicatedArchive) // If deduplication was enabled, the files should point at the same index.
+            file1.FirstBlockIndex.Should().Be(file2.FirstBlockIndex, "Both files should start at the same block");
+
         file1.DecompressedBlockOffset.Should().Be(file2.DecompressedBlockOffset, "Both files should have the same block offset");
         file1.DecompressedSize.Should().Be(file2.DecompressedSize, "Both files should have the same size");
 
