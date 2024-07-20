@@ -5,6 +5,7 @@ using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Structs;
 using NexusMods.Archives.Nx.Utilities;
+using static NexusMods.Archives.Nx.Headers.Native.NativeConstants;
 
 namespace NexusMods.Archives.Nx.Headers.Managed;
 
@@ -64,7 +65,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         var blockCountAndPoolSize = reader.ReadInt();
         var blockCount = blockCountAndPoolSize >> 14;
 
-        tocOffset %= 4096;
+        tocOffset %= HeaderPageSize;
         var paddingOffset = ((blockCountAndPoolSize >> 2) & 0xFFF) + (tocOffset);
         var blocks = Polyfills.AllocateUninitializedArray<BlockSize>(blockCount);
         var blockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(blockCount);
@@ -182,7 +183,7 @@ public class TableOfContents : IEquatable<TableOfContents>
         writer.Write(Entries.Length); // limited to 1 mil so int is ok
         var blockCount = Blocks.Length; // Upper 18 bits
 
-        tocOffset %= 4096;
+        tocOffset %= HeaderPageSize;
         var paddingOffset = (tocSize + tocOffset).RoundUp4096() - tocSize - tocOffset; // Next 12 bits.
 
         // Note: This could in theory overflow if tocSize <= 0 && offsetInFile == 0, but that is impossible, given tocSize can't be 0

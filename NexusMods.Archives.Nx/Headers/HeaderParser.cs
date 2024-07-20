@@ -4,6 +4,7 @@ using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Utilities;
+using static NexusMods.Archives.Nx.Headers.Native.NativeConstants;
 
 namespace NexusMods.Archives.Nx.Headers;
 
@@ -44,19 +45,37 @@ public static class HeaderParser
             from the limited data I could gather. In any case, this is the explanation for header size choice.
         */
 
-        var headerSize = hasLotsOfFiles ? 65536 : (nuint)4096;
-        using var data = provider.GetFileData(0, (uint)headerSize);
-        var header = TryParseHeader(data.Data, headerSize);
-        if (header.Header != null)
-            return header.Header;
-
-        using var remainingData = provider.GetFileData(headerSize, (uint)(header.HeaderSize - (long)headerSize));
-        using var fullHeader = new ArrayRental(header.HeaderSize);
-        fixed (byte* fullHeaderPtr = fullHeader.Span)
+        var headerSize = hasLotsOfFiles ? 65536 : (nuint)HeaderPageSize;
+        IFileData? data;
+        try
         {
-            Buffer.MemoryCopy(data.Data, fullHeaderPtr, fullHeader.Array.Length, (long)headerSize);
-            Buffer.MemoryCopy(remainingData.Data, fullHeaderPtr + headerSize, fullHeader.Array.Length - (long)headerSize, header.HeaderSize - (long)headerSize);
-            return TryParseHeader(fullHeaderPtr, (nuint)header.HeaderSize).Header!;
+            // This can throw if the Nx file is smaller than 64K (very rare).
+            // We try regular 4K size in handler to compensate.
+            data = provider.GetFileData(0, (uint)headerSize);
+        }
+        catch
+        {
+            data = provider.GetFileData(0, HeaderPageSize);
+        }
+
+        try
+        {
+            var header = TryParseHeader(data.Data, headerSize);
+            if (header.Header != null)
+                return header.Header;
+
+            using var remainingData = provider.GetFileData(headerSize, (uint)(header.HeaderSize - (long)headerSize));
+            using var fullHeader = new ArrayRental(header.HeaderSize);
+            fixed (byte* fullHeaderPtr = fullHeader.Span)
+            {
+                Buffer.MemoryCopy(data.Data, fullHeaderPtr, fullHeader.Array.Length, (long)headerSize);
+                Buffer.MemoryCopy(remainingData.Data, fullHeaderPtr + headerSize, fullHeader.Array.Length - (long)headerSize, header.HeaderSize - (long)headerSize);
+                return TryParseHeader(fullHeaderPtr, (nuint)header.HeaderSize).Header!;
+            }
+        }
+        finally
+        {
+            data.Dispose();
         }
     }
 

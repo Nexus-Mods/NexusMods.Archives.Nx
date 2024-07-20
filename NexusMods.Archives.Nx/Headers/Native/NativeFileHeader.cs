@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+using static NexusMods.Archives.Nx.Headers.Native.NativeConstants;
 
 namespace NexusMods.Archives.Nx.Headers.Native;
 
@@ -106,7 +107,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     public int HeaderPageBytes
     {
-        get => HeaderPageCount * 4096;
+        get => HeaderPageCount * HeaderPageSize;
         set => HeaderPageCount = (ushort)(value >> 12);
     }
 
@@ -115,7 +116,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     public int BlockSizeBytes
     {
-        get => (4096 << BlockSize) - 1;
+        get => (HeaderPageSize << BlockSize) - 1;
         set => BlockSize = (byte)Math.Log((value + 1) >> 12, 2);
     }
 
