@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Enums;
+using NexusMods.Archives.Nx.Headers.Managed;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -21,6 +22,9 @@ internal static class ThrowHelpers
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowNotANexusArchive() => throw new NotANexusArchiveException();
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void EntryCannotFitInArray(FileEntry entry) => throw new EntryCannotFitInArrayException(entry);
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowUnsupportedCompressionMethod(CompressionPreference method) => throw new UnsupportedCompressionMethodException(method);
@@ -96,4 +100,26 @@ public class UnsupportedCompressionMethodException : NotSupportedException
     /// <inheritdoc />
     public UnsupportedCompressionMethodException(CompressionPreference method)
         : base($"Unsupported compression method {method}.") => Method = method;
+}
+
+/// <summary>
+///     Represents an error that occurs when a file entry is too large to fit into a .NET array.
+/// </summary>
+[PublicAPI]
+public class EntryCannotFitInArrayException : ArgumentException
+{
+    /// <summary>
+    ///     The file entry that caused the exception.
+    /// </summary>
+    public FileEntry Entry { get; }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EntryCannotFitInArrayException"/> class.
+    /// </summary>
+    /// <param name="entry">The file entry that is too large.</param>
+    public EntryCannotFitInArrayException(FileEntry entry)
+        : base($"This file Entry cannot be extracted into an array because it is too large. .NET Arrays are limited to 2GiB. File Size: {entry.DecompressedSize}")
+    {
+        Entry = entry;
+    }
 }

@@ -28,6 +28,9 @@ public sealed class OutputArrayProvider : IOutputDataProvider
     /// <param name="entry">The entry from the archive.</param>
     public OutputArrayProvider(string relativePath, FileEntry entry)
     {
+        if (entry.DecompressedSize > int.MaxValue)
+            ThrowHelpers.EntryCannotFitInArray(entry);
+
         RelativePath = relativePath;
         Entry = entry;
         Data = Polyfills.AllocateUninitializedArray<byte>((int)Entry.DecompressedSize);
