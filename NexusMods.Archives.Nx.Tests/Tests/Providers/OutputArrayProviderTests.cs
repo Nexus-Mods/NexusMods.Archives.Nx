@@ -4,7 +4,7 @@ using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
-public unsafe class LimitsTests
+public unsafe class OutputArrayProviderTests
 {
     [Fact]
     public void OutputArrayProvider_WithFileTooBig_Throws()
@@ -16,4 +16,6 @@ public unsafe class LimitsTests
 
         Assert.Throws<EntryCannotFitInArrayException>(() => new OutputArrayProvider("test", entry));
     }
+
+
 }
