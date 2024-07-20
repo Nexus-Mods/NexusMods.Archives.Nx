@@ -12,6 +12,7 @@ NexusMods.Archives.Nx.Packing.NxRepackerBuilder.AddFilesFromNxArchive(NexusMods.
 NexusMods.Archives.Nx.Packing.NxRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
 NexusMods.Archives.Nx.Packing.NxRepackerBuilder.Build(bool disposeOutput = true) -> System.IO.Stream!
 NexusMods.Archives.Nx.Packing.NxRepackerBuilder.NxRepackerBuilder() -> void
+NexusMods.Archives.Nx.Packing.Unpack.NxUnpacker.GetParsedHeaderUnsafe() -> NexusMods.Archives.Nx.Headers.Managed.ParsedHeader!
 NexusMods.Archives.Nx.Structs.Blocks.ChunkedDeduplicationState
 NexusMods.Archives.Nx.Structs.Blocks.ChunkedDeduplicationState.ChunkedDeduplicationState() -> void
 NexusMods.Archives.Nx.Structs.Blocks.SolidDeduplicationState

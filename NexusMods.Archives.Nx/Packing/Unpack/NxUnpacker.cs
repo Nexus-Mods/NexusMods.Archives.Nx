@@ -235,6 +235,15 @@ public class NxUnpacker
             _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
         }
     }
+
+    /// <summary>
+    ///     Retrieves the header that was parsed from the archive.
+    /// </summary>
+    /// <remarks>
+    ///     To not manipulate the returned header, this API is intended
+    ///     for debugging and information purposes only.
+    /// </remarks>
+    public ParsedHeader GetParsedHeaderUnsafe() => _nxHeader;
 }
 
 /// <summary>

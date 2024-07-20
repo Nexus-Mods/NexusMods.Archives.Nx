@@ -1,10 +1,13 @@
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
+using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Packing;
 using NexusMods.Archives.Nx.Structs;
+using NexusMods.Archives.Nx.Structs.Blocks;
+using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
