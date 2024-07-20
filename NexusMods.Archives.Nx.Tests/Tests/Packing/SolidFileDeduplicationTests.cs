@@ -195,6 +195,117 @@ public class SolidBlockDeduplicationTests
         }
     }
 
+    [Fact]
+    public void DeduplicateSolidBlocks_WhenBlockIsPartiallyDuplicated_WhenRepacking()
+    {
+        /*
+            This test verifies the partial deduplication of SOLID blocks during repacking
+            when deduplication is enabled.
+
+            Summary:
+            - Create an archive with 2 SOLID blocks, 2 files each. (No deduplication)
+            - First file in each block is identical, second file is different.
+            - Repacks this archive with NxRepackerBuilder and SOLID block deduplication enabled.
+            - Verifies that after repacking (with deduplication):
+                a) The identical files in both blocks point to the same offset in their respective blocks.
+                b) The different files have distinct offsets and hashes.
+                c) There are still 2 distinct blocks in the repacked archive.
+                d) The content of all files is preserved correctly.
+        */
+
+        // Arrange
+        const int blockSize = 4095; // Set block size to 4095 bytes (2^12 - 1)
+        const int fileSize1 = 2000;
+        const int fileSize2 = 2045;
+        const byte uniqueByte1 = 0xFF;
+        const byte uniqueByte2 = 0xFE;
+
+        var packerBuilder = new NxRepackerBuilder();
+        packerBuilder.WithBlockSize(blockSize);
+        packerBuilder.WithChunkSize(1048576); // Standard chunk size (1 MB)
+        packerBuilder.WithSolidDeduplication(false); // Disable deduplication for initial packing
+        packerBuilder.WithMaxNumThreads(1); // Preserve order when debugging
+
+        // Create files: one identical for both blocks, two different
+        var fileContent1 = PackingTests.MakeDummyFile(fileSize1);
+        var fileContent2 = PackingTests.MakeDummyFile(fileSize2);
+        var fileContent3 = PackingTests.MakeDummyFile(fileSize2);
+        fileContent2[0] = uniqueByte1; // guarantee different content
+        fileContent3[0] = uniqueByte2; // guarantee different content
+
+        // Add files to create two SOLID blocks
+        packerBuilder.AddBlock(new SolidBlock<PackerFile>([
+            MakeDummyPackerFile(fileContent1, "block1/file1.bin"),
+            MakeDummyPackerFile(fileContent2, "block1/file2.bin")
+        ], CompressionPreference.ZStandard));
+
+        packerBuilder.AddBlock(new SolidBlock<PackerFile>([
+            MakeDummyPackerFile(fileContent1, "block2/file1.bin"),
+            MakeDummyPackerFile(fileContent3, "block2/file2.bin") // Different content
+        ], CompressionPreference.ZStandard));
+
+        using var packedStream = packerBuilder.Build(false);
+        packedStream.Position = 0;
+
+        var streamProvider = new FromStreamProvider(packedStream);
+        var header = HeaderParser.ParseHeader(streamProvider);
+
+        // Act
+        // Repack the archive with deduplication enabled
+        var repackerBuilder = new NxRepackerBuilder();
+        repackerBuilder.WithSolidDeduplication(true);
+        repackerBuilder.AddFilesFromNxArchive(streamProvider, header, header.Entries.AsSpan());
+        repackerBuilder.WithMaxNumThreads(1); // For debugging
+
+        using var repackedStream = repackerBuilder.Build(false);
+        repackedStream.Position = 0;
+
+        var repackedProvider = new FromStreamProvider(repackedStream);
+        var unpackerBuilder = new NxUnpackerBuilder(repackedProvider);
+        var fileEntries = unpackerBuilder.GetPathedFileEntries();
+
+        // Assert
+        fileEntries.Length.Should().Be(4);
+
+        // Verify that there are still two blocks
+        var repackedHeader = unpackerBuilder.Unpacker.GetParsedHeaderUnsafe();
+        repackedHeader.Blocks.Length.Should().Be(2);
+
+        // Extract and verify content
+        unpackerBuilder.AddFilesWithArrayOutput(fileEntries, out var extractedFiles);
+        unpackerBuilder.Extract();
+
+        // Group files by hash
+        var filesByHash = extractedFiles
+            .GroupBy(f => f.Entry.Hash)
+            .Select(g => g.ToList())
+            .OrderBy(l => l.Count)
+            .ToList();
+
+        filesByHash.Count.Should().Be(3, "There should be exactly three distinct file hashes");
+
+        // Verify the identical files (should be two of them)
+        var identicalFiles = filesByHash[2];
+        identicalFiles.Count.Should().Be(2, "There should be exactly two files with the same hash");
+        identicalFiles[0].Data.Should().Equal(identicalFiles[1].Data, "Files with the same hash should have identical content");
+        identicalFiles[0].Data.Should().Equal(fileContent1);
+        identicalFiles[0].Entry.DecompressedBlockOffset.Should().Be(identicalFiles[1].Entry.DecompressedBlockOffset, "Both files should have the same decompressed block offset.");
+        identicalFiles[0].Entry.FirstBlockIndex.Should().Be(identicalFiles[1].Entry.FirstBlockIndex, "Both files should have the same first block index.");
+
+        // Verify the different files
+        var differentFiles = filesByHash[0].Concat(filesByHash[1]).ToList();
+        differentFiles.Count.Should().Be(2, "There should be exactly two files with different hashes");
+        differentFiles[0].Data.Should().NotEqual(differentFiles[1].Data, "Files with different hashes should have different content");
+        differentFiles[0].Entry.FirstBlockIndex.Should().NotBe(differentFiles[1].Entry.FirstBlockIndex, "Different files should be in different blocks");
+
+        // Verify content of different files
+        var file2 = differentFiles.First(f => f.Data[0] == uniqueByte1);
+        var file3 = differentFiles.First(f => f.Data[0] == uniqueByte2);
+
+        file2.Data.Should().Equal(fileContent2, "Content of file2 should match the original");
+        file3.Data.Should().Equal(fileContent3, "Content of file3 should match the original");
+    }
+
     private static PackerFile MakeDummyPackerFile(byte[] data, string relativePath)
     {
         return new PackerFile
