@@ -151,7 +151,7 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
     /// <summary>
     ///     This increments the reference count by 1.
     /// </summary>
-    public void Acquire() => _refCount++;
+    public void Acquire() => Interlocked.Increment(ref _refCount);
 
     /// <summary>
     ///     Releases the shared decompressed block.
@@ -160,8 +160,7 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
     /// </summary>
     public void Release()
     {
-        _refCount--;
-        if (_refCount == 0)
+        if (Interlocked.Decrement(ref _refCount) == 0)
             Dispose();
 
 #if DEBUG
@@ -229,10 +228,10 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
         if (_data == null)
             return;
 
-        #if DEBUG
-        if (_refCount != 0)
+#if DEBUG
+        if (Interlocked.CompareExchange(ref _refCount, 0, 0) != 0)
             throw new InvalidOperationException("Memory is being released while there are still references to it.");
-        #endif
+#endif
 
         FreeNativeMemory(_data);
         _data = null;
