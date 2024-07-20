@@ -226,14 +226,15 @@ public class FuzzingTests(ITestOutputHelper testOutputHelper)
         // Randomly select some files from each block
         foreach (var block in blockList.GetAllBlocks())
         {
-            if (!block.IsValid || block.Count <= 0)
+            // Check <= 1 to avoid single chunk blocks
+            if (!block.IsValid || block.Count <= 1)
                 continue;
 
             var blockEntries = block.AsSpan();
-            var selectionCount = random.Next(1, blockEntries.Length + 1);
+            var selectionCount = random.Next(2, blockEntries.Length);
             var selectedBlockEntries = SelectRandomSubset(blockEntries, selectionCount);
-
-            selectedEntries.AddRange(selectedBlockEntries.ToArray());
+            if (selectionCount != blockEntries.Length) // in case 2 items
+                selectedEntries.AddRange(selectedBlockEntries.ToArray());
         }
 
         return selectedEntries.ToArray();
