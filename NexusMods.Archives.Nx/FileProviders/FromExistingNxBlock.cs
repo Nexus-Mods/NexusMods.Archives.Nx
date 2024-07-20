@@ -43,6 +43,13 @@ internal class FromExistingNxBlock : IFileDataProvider
     /// </summary>
     private int DecompressedBlockOffset { get; init; }
 
+    #if DEBUG
+    /// <summary>
+    ///     See class remarks for more info.
+    /// </summary>
+    private bool _hasCalledGetData;
+    #endif
+
     /// <summary/>
     /// <param name="block">Shared block instance.</param>
     /// <param name="entry">The file entry which belongs to this block.</param>
@@ -55,7 +62,17 @@ internal class FromExistingNxBlock : IFileDataProvider
     }
 
     /// <inheritdoc />
-    public IFileData GetFileData(ulong start, ulong length) => new DecompressedNxBlockFileData(LazyRefCounterDecompressedNxBlock, DecompressedBlockOffset, FileSize);
+    public IFileData GetFileData(ulong start, ulong length)
+    {
+        #if DEBUG
+        if (_hasCalledGetData)
+            throw new Exception("Repeated call to GetData. This is not allowed.");
+
+        _hasCalledGetData = true;
+        #endif
+
+        return new DecompressedNxBlockFileData(LazyRefCounterDecompressedNxBlock, DecompressedBlockOffset, FileSize);
+    }
 }
 
 /// <summary>
