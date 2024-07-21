@@ -4,6 +4,22 @@ NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.FilePath.init -> void
 NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.FromFilePathProvider() -> void
 NexusMods.Archives.Nx.FileProviders.FromFilePathProvider.GetFileData(ulong start, ulong length) -> NexusMods.Archives.Nx.Interfaces.IFileData!
 NexusMods.Archives.Nx.Headers.Managed.FileEntry.IsChunked(int chunkSizeBytes) -> bool
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Serialize(byte* dataPtr, int tocSize, NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion version, System.Span<byte> stringPoolData) -> int
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Version.get -> NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Version.init -> void
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.FeatureFlags.get -> byte
+NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.FeatureFlags.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.BlockCount.get -> int
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.BlockCount.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.FileCount.get -> int
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.FileCount.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.NativeTocHeader() -> void
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.RawValue -> ulong
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.StringPoolSize.get -> int
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.StringPoolSize.set -> void
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.Version.get -> NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion
+NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.Version.set -> void
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithChunkedDeduplication(bool enable = true) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
 NexusMods.Archives.Nx.Packing.NxPackerBuilder.WithSolidDeduplication(bool enable = true) -> NexusMods.Archives.Nx.Packing.NxPackerBuilder!
 NexusMods.Archives.Nx.Packing.NxRepackerBuilder
@@ -21,8 +37,15 @@ NexusMods.Archives.Nx.Structs.PackerSettings.ChunkedDeduplicationState.get -> Ne
 NexusMods.Archives.Nx.Structs.PackerSettings.ChunkedDeduplicationState.set -> void
 NexusMods.Archives.Nx.Structs.PackerSettings.SolidDeduplicationState.get -> NexusMods.Archives.Nx.Structs.Blocks.SolidDeduplicationState?
 NexusMods.Archives.Nx.Structs.PackerSettings.SolidDeduplicationState.set -> void
+NexusMods.Archives.Nx.Utilities.EntryCannotFitInArrayException
+NexusMods.Archives.Nx.Utilities.EntryCannotFitInArrayException.Entry.get -> NexusMods.Archives.Nx.Headers.Managed.FileEntry
+NexusMods.Archives.Nx.Utilities.EntryCannotFitInArrayException.EntryCannotFitInArrayException(NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
+NexusMods.Archives.Nx.Utilities.LittleEndianReader.ReadULong() -> ulong
 NxDeduplicatingRepackerBuilder
 NxDeduplicatingRepackerBuilder.AddFileFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
 NxDeduplicatingRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Collections.Generic.IEnumerable<NexusMods.Archives.Nx.Headers.Managed.FileEntry>! entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
 NxDeduplicatingRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
 NxDeduplicatingRepackerBuilder.NxDeduplicatingRepackerBuilder() -> void
+static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr) -> T!
+static NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.Init(NexusMods.Archives.Nx.Headers.Native.NativeFileHeader* header, NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion version, int chunkSizeBytes, int headerPageCountBytes) -> void
+static NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.FromRaw(ulong packedFields) -> NexusMods.Archives.Nx.Headers.Native.NativeTocHeader

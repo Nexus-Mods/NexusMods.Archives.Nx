@@ -18,77 +18,76 @@ public class NativeHeaderPackingTests
     public void CanVerifyMagic(NativeFileHeader header) => header.IsValidMagicHeader().Should().BeTrue();
 
     /// <summary>
-    ///     Version and Block Size are packed together, this test validates that they don't affect each other.
+    ///     Version and Chunk Size are packed together, this test validates that they don't affect each other.
     /// </summary>
     [Theory]
     [AutoNativeHeaders]
-    public void VersionAndBlockSizeCanBePacked(NativeFileHeader header)
+    public void VersionAndChunkSizeCanBePacked(NativeFileHeader header)
     {
-        foreach (var currentVersion in Permutations.GetBitPackingOverlapTestValues(3))
-            foreach (var currentBlockSize in Permutations.GetBitPackingOverlapTestValues(4))
+        foreach (var currentVersion in Permutations.GetBitPackingOverlapTestValues(7))
+            foreach (var currentChunkSize in Permutations.GetBitPackingOverlapTestValues(5))
                 PackingTestHelpers.TestPackedProperties(
                     ref header,
                     (ref NativeFileHeader instance, long value) => instance.Version = (byte)value,
                     (ref NativeFileHeader instance) => instance.Version,
-                    (ref NativeFileHeader instance, long value) => instance.BlockSize = (byte)value,
-                    (ref NativeFileHeader instance) => instance.BlockSize,
+                    (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
+                    (ref NativeFileHeader instance) => instance.ChunkSize,
                     currentVersion,
-                    currentBlockSize
+                    currentChunkSize
                 );
     }
 
     [Theory]
     [AutoNativeHeaders]
-    public void VersionShouldBe3Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
+    public void VersionShouldBe7Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
         ref header,
         (ref NativeFileHeader instance, long value) => instance.Version = (byte)value,
         (ref NativeFileHeader instance) => instance.Version,
-        3);
+        7);
 
     [Theory]
     [AutoNativeHeaders]
-    public void BlockSizeShouldBe4Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
+    public void ChunkSizeShouldBe5Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
         ref header,
-        (ref NativeFileHeader instance, long value) => instance.BlockSize = (byte)value,
-        (ref NativeFileHeader instance) => instance.BlockSize,
-        4);
+        (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
+        (ref NativeFileHeader instance) => instance.ChunkSize,
+        5);
 
     /// <summary>
-    ///     Chunk Size and Page Count are packed together, this test validates that they don't affect each other.
+    ///     Header Page Count and Feature Flags are packed together, this test validates that they don't affect each other.
     /// </summary>
     [Theory]
     [AutoNativeHeaders]
-    public void ChunkSizeAndPageCountCanBePacked(NativeFileHeader header)
+    public void HeaderPageCountAndFeatureFlagsCanBePacked(NativeFileHeader header)
     {
-        // Note: This method tests all valid values. 65536 total loop iterations.
-        foreach (var currentChunkSize in Permutations.GetBitPackingOverlapTestValues(3))
-            foreach (var currentPageCount in Permutations.GetBitPackingOverlapTestValues(13))
+        foreach (var currentPageCount in Permutations.GetBitPackingOverlapTestValues(16))
+            foreach (var currentFeatureFlags in Permutations.GetBitPackingOverlapTestValues(4))
                 PackingTestHelpers.TestPackedProperties(
                     ref header,
-                    (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
-                    (ref NativeFileHeader instance) => instance.ChunkSize,
                     (ref NativeFileHeader instance, long value) => instance.HeaderPageCount = (ushort)value,
                     (ref NativeFileHeader instance) => instance.HeaderPageCount,
-                    currentChunkSize,
-                    currentPageCount
+                    (ref NativeFileHeader instance, long value) => instance.FeatureFlags = (byte)value,
+                    (ref NativeFileHeader instance) => instance.FeatureFlags,
+                    currentPageCount,
+                    currentFeatureFlags
                 );
     }
 
     [Theory]
     [AutoNativeHeaders]
-    public void ChunkSizeShouldBe4Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
-        ref header,
-        (ref NativeFileHeader instance, long value) => instance.ChunkSize = (byte)value,
-        (ref NativeFileHeader instance) => instance.ChunkSize,
-        4);
-
-    [Theory]
-    [AutoNativeHeaders]
-    public void PageCountShouldBe13Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
+    public void HeaderPageCountShouldBe16Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
         ref header,
         (ref NativeFileHeader instance, long value) => instance.HeaderPageCount = (ushort)value,
         (ref NativeFileHeader instance) => instance.HeaderPageCount,
-        13);
+        16);
+
+    [Theory]
+    [AutoNativeHeaders]
+    public void FeatureFlagsShouldBe4Bits(NativeFileHeader header) => PackingTestHelpers.AssertSizeBits(
+        ref header,
+        (ref NativeFileHeader instance, long value) => instance.FeatureFlags = (byte)value,
+        (ref NativeFileHeader instance) => instance.FeatureFlags,
+        4);
 
     /// <summary>
     ///     Verifies that reversing endian changes expected multi-byte values.
@@ -115,28 +114,10 @@ public class NativeHeaderPackingTests
     }
 
     [Theory]
-    [InlineData(0, 4095)]
-    [InlineData(1, 8191)]
-    [InlineData(14, 67108863)]
-    [InlineData(15, 134217727)]
-    public void BlockSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
-    {
-        var header = new NativeFileHeader();
-
-        // Test Raw Setter
-        header.BlockSize = (byte)rawValue;
-        header.BlockSizeBytes.Should().Be(numBytes);
-
-        // Test Get/Set
-        header.BlockSizeBytes = numBytes;
-        header.BlockSizeBytes.Should().Be(numBytes);
-    }
-
-    [Theory]
     [InlineData(0, NativeFileHeader.BaseChunkSize)]
-    [InlineData(1, 65536)]
-    [InlineData(14, 536870912)]
-    [InlineData(15, 1073741824)]
+    [InlineData(1, NativeFileHeader.BaseChunkSize * 2)]
+    [InlineData(15, NativeFileHeader.BaseChunkSize * 32768)]
+    [InlineData(21, NativeFileHeader.BaseChunkSize * 2097152)]
     public void ChunkSizeBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();
@@ -151,12 +132,10 @@ public class NativeHeaderPackingTests
     }
 
     [Theory]
-    [InlineData(1, 4096)]
-    [InlineData(2, 8192)]
-    [InlineData(8191, 33550336)]
-    [InlineData(8192, 0)] // overflows
-    [InlineData(8193, 4096)]
-    public void TocPageBytes_IsCorrectlyConverted(int rawValue, int numBytes)
+    [InlineData(1, NativeConstants.HeaderPageSize)]
+    [InlineData(2, NativeConstants.HeaderPageSize * 2)]
+    [InlineData(65535, NativeConstants.HeaderPageSize * 65535)]
+    public void HeaderPageBytes_IsCorrectlyConverted(int rawValue, int numBytes)
     {
         var header = new NativeFileHeader();
 

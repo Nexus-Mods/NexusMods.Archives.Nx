@@ -1,9 +1,14 @@
 # Table of Contents (TOC)
 
-- `u32`: FileCount [[limited to 1 million due to FilePathIndex](./File-Header.md#versionvariant)]
+Header (8 bytes):
+
+- `u2`: [Version](#version)
+- `u24`: StringPoolSize
 - `u18`: BlockCount
-- `u12`: [TablePadding](#table-padding)
-- `u2`: Reserved
+- `u20`: [FileCount](#file-count)
+
+Variable Size:
+
 - `FileEntry[FileCount]`
     - `u64`: FileHash (xxHash64)
     - `u32/u64`: DecompressedSize
@@ -16,6 +21,32 @@
 - [StringPool](#string-pool)
     - `RawCompressedData...`
 
+## Version
+
+!!! info "This describes the format of the [FileEntry](#file-entries) structure"
+
+- `0`:
+    - Most common variant covering 99.99% of cases.
+    - 20 byte FileEntry w/ `u32` Size
+    - Up to 4GB (2^32) per file and 1 million files.
+
+- `1`:
+    - Variant for archives with large files >= 4GB size.
+    - 24 byte FileEntry w/ `u64` Size
+    - 2^64 bytes per file and 1 million files.
+
+- `3`: 
+    - RESERVED.
+
+Remaining bits reserved for possible future revisions.  
+Limitation of 1 million files is inferred from [FileEntry -> FilePathIndex](./Table-Of-Contents.md).
+
+## File Count
+
+!!! info "Marks the number of file entries in the TOC."
+
+This number is [[limited to 1 million due to FilePathIndex](#version)].
+
 ## File Entries
 
 Use known fixed size and are 4 byte aligned to improve parsing speed; size 20-24 bytes per item depending on variant.
@@ -24,9 +55,9 @@ Use known fixed size and are 4 byte aligned to improve parsing speed; size 20-24
 
 !!! tip
 
-    Files exceeding [Chunk Size](./File-Header.md#large-file-chunk-size) span multiple blocks.
+    Files exceeding [Chunk Size](./File-Header.md#chunk-size) span multiple blocks.
 
-Number of blocks used to store the file is calculated as: `DecompressedSize` / [Chunk Size](./File-Header.md#large-file-chunk-size), 
+Number of blocks used to store the file is calculated as: `DecompressedSize` / [Chunk Size](./File-Header.md#chunk-size), 
 and +1 if there is any remainder, i.e. 
 
 ```csharp
@@ -56,37 +87,6 @@ Size: `3 bits` (0-7)
 - `3-7`: Reserved
 
 !!! note "As we do not store the length of the decompressed data, this must be determined from the compressed block."
-
-## Table Padding
-
-!!! info
-
-    Stores the amount of padding that was applied to the table during serialization.  
-
-This is needed to calculate the end position of the [String Pool](#string-pool) without using more space in ToC.
-
-This value is encoded as:
-
-```csharp
-// FileHeader is just the 8 byte header.
-// tocOffset is offset of the ToC from the start of the file.
-tocOffset %= 4096;
-var paddingOffset = (tocSize + tocOffset).RoundUp4096() - tocSize - tocOffset;
-```
-
-And decoded as:
-
-```csharp
-tocOffset %= 4096;
-
-// blockCountAndPoolSize is packed value in header
-var paddingOffset = ((blockCountAndPoolSize >> 2) & 0xFFF) + (tocOffset);
-
-tocSize = (tocSize + sizeof(FileHeader)).RoundUp4096();
-var paddingSize = tocSize - paddingOffset;
-```
-
-This way the decoding logic can work when given either a padded or unpadded size.
 
 ## String Pool
 

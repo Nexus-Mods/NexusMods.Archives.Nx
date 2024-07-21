@@ -3,83 +3,125 @@
 8 bytes:
 
 - `u8[4]` Magic (`"NXUS"`)
-- `u3` [Version/Variant](#versionvariant)
-- `u4` [BlockSize](#block-size)
-- `u4` [Large File Chunk Size](#large-file-chunk-size)
-- `u13` [Header Page Count](#header-page-count)
-- `u8` [Feature Flags](#feature-flags)
+- `u7` [Version/Variant](#versionvariant)
+- `u5` [Chunk Size](#chunk-size)
+- `u16` [Header Page Count](#header-page-count)
+- `u4` [Feature Flags](#feature-flags)
 
 ## Version/Variant
 
-Size: `3 bits` (0-7)
+!!! info "This field is incremented every time an incompatible change in the format is made."
 
-- `0`:
-    - Most common variant covering 99.99% of cases.
-    - 20 byte FileEntry w/ `u32` Size
-    - Up to 4GB (2^32) per file and 1 million files.
+    A change is considered incompatible if an older version of the library would be unable to
+    read (extract) files from the new format.
 
-- `1`:
-    - Variant for archives with large files >= 4GB size.
-    - 24 byte FileEntry w/ `u64` Size
-    - 2^64 bytes per file and 1 million files.
+!!! example "An Example"
 
-Remaining bits reserved for possible future revisions.  
-Limitation of 1 million files is inferred from [FileEntry -> FilePathIndex](./Table-Of-Contents.md).
+    The addition of [HasUserData](./User-Data.md) flag does not constitute a breaking
+    change as archives with user data can still be read by older versions of the library.
 
-## Block Size
+Size: `7 bits` (0-127)
 
-Stored so the decompressor knows how big each block is.
+The numbers correspond to the following file format versions:
 
-Size: `4 bits`.  
-Parsed as `(4096 << blockSize) - 1`.  
+0: `1.0.0`
 
-Limited to BlockSize = 14, `67108863` (i.e. `64MiB - 1` or `2^26 - 1`).  
-Due to [Table of Contents File Entries](./Table-Of-Contents.md).  
+!!! tip "Libraries reading the `Nx` format should check this field to ensure compatibility."
 
-!!! note "A future version/flag may allow 128MiB SOLID blocks, however for now, we haven't found a need for it."
+    If the version field is higher than the library's version, it should return
+    an error indicating that the file is incompatible and the library should
+    be updated.
 
-!!! note "We remove -1 from the value to avoid collisions with [Chunk Size](#large-file-chunk-size)"
+## Chunk Size
 
-## Large File Chunk Size
+!!! note "Large files are split into several blocks during packing."
 
-!!! tip
+    [We refer to these blocks as 'chunks'](./Overview.md#terminology).
 
-    Large files are split into several chunks during packing to improve compression speeds at minimal compression ratio loss.  
+    This is done to improve compression & decompression speeds at minimal compression ratio loss.
 
 Stored so the decompressor knows how many chunks a file is split into; and how much memory to allocate.  
 Also limits memory use on 4+GB archives.  
 
-Size: `4 bits`, (0-15).  
-Parsed as `32768 << chunkSize`.  
+Size: `5 bits`, (0-31).  
+Parsed as `512 << chunkSize`.  
 
-i.e. ChunkSize = 15 is `1073741824` (1GiB, i.e. 2^31).  
+i.e.
 
-!!! note
+- ChunkSize = 15 is `16777216` (16MiB, i.e. 2^24).
+- ChunkSize = 31 is `1099511627776` (1TiB, i.e. 2^40).
 
-    Please do not confuse 'block' and 'chunk'. Blocks segment the compressed data. Chunks segment a file.
+!!! warning "Chunk size should always exceed Block size."
 
-!!! warning
+!!! warning "Reference implementation does not currently support chunks >1GiB"
 
-    Chunk size should always exceed Block size. Implementation of archiver can either return error or enforce this automatically.
+### Block Size
+
+The size of an individual [block](./Overview.md#terminology) is not standardized
+across an `Nx` archive. Blocks can have variable sizes, provided they are
+smaller than the [chunk size](#chunk-size).
+
+Currently, the size of SOLID blocks is limited to (`64MiB - 1`) as it is tied to
+[the `DecompressedBlockOffset` field in Table of Contents](./Table-Of-Contents.md).
 
 ## Header Page Count
 
-Number of 4K memory pages required to store this header and the Table of Contents (incl. compressed StringPool).  
+Number of 4K memory pages required to store this header, the Table of Contents
+(incl. compressed StringPool) and any user data.  
 
-Size: `13 bits`, (0-8191).  
-Max size of 32MiB.  
+Size: `16 bits`, (0-65535).  
+Max size of 256MiB.  
 
 ```csharp
 return 4096 * tocPageCount;
 ```
 
-!!! tip
+!!! note ""
 
-    As a rough reference, StringPool [main memory consumer] of (150+) games (180k files) on Sewer's PC used up 3.3MB uncompressed, 660K compressed.
+    The header are padded to the number of bytes stored here.
 
-!!! note
+    Directly after the number of bytes dictated by the `Header Page Count` field
+    are the compressed blocks that contain the files.
 
-    The headers are padded to the number of bytes stored here.
+!!! tip "Reference Numbers (Size)"
+
+    Based on 150+ game `SteamApps` folder (180k files) on Sewer's PC:
+
+    - FileEntries: 4.3MB ([Version 1](./Table-Of-Contents.md#version))
+    - Blocks: 1M
+    - StringPool: 660K (3.3MB uncompressed)
+
+    Total: 5.96MB
+
+### How the Header is Used
+
+Nx archives are usually consumed in the following manner:
+
+1. Fetch Header
+2. Parse Header
+3. Do stuff based on what's in the header
+
+The abstractions in Nx allow for the archives to be sourced from anywhere,
+so fetching the header could really, for example be downloading the header
+from a web server. (e.g. using HTTP's `Content-Range` header)
+
+To optimize reading the header, it is placed up front, and packed.
+[In most (>90%) cases](./Table-Of-Contents.md#performance-considerations),
+the header fits in a single 4K block.
+
+This design effectively allows you to fetch metadata, very quickly, and
+then decide if you want to fetch the rest of the archive.
+
+!!! example "An example"
+
+    If you were to use Nx to deliver mod updates, you could compare the hashes
+    of your existing files and download only the files that changed.
+
+!!! question "[Why is max size 256MB](#header-page-count)?"
+
+    In practice, around 64MB should be sufficient given the [current limits](./Table-Of-Contents.md#version).
+
+    The header however allows for up to 256MB to allow for extra info via [arbitrary user data](./User-Data.md) to be stored in the header.
 
 ## Feature Flags
 
@@ -88,3 +130,14 @@ return 4096 * tocPageCount;
     This is a section for flags which enable/disable additional features. (e.g. Storing additional file metadata)
 
 This section is reserved and currently unused.
+
+Size: `4 bits` (flags)
+
+Bits are laid out in order `X000`.
+
+| BitFlag | Name                          |
+|---------|-------------------------------|
+| X       | [HasUserData](./User-Data.md) |
+| 0       | Reserved                      |
+| 0       | Reserved                      |
+| 0       | Reserved                      |

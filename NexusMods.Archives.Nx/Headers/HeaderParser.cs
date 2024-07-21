@@ -110,9 +110,7 @@ public static class HeaderParser
             if (dataSize < (nuint)header->HeaderPageBytes)
                 return new HeaderParserResult { Header = null, HeaderSize = header->HeaderPageBytes };
 
-            var parsedHeader =
-                TableOfContents.Deserialize<ParsedHeader>(data + sizeof(NativeFileHeader), sizeof(NativeFileHeader), header->TocSize,
-                    (ArchiveVersion)header->Version);
+            var parsedHeader = TableOfContents.Deserialize<ParsedHeader>(data + sizeof(NativeFileHeader));
 
             parsedHeader.Header = *header;
             parsedHeader.Init();

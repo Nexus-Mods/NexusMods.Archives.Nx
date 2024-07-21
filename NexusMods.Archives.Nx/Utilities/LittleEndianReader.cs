@@ -72,6 +72,18 @@ public unsafe struct LittleEndianReader
         return result;
     }
 
+    /// <summary>
+    ///     Reads an unsigned 64-bit integer from the current pointer in Little Endian format and advances the pointer.
+    /// </summary>
+    /// <returns>A unsigned 64-bit integer value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong ReadULong()
+    {
+        var result = LittleEndianHelper.Read((ulong*)Ptr);
+        Ptr += sizeof(ulong);
+        return result;
+    }
+
     /*
          Note: See equivalent section in LittleEndianWriter.
     */
@@ -99,7 +111,7 @@ public unsafe struct LittleEndianReader
     /// <returns>A signed 32-bit integer value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint ReadUIntAtOffset(int offset) => LittleEndianHelper.Read((uint*)(Ptr + offset));
-    
+
     /// <summary>
     ///     Reads a signed 64-bit integer from the specified offset in Little Endian format without advancing the pointer.
     /// </summary>

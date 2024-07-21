@@ -17,9 +17,9 @@ namespace NexusMods.Archives.Nx.Tests.Tests;
 public class TableOfContentsSerializationTests
 {
     [Theory]
-    [InlineAutoManagedHeaders(ArchiveVersion.V0)]
-    [InlineAutoManagedHeaders(ArchiveVersion.V1)]
-    public unsafe void CanSerializeAndDeserialize(ArchiveVersion version, IFixture fixture)
+    [InlineAutoManagedHeaders(TableOfContentsVersion.V0)]
+    [InlineAutoManagedHeaders(TableOfContentsVersion.V1)]
+    public unsafe void CanSerializeAndDeserialize(TableOfContentsVersion version, IFixture fixture)
     {
         const int solidBlockSize = 32767; // 32 KiB
         const int chunkSize = 67108864; // 64 MiB
@@ -54,11 +54,11 @@ public class TableOfContentsSerializationTests
         var data = new byte[tableOfContents.CalculateTableSize()];
         fixed (byte* dataPtr = data)
         {
-            var bytesWritten = tableOfContents.Build(dataPtr, 0, data.Length);
+            var bytesWritten = tableOfContents.Build(dataPtr, data.Length);
             bytesWritten.Should().Be(data.Length); // We calculated correct size.
 
             // Deserialize
-            var newTable = TableOfContents.Deserialize<TableOfContents>(dataPtr, 0, data.Length, tableOfContents.Version);
+            var newTable = TableOfContents.Deserialize<TableOfContents>(dataPtr);
             newTable.Should().Be(tableOfContents.Toc);
         }
     }

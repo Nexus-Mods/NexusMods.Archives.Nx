@@ -4,6 +4,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Headers.Managed;
+using NexusMods.Archives.Nx.Headers.Native;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -18,7 +19,7 @@ internal static class ThrowHelpers
 #endif
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void ThrowTocVersionNotSupported(ArchiveVersion version) => throw new TocVersionNotSupportedException(version);
+    public static void ThrowTocVersionNotSupported(TableOfContentsVersion version) => throw new TocVersionNotSupportedException(version);
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowNotANexusArchive() => throw new NotANexusArchiveException();
@@ -31,7 +32,7 @@ internal static class ThrowHelpers
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowInsufficientStringPoolSizeException(nint poolSize) => throw new InsufficientStringPoolSizeException(
-        $"Size of compressed string pool: {poolSize}, exceeds maximum allowable ({StringPool.MaxCompressedSize}).");
+        $"Size of compressed string pool: {poolSize}, exceeds maximum allowable ({NativeTocHeader.MaxStringPoolSize}).");
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowPackerPoolOutOfItems() => throw new OutOfPackerPoolArraysException(
@@ -68,10 +69,10 @@ public class TocVersionNotSupportedException : NotSupportedException
     /// <summary>
     ///     Version of the archive that is not supported.
     /// </summary>
-    public ArchiveVersion Version { get; }
+    public TableOfContentsVersion Version { get; }
 
     /// <inheritdoc />
-    public TocVersionNotSupportedException(ArchiveVersion version)
+    public TocVersionNotSupportedException(TableOfContentsVersion version)
         : base($"Table of Contents for Version {version} is not supported.") => Version = version;
 }
 

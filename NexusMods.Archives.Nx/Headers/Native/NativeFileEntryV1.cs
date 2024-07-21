@@ -11,7 +11,7 @@ namespace NexusMods.Archives.Nx.Headers.Native;
 ///     Structure that represents the native serialized file entry.
 /// </summary>
 /// <remarks>
-///     V0 represents <see cref="ArchiveVersion.V0" />.
+///     V0 represents <see cref="TableOfContentsVersion.V0" />.
 /// </remarks>
 [PublicAPI]
 [StructLayout(LayoutKind.Sequential, Pack = 1)]

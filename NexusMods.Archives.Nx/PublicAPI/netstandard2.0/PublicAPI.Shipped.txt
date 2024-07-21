@@ -1,5 +1,4 @@
 ﻿#nullable enable
-const NexusMods.Archives.Nx.Headers.StringPool.MaxCompressedSize = 33550336 -> int
 NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Enums.CompressionPreference.Copy = 0 -> NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Enums.CompressionPreference.Lz4 = 2 -> NexusMods.Archives.Nx.Enums.CompressionPreference
@@ -66,9 +65,9 @@ NexusMods.Archives.Nx.FileProviders.OutputFileProvider.GetFileData(ulong start, 
 NexusMods.Archives.Nx.FileProviders.OutputFileProvider.OutputFileProvider(string! outputFolder, string! relativePath, NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
 NexusMods.Archives.Nx.FileProviders.OutputFileProvider.RelativePath.get -> string!
 NexusMods.Archives.Nx.FileProviders.OutputFileProvider.RelativePath.init -> void
-NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
-NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion.V0 = 0 -> NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
-NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion.V1 = 1 -> NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
+NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion
+NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion.V0 = 0 -> NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion
+NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion.V1 = 1 -> NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion
 NexusMods.Archives.Nx.Headers.HeaderParser
 NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult
 NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult.Header.get -> NexusMods.Archives.Nx.Headers.Managed.ParsedHeader?
@@ -98,7 +97,7 @@ NexusMods.Archives.Nx.Headers.Managed.TableOfContents.BlockCompressions.get -> N
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.BlockCompressions.init -> void
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Blocks.get -> NexusMods.Archives.Nx.Headers.Structs.BlockSize[]!
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Blocks.init -> void
-NexusMods.Archives.Nx.Headers.Managed.TableOfContents.CalculateTableSize(NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> int
+NexusMods.Archives.Nx.Headers.Managed.TableOfContents.CalculateTableSize(NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion version) -> int
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Entries.get -> NexusMods.Archives.Nx.Headers.Managed.FileEntry[]!
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Entries.init -> void
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Equals(NexusMods.Archives.Nx.Headers.Managed.TableOfContents? other) -> bool
@@ -106,7 +105,6 @@ NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Pool.get -> string![]!
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Pool.init -> void
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.PoolSize.get -> int
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.PoolSize.init -> void
-NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Serialize(byte* dataPtr, int tocOffset, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version, System.Span<byte> stringPoolData) -> int
 NexusMods.Archives.Nx.Headers.Managed.TableOfContents.TableOfContents() -> void
 NexusMods.Archives.Nx.Headers.Native.INativeFileEntry
 NexusMods.Archives.Nx.Headers.Native.INativeFileEntry.CopyFrom(in NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> void
@@ -138,10 +136,6 @@ NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.FirstBlockIndex.set -> vo
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.Hash -> ulong
 NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.NativeFileEntryV1() -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileHeader
-NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSize.get -> byte
-NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSize.set -> void
-NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSizeBytes.get -> int
-NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.BlockSizeBytes.set -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.ChunkSize.get -> byte
 NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.ChunkSize.set -> void
 NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.ChunkSizeBytes.get -> int
@@ -350,8 +344,8 @@ NexusMods.Archives.Nx.Utilities.NotANexusArchiveException.NotANexusArchiveExcept
 NexusMods.Archives.Nx.Utilities.OutOfPackerPoolArraysException
 NexusMods.Archives.Nx.Utilities.OutOfPackerPoolArraysException.OutOfPackerPoolArraysException(string? message) -> void
 NexusMods.Archives.Nx.Utilities.TocVersionNotSupportedException
-NexusMods.Archives.Nx.Utilities.TocVersionNotSupportedException.TocVersionNotSupportedException(NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> void
-NexusMods.Archives.Nx.Utilities.TocVersionNotSupportedException.Version.get -> NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion
+NexusMods.Archives.Nx.Utilities.TocVersionNotSupportedException.TocVersionNotSupportedException(NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion version) -> void
+NexusMods.Archives.Nx.Utilities.TocVersionNotSupportedException.Version.get -> NexusMods.Archives.Nx.Headers.Enums.TableOfContentsVersion
 NexusMods.Archives.Nx.Utilities.UnsupportedCompressionMethodException
 NexusMods.Archives.Nx.Utilities.UnsupportedCompressionMethodException.Method.get -> NexusMods.Archives.Nx.Enums.CompressionPreference
 NexusMods.Archives.Nx.Utilities.UnsupportedCompressionMethodException.UnsupportedCompressionMethodException(NexusMods.Archives.Nx.Enums.CompressionPreference method) -> void
@@ -365,12 +359,10 @@ override NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.Equal
 override NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.GetHashCode() -> int
 static NexusMods.Archives.Nx.Headers.HeaderParser.ParseHeader(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! provider, bool hasLotsOfFiles = false) -> NexusMods.Archives.Nx.Headers.Managed.ParsedHeader!
 static NexusMods.Archives.Nx.Headers.HeaderParser.TryParseHeader(byte* data, nuint dataSize) -> NexusMods.Archives.Nx.Headers.HeaderParser.HeaderParserResult
-static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr, int tocOffset, int tocSize, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version) -> T!
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.operator !=(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 right) -> bool
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0.operator ==(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV0 right) -> bool
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.operator !=(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1 right) -> bool
 static NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1.operator ==(NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1 left, NexusMods.Archives.Nx.Headers.Native.NativeFileEntryV1 right) -> bool
-static NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.Init(NexusMods.Archives.Nx.Headers.Native.NativeFileHeader* header, NexusMods.Archives.Nx.Headers.Enums.ArchiveVersion version, int blockSizeBytes, int chunkSizeBytes, int headerPageCountBytes) -> void
 static NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.operator !=(NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple left, NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple right) -> bool
 static NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple.operator ==(NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple left, NexusMods.Archives.Nx.Headers.Native.Structs.OffsetPathIndexTuple right) -> bool
 static NexusMods.Archives.Nx.Headers.StringPool.Pack<T>(System.Span<T> items) -> NexusMods.Archives.Nx.Utilities.ArrayRentalSlice

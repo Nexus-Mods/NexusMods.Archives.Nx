@@ -83,8 +83,8 @@ Namely, it's possible to do the following:
 - Copy compressed blocks directly/chunks between Nx archives.
     - Decompression buffer size is determined from the file entries, thus blocks can be copied verbatim.
     - It's possible to mix [SOLID block sizes](./File-Header.md#block-size).
-        - Provided that SOLID blocks are smaller than the [Chunk Size](./File-Header.md#large-file-chunk-size) of the new archive.
-        - Verify this by checking if [Chunk Size](./File-Header.md#large-file-chunk-size) of all input archive matches.
+        - Provided that SOLID blocks are smaller than the [Chunk Size](./File-Header.md#chunk-size) of the new archive.
+        - Verify this by checking if [Chunk Size](./File-Header.md#chunk-size) of all input archive matches.
 - Efficiently use existing SOLID blocks as inputs.
     - Use files inside compressed blocks from File A as input to File B.
     - With clever usage, (Example: [FromExistingNxBlock][from-existing-nx-block]) you can decompress just-in-time.
