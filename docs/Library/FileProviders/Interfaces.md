@@ -18,7 +18,7 @@ particularly useful for unpacking purposes.
 
 ### Methods
 
-- `GetFileData(long start, uint length)`: Gets the file data behind this provider.
+- `GetFileData(ulong start, ulong length)`: Gets the file data behind this provider.
 
 ## IOutputDataProvider Interface
 
@@ -31,4 +31,4 @@ particularly useful for unpacking purposes.
 
 ### Methods
 
-- `GetFileData(long start, uint length)`: Gets the output data behind this provider. Returns an individual `IFileData` buffer to write decompressed data to. Make sure to dispose, for example with a 'using' statement.
+- `GetFileData(ulong start, ulong length)`: Gets the output data behind this provider. Returns an individual `IFileData` buffer to write decompressed data to. Make sure to dispose, for example with a 'using' statement.

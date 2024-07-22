@@ -21,8 +21,9 @@ public sealed class OutputFileProvider : IOutputDataProvider
     /// </summary>
     public string FullPath { get; init; }
 
-    private readonly MemoryMappedFile _mappedFile;
+    private readonly MemoryMappedFile? _mappedFile;
     private bool _isDisposed;
+    private readonly bool _isEmpty;
 
     /// <summary>
     ///     Creates a provider for outputting to a file.
@@ -39,9 +40,16 @@ public sealed class OutputFileProvider : IOutputDataProvider
         // Note: GetFullPath normalizes the path.
         FullPath = Path.GetFullPath(Path.Combine(outputFolder, RelativePath));
 
-    trycreate:
+    TryCreate:
         try
         {
+            if (entry.DecompressedSize <= 0)
+            {
+                using var _ = File.Create(FullPath);
+                _isEmpty = true;
+                return;
+            }
+
             // TODO: Use OS APIs directly.
             // We specifically delete to skip a 'file already exists' check,
             // which we can't avoid with the existing API.
@@ -61,12 +69,18 @@ public sealed class OutputFileProvider : IOutputDataProvider
         {
             // This is written this way because explicit check is slow.
             Directory.CreateDirectory(Path.GetDirectoryName(FullPath)!);
-            goto trycreate;
+            goto TryCreate;
         }
     }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new MemoryMappedOutputFileData(_mappedFile, start, length);
+    public IFileData GetFileData(ulong start, ulong length)
+    {
+        if (_isEmpty)
+            return new ArrayFileData([], 0, 0);
+
+        return new MemoryMappedOutputFileData(_mappedFile!, start, length);
+    }
 
     /// <inheritdoc />
     ~OutputFileProvider() => Dispose();
@@ -78,7 +92,7 @@ public sealed class OutputFileProvider : IOutputDataProvider
             return;
 
         _isDisposed = true;
-        _mappedFile.Dispose();
+        _mappedFile?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

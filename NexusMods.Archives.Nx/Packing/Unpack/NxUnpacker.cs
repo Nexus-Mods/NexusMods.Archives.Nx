@@ -59,7 +59,7 @@ public class NxUnpacker
             results[x] = new PathedFileEntry
             {
                 Entry = entry,
-                FileName = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
+                FilePath = _nxHeader.Pool.DangerousGetReferenceAt(entry.FilePathIndex)
             };
         }
 
@@ -201,7 +201,7 @@ public class NxUnpacker
             var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
             var length = Math.Min((long)decompSizeInChunk, chunkSize);
 
-            using var outputData = output.GetFileData(start, (uint)length);
+            using var outputData = output.GetFileData((ulong)start, (ulong)length);
             Compression.Decompress(method, compressedBlock.Data, blockSize, outputData.Data, (int)outputData.DataLength);
             _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
             return;
@@ -228,13 +228,22 @@ public class NxUnpacker
                 var decompSizeInChunk = entry.DecompressedSize - (ulong)start;
                 var length = Math.Min((long)decompSizeInChunk, chunkSize);
 
-                using var outputData = output.GetFileData(start, (uint)length);
+                using var outputData = output.GetFileData((ulong)start, (ulong)length);
                 Buffer.MemoryCopy(extractedPtr + entry.DecompressedBlockOffset, outputData.Data, outputData.DataLength, outputData.DataLength);
             }
 
             _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
         }
     }
+
+    /// <summary>
+    ///     Retrieves the header that was parsed from the archive.
+    /// </summary>
+    /// <remarks>
+    ///     To not manipulate the returned header, this API is intended
+    ///     for debugging and information purposes only.
+    /// </remarks>
+    public ParsedHeader GetParsedHeaderUnsafe() => _nxHeader;
 }
 
 /// <summary>
@@ -249,7 +258,7 @@ public class PathedFileEntry
     public FileEntry Entry { get; init; }
 
     /// <summary>
-    ///     Name of the file in question.
+    ///     Contains the file path relative to the root of the Nx archive.
     /// </summary>
-    public required string FileName { get; init; }
+    public required string FilePath { get; init; }
 }

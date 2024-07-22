@@ -17,7 +17,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
     public unsafe byte* Data { get; private set; }
 
     /// <inheritdoc />
-    public nuint DataLength { get; private set; }
+    public ulong DataLength { get; private set; }
 
     private MemoryMappedViewAccessor? _mappedFileView;
     private bool _disposed;
@@ -28,12 +28,12 @@ public sealed class MemoryMappedOutputFileData : IFileData
     /// <param name="file">The memory mapped file.</param>
     /// <param name="start">Offset to start of the file.</param>
     /// <param name="length">Length of the data to map.</param>
-    public unsafe MemoryMappedOutputFileData(MemoryMappedFile file, long start, uint length)
+    public unsafe MemoryMappedOutputFileData(MemoryMappedFile file, ulong start, ulong length)
     {
         // Create a memory-mapped file
         if (length != 0)
         {
-            _mappedFileView = file.CreateViewAccessor(start, length, MemoryMappedFileAccess.ReadWrite);
+            _mappedFileView = file.CreateViewAccessor((long)start, (long)length, MemoryMappedFileAccess.ReadWrite);
             Data = (byte*)_mappedFileView.SafeMemoryMappedViewHandle.DangerousGetHandle();
             DataLength = length;
             return;

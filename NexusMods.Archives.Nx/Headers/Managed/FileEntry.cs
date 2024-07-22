@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Headers.Native.Structs;
 using NexusMods.Archives.Nx.Utilities;
-using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Headers.Managed;
 
@@ -39,9 +38,10 @@ public struct FileEntry // <= Do not change to class. given the way we use this,
     // Properties & Methods
 
     /// <summary>
-    ///     [u64] Returns the current entry hash as a ValueObject.
+    ///     Returns true if the file has 1 or more chunks.
     /// </summary>
-    public Hash AsHash => Hashing.xxHash64.Hash.From(Hash);
+    /// <param name="chunkSizeBytes">Size of single chunk in archive.</param>
+    public bool IsChunked(int chunkSizeBytes) => (DecompressedSize / (ulong)chunkSizeBytes) >= 1;
 
     /// <summary>
     ///     Calculated via <see cref="DecompressedSize" /> divided by Chunk Size.

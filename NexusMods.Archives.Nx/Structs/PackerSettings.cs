@@ -1,5 +1,7 @@
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Enums;
+using NexusMods.Archives.Nx.Headers.Native;
+using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Structs;
@@ -7,6 +9,12 @@ namespace NexusMods.Archives.Nx.Structs;
 /// <summary>
 ///     Controls the behaviour of the packer.
 /// </summary>
+/// <remarks>
+///     This class is not thread safe and stores mutable state tied to the packer.
+///     For example, the progress.
+///
+///     Please clone settings for each packer instance.
+/// </remarks>
 [PublicAPI]
 public class PackerSettings
 {
@@ -14,6 +22,18 @@ public class PackerSettings
     ///     Reports progress back to the process.
     /// </summary>
     public IProgress<double>? Progress { get; set; }
+
+    /// <summary>
+    ///     If not null, chunked files are deduplicated, otherwise set this to null.
+    ///     Chunked deduplication encurs a small amount of overhead for each file.
+    /// </summary>
+    public ChunkedDeduplicationState? ChunkedDeduplicationState { get; set; }
+
+    /// <summary>
+    ///     If not null, files are deduplicated, otherwise set this to null.
+    ///     Solid deduplication encurs a small amount of overhead for each block.
+    /// </summary>
+    public SolidDeduplicationState? SolidDeduplicationState { get; set; } = new();
 
     /// <summary>
     ///     The stream to which data is output to.
@@ -73,6 +93,8 @@ public class PackerSettings
     /// </summary>
     public void Sanitize()
     {
+        ChunkedDeduplicationState?.Reset();
+        SolidDeduplicationState?.Reset();
         if (SolidBlockAlgorithm == CompressionPreference.NoPreference || !CompressionPreferenceExtensions.IsDefined(SolidBlockAlgorithm))
             SolidBlockAlgorithm = CompressionPreference.ZStandard;
 
@@ -87,7 +109,7 @@ public class PackerSettings
         ChunkSize = Polyfills.RoundUpToPowerOf2NoOverflow(ChunkSize);
 
         BlockSize = Polyfills.Clamp(BlockSize, 4095, 67108863);
-        ChunkSize = Polyfills.Clamp(ChunkSize, 32768, 1073741824); // 1GiB because we can't pool more with standard ArrayPool.
+        ChunkSize = Polyfills.Clamp(ChunkSize, NativeFileHeader.BaseChunkSize, 1073741824); // 1GiB because we can't pool more with standard ArrayPool.
         if (ChunkSize <= BlockSize)
             ChunkSize = BlockSize + 1;
 

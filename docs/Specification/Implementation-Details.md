@@ -43,6 +43,10 @@ To do this, we will perform the following steps:
 - Files are sorted by size. (optimize for blocks)  
 - Files are then grouped by extension. (optimize for ratio) [while preserving sorting]  
 - These groups are chunked into SOLID blocks (and huge files into Chunk blocks).  
+    - They are ordered by size descending to maximize CPU utilization. 
+    - Chunked blocks appear first. 
+        - These are always bigger than SOLID blocks, but cannot be reordered relative to each other as they are sequential.
+    - Sorted SOLID blocks are then added to chunked blocks.
 - We assign the groups to individual blocks using a task scheduler; which is simply a ThreadPool that will pick up tasks in the order they are submitted.  
 
 !!! note
@@ -70,9 +74,42 @@ To do this, we will perform the following steps:
 
 - Prefer ZStd for large files.  
 
-## Repacking/Appending Files
+## Repacking & Merging Nx Archives
 
-Speed of this operation depends on SOLID block size, but in most cases should be reasonably fast. This is because
-non-SOLID blocks used for big files can be copied verbatim.
+!!! info "Repacking/Merging Archives should be a fairly inexpensive operation."
 
-Updating the ToC is inexpensive.
+Namely, it's possible to do the following:
+
+- Copy compressed blocks directly/chunks between Nx archives.
+    - Decompression buffer size is determined from the file entries, thus blocks can be copied verbatim.
+    - It's possible to mix [SOLID block sizes](./File-Header.md#block-size).
+        - Provided that SOLID blocks are smaller than the [Chunk Size](./File-Header.md#chunk-size) of the new archive.
+        - Verify this by checking if [Chunk Size](./File-Header.md#chunk-size) of all input archive matches.
+- Efficiently use existing SOLID blocks as inputs.
+    - Use files inside compressed blocks from File A as input to File B.
+    - With clever usage, (Example: [FromExistingNxBlock][from-existing-nx-block]) you can decompress just-in-time.
+
+The runtime complexity/overheads of repacking are generally very low, so the whole
+operation should be nearly as fast as just copying the data verbatim.
+
+### Maximizing Multithreaded Packing Efficiency
+
+!!! info "When [Compressing in Parallel](#parallel-compression), additional consideration is needed."
+
+This requires a short explanation.
+
+Although the blocks are being [compressed entirely in parallel](#parallel-compression),
+writing out the block to the final output/stream is a sequential operation.
+
+What this means is that if any of the blocks being processed in parallel takes
+considerably longer to compress than the others, the entire pipeline will be
+bottlenecked by that single block; reducing the overall efficiency.
+
+Because the operation of compressing a block is much slower than copying it from
+an existing file to another (by magnitudes), it is recommended that all copied
+blocks are processed first before starting to compress new blocks.
+
+In that vain, consider placing all the blocks which do a raw copy at the end,
+since they are the fastest to process.
+
+[from-existing-nx-block]: https://github.com/Nexus-Mods/NexusMods.Archives.Nx/blob/ce09b2099f28293ca30a3c634160f1c539ef297c/NexusMods.Archives.Nx/FileProviders/FromExistingNxBlock.cs

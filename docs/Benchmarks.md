@@ -257,6 +257,13 @@ I (Sewer) cannot test more than 4 threads on my system due to I/O bottlenecks, b
 | 16    | 12           | 46.25MiB/s    | 5.26               |
 | 16    | 24 (SMT)     | 59.71MiB/s    | 6.79               |
 
+!!! warning "The throughput numbers are very dated."
+
+    Use these numbers as a reference of thread scaling performance only.
+
+    Testing with `NexusMods.Archives.Nx 0.5.0` has 12 thread level 9 compression
+    running in excess of 250MiB/s, considerably faster than the numbers here.
+
 ### LZ4 Only
 
 !!! info "Packing Speed with LZ4 Only, Compression Level 12"
@@ -370,6 +377,91 @@ The following presets have been created...
 - `Chunked Algorithm: ZStandard`  
 - `Solid Compression Level: 16`  
 - `Chunked Compression Level: 9`  
+
+## Deduplication of Chunks
+
+!!! info "Tested on `NexusMods.Archives.Nx 0.5.0`"
+
+    The benchmarks use a 1M block and chunk size unless specified.
+
+!!! note "This measures the overhead of `Chunked Deduplication`"
+
+    SOLID deduplication is 'free', I've been unable to observe a regression
+    larger than margin of error (< 0.2%).
+
+"Dedupe All" means that both SOLID and chunked files are deduplicated.
+
+Testing time was also a bit limited, this time around.
+
+### Skyrim 202X 9.0 - Architecture
+
+!!! info "Skyrim's Most Popular Texture Pack"
+
+    651 textures, total 11.6GiB in size.
+
+| Scenario   | Throughput   | Throughput   | Throughput   | Size (MB) |
+|------------|--------------|--------------|--------------|-----------|
+| Solid Only | 302.97 MiB/s | 307.27 MiB/s | 309.29 MiB/s | 9,264.76  |
+| Dedupe All | 309.06 MiB/s | 304.67 MiB/s | 310.13 MiB/s | 8,749.81  |
+
+!!! note "Deduplicating chunked files reduced the size by about 515 MB with minimal impact on packing time."
+
+And with 16MB chunks as an additional point of reference:
+
+| Scenario   | Throughput   | Throughput   | Throughput   | Size (MiB) |
+|------------|--------------|--------------|--------------|------------|
+| Solid Only | 287.79 MiB/s | 287.61 MiB/s | 293.61 MiB/s | 8,908.04   |
+| Dedupe All | 282.46 MiB/s | 286.96 MiB/s | 287.43 MiB/s | 8,414.91   |
+
+!!! tip "Larger chunk size slightly improved packing times and reduced file sizes compared to 1M chunks."
+
+### Stardew Valley 1.6.8
+
+!!! info "The full game, Steam version."
+
+| Scenario   | Throughput   | Throughput   | Throughput   | Size (MB) |
+|------------|--------------|--------------|--------------|-----------|
+| Solid Only | 263.20 MiB/s | 259.67 MiB/s | 262.01 MiB/s | 456.49    |
+| Dedupe All | 261.52 MiB/s | 256.04 MiB/s | 269.83 MiB/s | 455.97    |
+
+!!! note "Performance difference and space saving was negligible."
+
+### Adachi over Everyone Mod
+
+!!! info "An unreleased meme mod sitting on my hard drive. 16.2GB in size."
+
+    5,657 items, contains 57 duplicated files, which are 15.8GiB total.
+    Remaining ~400MB are unique files.
+
+| Scenario   | Time (ms) | Throughput    | Size (MiB) |
+|------------|-----------|---------------|------------|
+| Solid Only | 43,572    | 394.93 MiB/s  | 5,349.69   |
+| Dedupe All | 8,005     | 2135.97 MiB/s | 277.67     |
+
+!!! tip "Deduplication significantly reduced file size by about 95% and improved packing speed by over 3x."
+
+### Summary
+
+!!! tip "Some additional quicker testing was also done on other sources"
+
+    That was done when doing benchmarking.
+
+Currently, at time of writing, deduplication of chunks works by hashing the first
+page (4096) bytes of the first chunk, and then using that to quickly determine
+if there's a potential duplicate. If there is, the entire file is hashed and compared.
+
+!!! note "There are a lot of 'nuances' and extra optimizations in there, but this is the general idea."
+
+From extended testing, the general conclusions are.
+
+- Performance is lost when files have same short hash but different content.
+    - This is common in some textures, as many may have transparent borders.
+    - This leads to a read of the full file prematurely, when not necessary.
+    - Huge files with same first 4096 bytes lead to slowdown.
+- Realistic max overhead is ~5% of throughput.
+    - In practise it's however within margin of error (~2%). 
+- Successful finding of duplicates improves packing speed.
+    - Because we need to compress less.
 
 ## Comparison to Common Archiving Solutions
 

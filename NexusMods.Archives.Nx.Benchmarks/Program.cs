@@ -16,6 +16,6 @@ using NexusMods.Archives.Nx.Benchmarks.Columns;
 //BenchmarkRunner.Run<OutputWriteLock>();
 
 // Modify path in source code before executing these ones below //
-//BenchmarkRunner.Run<PackArchiveToDisk>();
+// BenchmarkRunner.Run<PackArchiveToDisk>();
 //BenchmarkRunner.Run<UnpackArchiveFromDisk>();
 Console.WriteLine("Hello World 😺 !!");

@@ -1,5 +1,7 @@
 ﻿# Format Specification
 
+!!! tip "File Format Version: `1.0.0`"
+
 !!! note
 
     This is a semi-SOLID archive format for storing game mod content; intended to double up as a packaging format for uploading mods.
@@ -65,6 +67,13 @@ All packed fields are `little-endian`; and written out when total number of bits
 - `u26` + `u22` + `u16` is 8 bytes `little-endian`  
 - `u6` + `u11` + `u17` ***is 4 bytes*** `little-endian`, ***not 2+2***  
 
+### Terminology
+
+- `Block`: Represents a compressed section of data of any size smaller than [chunk size](./File-Header.md#chunk-size).
+- `Chunk`: A `block` that corresponds to a slice of a file.
+    - A file compressed in a single `block` is said to have 1 chunk.
+    - A file compressed in multiple `block`(s) is said to have multiple chunks.
+
 ## Use as Packaging Format
 
 !!! tip
@@ -72,7 +81,7 @@ All packed fields are `little-endian`; and written out when total number of bits
     Inclusion of hash for each file has some nice benefits.
 
 - Can do partial download to upgrade from older version of mod.  
-    - We can download [Table of Contents](./Table-Of-Contents.md) only, compare hashes.  
+    - We can download header (incl. [Table of Contents](./Table-Of-Contents.md)) only, compare hashes.  
     - Then only download the chunks we need to decompress our needed data.  
     - Inspired by MSIX and certain Linux package formats.  
 
@@ -89,3 +98,39 @@ Hit `Templates -> Open Template` and then the big play button.
 Then you'll be able to browse the format in 'Variables' window.  
 
 Alternatively, contributions are welcome if anyone wants to make a [Kaitai Struct](https://kaitai.io) variation 💜.
+
+## Version History
+
+!!! info "This is the version history for the file format, not the reference implementation/library."
+
+### 1.0.0
+
+!!! info "Initial Release"
+
+    Last commit with previous version: `196d116d09cd436818dfd596e069eaef2b7a616d`
+
+Dated 21st of July 2024, this marks the 'initial release' as `1.0.0`.
+
+#### File Header Changes
+
+This release removes the `Block Size` (u4) field from the header, as this can vary
+per block and with the use of features such as deduplication and archive merging.
+It was also not used in the reference implementation anywhere.
+
+Instead, the `Chunk Size` field is extended to 5 bits and the header page count to
+15 bits. This allows the [chunk size](./File-Header.md#chunk-size) to be in range
+of `512 bytes` to `1 TiB`. (Previous range `32K` - `1GiB`)
+
+The version field is repurposed. In the previous version, it was used to indicate
+the version of the table of contents. Now that is moved to the actual table
+of contents itself. The version field is now used to indicate incompatible changes
+in the format itself. This field is `u7`. The previous field, was moved to the actual
+[Table of Contents](./Table-Of-Contents.md#version) itself.
+
+The `Header Page Count` field is extended to 16 bits, allowing for a max size of 
+256MiB. This allows for storage of [arbitrary user data](./User-Data.md)
+as part of the Nx header. A reserved, but not yet implemented section for
+[User Data](./User-Data.md) was also added to the header.
+
+The [Table of Contents](./Table-Of-Contents.md) has also received its own proper
+'size' field. Which led to some fields being slightly re-organised.

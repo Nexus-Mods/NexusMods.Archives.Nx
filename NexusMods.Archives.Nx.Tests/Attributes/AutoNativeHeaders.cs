@@ -36,6 +36,16 @@ public class AutoNativeHeadersAttribute : AutoDataAttribute
             return result;
         });
 
+        ret.Customize<NativeTocHeader>(composer =>
+        {
+            var result = composer.FromFactory(() => new NativeTocHeader());
+
+            if (!randomizeHeader)
+                result = result.OmitAutoProperties();
+
+            return result;
+        });
+
         ret.Customize<OffsetPathIndexTuple>(composer => WithRandomizeHeader(randomizeHeader, composer));
         ret.Customize<NativeFileEntryV0>(composer => WithRandomizeHeader(randomizeHeader, composer));
         ret.Customize<NativeFileEntryV1>(composer => WithRandomizeHeader(randomizeHeader, composer));

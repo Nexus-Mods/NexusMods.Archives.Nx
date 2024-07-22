@@ -21,7 +21,9 @@ if (chunkedLevel.HasValue) builder.WithChunkedLevel(chunkedLevel.Value);
 if (solidAlgorithm.HasValue) builder.WithSolidBlockAlgorithm(solidAlgorithm.Value);
 if (chunkedAlgorithm.HasValue) builder.WithChunkedFileAlgorithm(chunkedAlgorithm.Value);
 if (threads.HasValue) builder.WithMaxNumThreads(threads.Value);
-    
+builder.WithChunkedDeduplication(deduplicateChunked); // deduplicate chunks during packing
+builder.WithSolidDeduplication(deduplicateSolid); // deduplicate files in SOLID blocks during packing
+
 // Make the Archive
 builder.Build(); // Blocking
 ```
@@ -44,6 +46,71 @@ if (threads.HasValue)
 // Extract the archive.
 builder.Extract(); // Blocking
 ```
+
+### Repacking
+
+!!! info "Use the `NxRepackerBuilder` and its derivatives for 'repacking' archives."
+
+    In this case 'repacking' means taking an existing archive and adding/removing files
+    to/from it in an efficient manner.
+
+The `NxRepackerBuilder` is an extension of [NxPackerBuilder](#packing), so you
+can use it as a drop-in replacement.
+
+It allows you to add files which are already present in an existing Nx archive
+in an extremely efficient manner.
+
+!!! tip "Under the hood this enables for"
+
+Use cases of this include:
+
+- Combining multiple Nx archives into one.
+- Quick deletion of files from an existing Nx archive.
+- Quickly packing an updated version of a mod (file) based off of an older version.
+
+Example:
+
+```csharp
+// Use any IFileDataProvider to provide the existing archive.
+// Ideally memory mapped provider, i.e. FromFilePathProvider
+// if file is on disk.
+var provider = new FromFilePathProvider() {
+    FilePath = "existing.nx"  
+};
+var header = HeaderParser.ParseHeader(provider);
+
+var repackerBuilder = new NxRepackerBuilder();
+
+// Add files from existing archive
+repackerBuilder.AddFilesFromNxArchive(nxSource, header, header.Entries.AsSpan());
+
+// Configure output
+repackerBuilder.WithOutput(new FileStream("repacked.nx", FileMode.Create));
+
+// Build the repacked archive
+using var outputStream = repackerBuilder.Build();
+```
+
+Key methods:
+
+- `AddFileFromNxArchive`: Adds a single file from an archive.
+- `AddFilesFromNxArchive`: Adds multiple files from an archive.
+
+!!! warning "Repacking and Deduplication logic are purely hash based."
+
+    There is a tiny, insignificant chance of unintended consequences if a hash
+    collision occurs.
+
+!!! warning "Only repacking of Nx archives with equal chunk sizes is supported."
+
+    If two archives have non-matching chunk sizes, the repacker will throw an error.
+
+#### Merging Archives
+
+!!! tip "Use `NxDeduplicatingRepackerBuilder` for merging archives."
+
+This is a derivative of `NxRepackerBuilder` which automatically deduplicates files
+by hash as they are added.
 
 ## Mid Level API
 

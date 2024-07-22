@@ -17,5 +17,18 @@ public unsafe interface IFileData : IDisposable
     /// <summary>
     ///     Length of the underlying data.
     /// </summary>
-    public nuint DataLength { get; }
+    public ulong DataLength { get; }
+}
+
+/// <summary/>
+// ReSharper disable once InconsistentNaming
+internal static class IFileDataExtensions
+{
+    /// <summary>
+    /// Creates a Span from the underlying data of the IFileData instance.
+    /// </summary>
+    /// <param name="fileData">The IFileData instance.</param>
+    /// <param name="length">The length of the Span slice.</param>
+    /// <returns>A Span representing the underlying data.</returns>
+    public static unsafe Span<byte> AsSpan(this IFileData fileData, int length) => new(fileData.Data, length);
 }

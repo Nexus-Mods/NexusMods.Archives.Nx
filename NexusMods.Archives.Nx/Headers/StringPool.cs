@@ -1,5 +1,6 @@
 using System.Text;
 using JetBrains.Annotations;
+using NexusMods.Archives.Nx.Headers.Native;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -11,11 +12,6 @@ namespace NexusMods.Archives.Nx.Headers;
 [PublicAPI]
 public struct StringPool
 {
-    /// <summary>
-    ///     Maximum size of compressed stringpool allowed.
-    /// </summary>
-    public const int MaxCompressedSize = 33550336;
-
     /// <summary>
     ///     Default compression level for table of contents. [Currently non-customizable]
     /// </summary>
@@ -86,7 +82,7 @@ public struct StringPool
         var numBytes = poolBuf.AvailableSize - numLeft;
         // ReSharper disable once RedundantArgumentDefaultValue
         var result = Compression.CompressZStd(poolBuf.PinnedArray.AsSpan(0, numBytes), DefaultCompressionLevel);
-        if (result.Length <= MaxCompressedSize)
+        if (result.Length <= NativeTocHeader.MaxStringPoolSize)
             return result;
 
         result.Dispose();

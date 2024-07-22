@@ -6,6 +6,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Structs;
+using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Utilities;
 
 namespace NexusMods.Archives.Nx.Packing;
@@ -74,7 +75,6 @@ public class NxPackerBuilder
     public NxPackerBuilder AddFile(Stream stream, AddFileParams options)
     {
         var length = stream.Length - stream.Position;
-        Debug.Assert(length <= int.MaxValue, "Streams larger than 2GiB are not currently supported. Please file a ticket if this is a requirement.");
 
         var file = new PackerFile
         {
@@ -103,8 +103,6 @@ public class NxPackerBuilder
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(Stream stream, long length, AddFileParams options)
     {
-        Debug.Assert(length <= int.MaxValue, "Streams larger than 2GiB are not currently supported. Please file a ticket if this is a requirement.");
-
         var file = new PackerFile
         {
             FileSize = length,
@@ -137,6 +135,17 @@ public class NxPackerBuilder
         };
 
         SetFileOptions(file, options);
+        Files.Add(file);
+        return this;
+    }
+
+    /// <summary>
+    ///     Adds an already internally created <see cref="PackerFile"/> directly
+    ///     to the packer input.
+    /// </summary>
+    /// <param name="file">The block to add to the compressor input.</param>
+    public NxPackerBuilder AddPackerFile(PackerFile file)
+    {
         Files.Add(file);
         return this;
     }
@@ -273,6 +282,40 @@ public class NxPackerBuilder
     public NxPackerBuilder WithChunkedFileAlgorithm(CompressionPreference chunkedFileAlgorithm)
     {
         Settings.ChunkedFileAlgorithm = chunkedFileAlgorithm;
+        return this;
+    }
+
+    /// <summary>
+    ///     Sets all the settings at once, discarding any previously
+    ///     set settings.
+    /// </summary>
+    /// <param name="settings">The settings to assign.</param>
+    /// <returns>The builder.</returns>
+    public NxPackerBuilder WithSettings(PackerSettings settings)
+    {
+        Settings = settings;
+        return this;
+    }
+
+    /// <summary>
+    ///     Enables file deduplication during packing for Chunked Blocks.
+    ///     Chunked deduplication encurs a small amount of overhead for each file.
+    /// </summary>
+    /// <returns>The builder.</returns>
+    public NxPackerBuilder WithChunkedDeduplication(bool enable = true)
+    {
+        Settings.ChunkedDeduplicationState = enable ? new ChunkedDeduplicationState() : null;
+        return this;
+    }
+
+    /// <summary>
+    ///     Enables file deduplication during packing for Solid Blocks.
+    ///     Solid deduplication has virtually no overhead.
+    /// </summary>
+    /// <returns>The builder.</returns>
+    public NxPackerBuilder WithSolidDeduplication(bool enable = true)
+    {
+        Settings.SolidDeduplicationState = enable ? new SolidDeduplicationState() : null;
         return this;
     }
 

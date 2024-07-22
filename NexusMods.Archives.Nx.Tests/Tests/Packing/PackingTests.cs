@@ -7,9 +7,9 @@ using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Hashing.xxHash64;
-using NxPackerBuilder = NexusMods.Archives.Nx.Packing.NxPackerBuilder;
+using NexusMods.Archives.Nx.Utilities;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 
@@ -18,39 +18,6 @@ namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 /// </summary>
 public class PackingTests
 {
-    [Fact(Skip = "This data set is too big to include in the repo. Remove this Skip comment, adjust the path and test manually. " +
-                 "This is just a last resort sanity test I (Sewer) decided to keep around. The other tests cover everything present here already," +
-                 "but sometimes it's better to test real data, with realistic settings. I like to leave this test running on loop for a while " +
-                 "if I think there's a bug.")]
-    // SMIM SE 2-08-659-2-08.7z
-    // https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id=59069&game_id=1704
-    public void Packing_RealData_RoundTrips()
-    {
-        // Testing some weird hash weirdness
-        var path = "/home/sewer/Downloads/SMIM SE 2-08-659-2-08";
-        var packed = PackWithFilesFromDirectory(path);
-        var map = CreateHashToStringMap("Assets/SMIM SE 2-08-659-2-08-Hashes.txt");
-
-        // Test succeeds if it doesn't throw.
-        packed.Position = 0;
-        var unpacker = new NxUnpacker(new FromStreamProvider(packed), true);
-        var entries = unpacker.GetPathedFileEntries();
-        var entryHashes = new HashSet<ulong>();
-        var unpackSettings = new UnpackerSettings();
-
-        foreach (var entry in entries)
-        {
-            var entryData = unpacker.ExtractFilesInMemory(new[] { entry.Entry }, unpackSettings);
-            var entryHash = entryData[0].Data.XxHash64();
-            entryHash.Value.Should().Be(entry.Entry.Hash); // Verify extracted file hash matches the stored header data.
-            entryHashes.Add(entry.Entry.Hash);
-        }
-
-        // Verify that each expected hash from text file is present.
-        foreach (var kv in map)
-            entryHashes.Contains(kv.Key).Should().BeTrue($"Failed to find hash for file: {kv.Value}. With hash {kv.Key:X}");
-    }
-
     [Theory]
     [AutoData]
     public NxUnpacker Can_Pack_And_Parse_Baseline(IFixture fixture)
@@ -89,28 +56,29 @@ public class PackingTests
     public void Can_Pack_And_Unpack_WithSolidOnlyBlocks(IFixture fixture)
     {
         var files = GetRandomDummyFiles(fixture, 4096, 4096, 16384, out var settings);
+        settings.MaxNumThreads = 1;
         NxPacker.Pack(files, settings);
         settings.Output.Position = 0;
         var streamProvider = new FromStreamProvider(settings.Output);
 
         // Test succeeds if it doesn't throw.
         var unpacker = new NxUnpacker(streamProvider);
+        var entries = unpacker.GetFileEntriesRaw();
         var extracted =
-            unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
-                new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
+            unpacker.ExtractFilesInMemory(entries,
+                new UnpackerSettings() { MaxNumThreads = 1 }); // 1 = easier to debug.
+
+        // Verify data.
+        AssertExtracted(extracted);
 
         // Assert hashes are correct
         foreach (var ext in extracted)
         {
             var extractedHash = ext.Data.XxHash64();
             var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
-            var savedHash = Hash.From(ext.Entry.Hash);
             extractedHash.Should().Be(expectedHash);
-            savedHash.Should().Be(expectedHash);
+            ext.Entry.Hash.Should().Be(expectedHash);
         }
-
-        // Verify data.
-        AssertExtracted(extracted);
     }
 
     /// <summary>
@@ -167,18 +135,17 @@ public class PackingTests
             unpacker.ExtractFilesInMemory(unpacker.GetFileEntriesRaw(),
                 new UnpackerSettings() { MaxNumThreads = Environment.ProcessorCount }); // 1 = easier to debug.
 
+        // Verify data.
+        AssertExtracted(extracted);
+
         // Assert hashes are correct
         foreach (var ext in extracted)
         {
             var extractedHash = ext.Data.XxHash64();
             var expectedHash = MakeDummyFile((int)ext.Entry.DecompressedSize).XxHash64();
-            var savedHash = Hash.From(ext.Entry.Hash);
             extractedHash.Should().Be(expectedHash);
-            savedHash.Should().Be(expectedHash);
+            ext.Entry.Hash.Should().Be(expectedHash);
         }
-
-        // Verify data.
-        AssertExtracted(extracted);
     }
 
     [Theory]
@@ -252,7 +219,7 @@ public class PackingTests
         }
     }
 
-    private PackerFile[] GetRandomDummyFiles(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
+    internal static PackerFile[] GetRandomDummyFiles(IFixture fixture, int numFiles, int minFileSize, int maxFileSize, out PackerSettings settings)
     {
         var output = new MemoryStream();
         settings = new PackerSettings
@@ -285,7 +252,7 @@ public class PackingTests
         return fixture.CreateMany<PackerFile>(numFiles).ToArray();
     }
 
-    private byte[] MakeDummyFile(int length)
+    internal static byte[] MakeDummyFile(int length)
     {
         var result = Polyfills.AllocateUninitializedArray<byte>(length);
         for (var x = 0; x < length; x++)
@@ -294,7 +261,7 @@ public class PackingTests
         return result;
     }
 
-    private static void AssertExtracted(OutputArrayProvider[] extracted)
+    internal static void AssertExtracted(OutputArrayProvider[] extracted)
     {
         for (var index = 0; index < extracted.Length; index++)
         {
@@ -304,30 +271,34 @@ public class PackingTests
             {
                 // Not asserting every byte as that would be slow, only failures.
                 if (data[x] != (byte)(x % 255))
-                    Assert.Fail($"Data[x] is {data[x]}, Should be: {(byte)(x % 255)}");
+                    Assert.Fail($"Data[{x}] is {data[x]}, Should be: {(byte)(x % 255)}");
             }
         }
     }
+}
 
-    private Stream PackWithFilesFromDirectory(string directoryPath)
-    {
-        var output = new MemoryStream();
-        var builder = new NxPackerBuilder();
-        builder.AddFolder(directoryPath);
-        builder.WithOutput(output);
-        return builder.Build(false);
-    }
+/// <summary>
+///     Extension methods tied to arrays.
+/// </summary>
+public static class ArrayExtensions
+{
+    /// <summary>
+    /// Hashes the given <see cref="Span{T}"/> of bytes using xxHash64.
+    /// </summary>
+    /// <param name="data">The data to hash.</param>
+    /// <returns>Hash for the given data.</returns>
+    public static ulong XxHash64(this byte[] data) => ((ReadOnlySpan<byte>)data).XxHash64();
+}
 
-    private Dictionary<ulong, string> CreateHashToStringMap(string hashesFilePath)
-    {
-        var hashToPathMap = new Dictionary<ulong, string>();
-
-        foreach (var entry in File.ReadAllLines(hashesFilePath))
-        {
-            var parts = entry.Split(',');
-            hashToPathMap[Convert.ToUInt64(parts[1], 16)] = parts[0];
-        }
-
-        return hashToPathMap;
-    }
+/// <summary>
+/// Extensions related to <see cref="Span{T}"/>(s) and their heap sibling <see cref="Memory{T}"/>.
+/// </summary>
+public static class SpanExtensions
+{
+    /// <summary>
+    /// Hashes the given <see cref="Span{T}"/> of bytes using xxHash64.
+    /// </summary>
+    /// <param name="data">The data to hash.</param>
+    /// <returns>Hash for the given data.</returns>
+    public static ulong XxHash64(this ReadOnlySpan<byte> data) => XxHash64Algorithm.HashBytes(data);
 }

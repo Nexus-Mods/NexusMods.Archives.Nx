@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+using static NexusMods.Archives.Nx.Headers.Native.NativeConstants;
 
 namespace NexusMods.Archives.Nx.Headers.Native;
 
@@ -18,6 +19,11 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     ///     Size of header in bytes.
     /// </summary>
     internal const int SizeBytes = 8;
+
+    /// <summary>
+    ///     Minimum size of chunk blocks in the Nx archive.
+    /// </summary>
+    internal const int BaseChunkSize = 512;
 
     private const uint ExpectedMagic = 0x5355584E; // little endian 'SUXN'
 
@@ -44,54 +50,42 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     public void SetMagic() => Magic = ExpectedMagic.AsLittleEndian();
 
     /// <summary>
-    ///     [u3] Gets or sets the archive version.
+    ///     [u7] Gets or sets the archive version.
     /// </summary>
     public byte Version
     {
-        get => (byte)((_headerData >> 29) & 0b111);
-        set => _headerData = (_headerData & 0b00011111_11111111_11111111_11111111) | ((uint)value << 29);
+        get => (byte)((_headerData >> 25) & 0b1111111);
+        set => _headerData = (_headerData & 0b00000001_11111111_11111111_11111111) | ((uint)value << 25);
     }
 
-    /// <summary>
-    ///     [u4] Gets or sets the block size in its encoded raw value.<br/>
-    ///     (Blocks are encoded as (32768 &lt;&lt; blockSize) - 1)
-    /// </summary>
-    public byte BlockSize
-    {
-        get => (byte)((_headerData >> 25) & 0b1111);
-        set => _headerData = (_headerData & 0b11100001_11111111_11111111_11111111) | ((uint)value << 25);
-    }
 
     /// <summary>
-    ///     [u4] Gets or sets the large chunk size in its encoded raw value (0-15).<br/>
-    ///     (Chunks are encoded as (16384 &lt;&lt; chunkSize))
+    ///     [u5] Gets or sets the chunk size in its encoded raw value.<br/>
+    ///     (Chunks are encoded as (512 &lt;&lt; chunkSize))
     /// </summary>
     public byte ChunkSize
     {
-        get => (byte)((_headerData >> 21) & 0b1111);
-        set => _headerData = (_headerData & 0b11111110_00011111_11111111_11111111) | ((uint)value << 21);
+        get => (byte)((_headerData >> 20) & 0b11111);
+        set => _headerData = (_headerData & 0b11111110_00001111_11111111_11111111) | ((uint)value << 20);
     }
 
     /// <summary>
-    ///     [u13] Gets or sets the number of compressed pages used to store the entire ToC (incl. compressed stringpool).
+    ///     [u16] Gets or sets the number of 4K pages used to store the entire header (incl. compressed TOC and stringpool).
     /// </summary>
     public ushort HeaderPageCount
     {
-        get => (ushort)((_headerData >> 8) & 0b11111_11111111);
-        set => _headerData = (_headerData & 0b11111110_11100000_00000000_11111111) | ((uint)value << 8);
+        get => (ushort)((_headerData >> 4) & 0xFFFF);
+        set => _headerData = (_headerData & 0b11111111_11111111_00000000_00001111) | ((uint)value << 4);
     }
 
     /// <summary>
-    ///     [u8] Gets/sets the 'feature flags' for this structure.
+    ///     [u4] Gets/sets the 'feature flags' for this structure.
     ///     A feature flag represents an extension to the format, such as storing time/date.<br/>
     /// </summary>
-    /// <remarks>
-    ///     This is internal until any feature flags are actually implemented.
-    /// </remarks>
-    internal ushort FeatureFlags
+    public byte FeatureFlags
     {
-        get => (ushort)(_headerData & 0b11111111);
-        set => _headerData = (_headerData & 0b11111110_11111111_11111111_00000000) | value;
+        get => (byte)(_headerData & 0b1111);
+        set => _headerData = (_headerData & 0b11111111_11111111_11111111_11110000) | (uint)(value & 0b1111);
     }
 
     // Note: Not adding a constructor since it could technically be skipped, if not explicitly init'ed by `new`.
@@ -101,17 +95,8 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     public int HeaderPageBytes
     {
-        get => HeaderPageCount * 4096;
-        set => HeaderPageCount = (ushort)(value >> 12);
-    }
-
-    /// <summary>
-    ///     Gets or sets the block size of SOLID blocks in this archive.
-    /// </summary>
-    public int BlockSizeBytes
-    {
-        get => (4096 << BlockSize) - 1;
-        set => BlockSize = (byte)Math.Log((value + 1) >> 12, 2);
+        get => HeaderPageCount * HeaderPageSize;
+        set => HeaderPageCount = (ushort)(value / HeaderPageSize);
     }
 
     /// <summary>
@@ -119,8 +104,9 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// </summary>
     public int ChunkSizeBytes
     {
-        get => 32768 << ChunkSize;
-        set => ChunkSize = (byte)Math.Log(value >> 15, 2);
+        get => BaseChunkSize << ChunkSize;
+        // ReSharper disable once PossibleLossOfFraction
+        set => ChunkSize = (byte)Math.Log(value / BaseChunkSize, 2);
     }
 
     /// <summary>
@@ -134,13 +120,12 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// <remarks>
     ///     For initializing data in native memory. Will reverse endian.
     /// </remarks>
-    public static unsafe void Init(NativeFileHeader* header, ArchiveVersion version, int blockSizeBytes, int chunkSizeBytes, int headerPageCountBytes)
+    public static unsafe void Init(NativeFileHeader* header, TableOfContentsVersion version, int chunkSizeBytes, int headerPageCountBytes)
     {
         header->Magic = ExpectedMagic;
         header->_headerData = 0; // Zero out before assigning bits via packing.
 
         header->Version = (byte)version;
-        header->BlockSizeBytes = blockSizeBytes;
         header->ChunkSizeBytes = chunkSizeBytes;
         header->HeaderPageBytes = headerPageCountBytes.RoundUp4096();
         header->ReverseEndianIfNeeded();

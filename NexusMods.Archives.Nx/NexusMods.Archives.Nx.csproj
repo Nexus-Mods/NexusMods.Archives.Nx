@@ -4,7 +4,7 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('NuGet.Build.props', '$(MSBuildThisFileDirectory)../'))"/>
 
     <PropertyGroup>
-        <Version>0.4.0</Version>
+        <Version>0.5.0</Version>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
@@ -18,7 +18,6 @@
         <PackageReference Include="JetBrains.Annotations" Version="2023.2.0-eap2" PrivateAssets="All" />
         <PackageReference Include="K4os.Compression.LZ4" Version="1.3.7-beta" />
         <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta07" PrivateAssets="all" ExcludeAssets="runtime" />
-        <PackageReference Include="NexusMods.Hashing.xxHash64" Version="2.0.0" />
         <PackageReference Include="PolySharp" Version="1.13.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

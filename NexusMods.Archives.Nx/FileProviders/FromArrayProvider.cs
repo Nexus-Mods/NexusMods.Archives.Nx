@@ -14,5 +14,5 @@ public sealed class FromArrayProvider : IFileDataProvider
     public required byte[] Data { get; init; }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length) => new ArrayFileData(Data, start, length);
+    public IFileData GetFileData(ulong start, ulong length) => new ArrayFileData(Data, start, length);
 }

@@ -14,7 +14,7 @@
 !!! info "Retrieves file data from the directory based on the given start index and length."
 
 ```csharp
-public IFileData GetFileData(long start, uint length)
+public IFileData GetFileData(ulong start, ulong length)
 ```
 
 ## Usage
@@ -33,6 +33,6 @@ using var fileData = dataProvider.GetFileData(0, 1024);
 // Use fileData...
 ```
 
-In this example, a `FromDirectoryDataProvider` is created and used to fetch the first 1024 bytes of a file located in 
-the directory `/path/to/directory` and the relative path `relative/path/to/file`. The resulting `IFileData` object 
+In this example, a `FromDirectoryDataProvider` is created and used to fetch the first 1024 bytes of a file located in
+the directory `/path/to/directory` and the relative path `relative/path/to/file`. The resulting `IFileData` object
 can then be used as needed.

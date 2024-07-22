@@ -34,10 +34,10 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     public int CurrentBlock;
 
     /// <summary>
-    ///     Version between 0 and 15.
+    ///     Version between 0 and 3.
     ///     Note: In serialized file this is stored in header.
     /// </summary>
-    public ArchiveVersion Version = ArchiveVersion.V0;
+    public TableOfContentsVersion Version = TableOfContentsVersion.V0;
 
     /// <summary>
     ///     This table of contents contains blocks which can create chunks.
@@ -47,24 +47,29 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     /// <summary>
     ///     Compressed strings in the StringPool.
     /// </summary>
-    private readonly ArrayRentalSlice _poolData;
+    private ArrayRentalSlice _poolData;
 
     /// <summary>
     ///     Currently modified file entry.
     /// </summary>
     private int _currentFile;
 
+    private TableOfContentsBuilder() { }
+
     /// <summary>
-    ///     Initializes a Table of Contents from given set of items.
+    ///     Creates a Table of Contents from given set of items.
     /// </summary>
     /// <param name="blocks">The blocks that will be burned into the ToC.</param>
     /// <param name="files">The files to be packed.</param>
-    public TableOfContentsBuilder(List<IBlock<T>> blocks, Span<T> files)
+    public static TableOfContentsBuilder<T> Create<TWithRelativePath>(List<IBlock<T>> blocks, Span<TWithRelativePath> files)
+        where TWithRelativePath : IHasRelativePath
     {
+        var builder = new TableOfContentsBuilder<T>();
         // Note: Files are sorted in-place during pack.
         // TODO: We can generate the PoolData in parallel; which could save us ~10ms on packing huge 1500+ file archives.
-        _poolData = StringPool.Pack(files);
-        Init(blocks, files, _poolData.Length);
+        builder._poolData = StringPool.Pack(files);
+        builder.Init(blocks, files, builder._poolData.Length);
+        return builder;
     }
 
     /// <inheritdoc />
@@ -76,7 +81,8 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
 
     ~TableOfContentsBuilder() => Dispose();
 
-    private void Init(List<IBlock<T>> blocks, Span<T> relativeFilePaths, int poolSize)
+    private void Init<TWithRelativePath>(List<IBlock<T>> blocks, Span<TWithRelativePath> relativeFilePaths, int poolSize)
+        where TWithRelativePath : IHasRelativePath
     {
         // Set ToC version based on biggest decompressed file size.
         ulong largestFileSize = 0;
@@ -94,7 +100,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
         // thus it's faster to not check again after setting largestFileSize
         // File above 4GB, use Version 1 archive.
         if (largestFileSize > uint.MaxValue)
-            Version = ArchiveVersion.V1;
+            Version = TableOfContentsVersion.V1;
 
         // Populate file name dictionary and names.
         var poolPaths = Polyfills.AllocateUninitializedArray<string>(relativeFilePaths.Length);
@@ -145,12 +151,11 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
     ///     Serializes the ToC to allow reading from binary.
     /// </summary>
     /// <param name="dataPtr">Address of the table of contents.</param>
-    /// <param name="offsetInFile">Offset of the table of contents in the .nx file.</param>
-    /// <param name="tocSize">Size of table of contents..</param>
+    /// <param name="tocSize">Size of table of contents.</param>
     /// <returns>Number of bytes written.</returns>
     /// <remarks>
     ///     To determine needed size of <paramref name="dataPtr" /> and <paramref name="tocSize" />, call
     ///     <see cref="CalculateTableSize" />.
     /// </remarks>
-    public unsafe int Build(byte* dataPtr, int offsetInFile, int tocSize) => Toc.Serialize(dataPtr, offsetInFile, tocSize, Version, _poolData.Span);
+    public unsafe int Build(byte* dataPtr, int tocSize) => Toc.Serialize(dataPtr, tocSize, Version, _poolData.Span);
 }

@@ -106,15 +106,15 @@ public unsafe struct LittleEndianWriter
 
     /*
         About the Methods Below:
-        
-            These are for faster writes of structs. 
-            
+
+            These are for faster writes of structs.
+
             While they don't reduce the instruction count by much (at all);
             they reduce the dependence of future instructions on earlier instructions,
             (future write does not need to wait for updated value of `Ptr`).
-            
+
             This allows for better pipelining.
-            
+
             Also the JIT can see `offset` parameters as constant when specified as constants
             and optimise that out accordingly.
     */

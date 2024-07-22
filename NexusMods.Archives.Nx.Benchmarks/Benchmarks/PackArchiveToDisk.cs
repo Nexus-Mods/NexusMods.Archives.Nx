@@ -7,7 +7,7 @@ namespace NexusMods.Archives.Nx.Benchmarks.Benchmarks;
 
 public class PackArchiveToDisk
 {
-    public string Directory { get; set; } = @"C:/Users/sewer/Desktop/Sonic Heroes";
+    public string Directory { get; set; } = @"/home/sewer/Games/SonicHeroes";
     public string OutputPath { get; set; } = @"PackArchiveToDisk.nx";
     public PackerFile[] Files { get; set; } = null!;
 

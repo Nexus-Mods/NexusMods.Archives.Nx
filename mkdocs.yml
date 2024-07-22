@@ -90,5 +90,7 @@ nav:
       - Overview: Specification/Overview.md
       - Header: Specification/File-Header.md
       - Table of Contents (TOC): Specification/Table-Of-Contents.md
+      - Optional Sections:
+          - User Data: Specification/User-Data.md
       - Algorithm Implementation: Specification/Implementation-Details.md
   - Contributing To Wiki: Contributing-Locally.md

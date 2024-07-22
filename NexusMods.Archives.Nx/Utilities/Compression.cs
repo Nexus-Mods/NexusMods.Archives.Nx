@@ -235,4 +235,108 @@ public static class Compression
             return new ArrayRentalSlice(result, decompressed);
         }
     }
+
+    /// <summary>
+    ///     Compresses data using streaming compression with the specified method.
+    /// </summary>
+    /// <param name="method">Compression method to use.</param>
+    /// <param name="level">Compression level.</param>
+    /// <param name="source">Pointer to source data.</param>
+    /// <param name="sourceLength">Length of source data.</param>
+    /// <param name="destination">Pointer to destination buffer.</param>
+    /// <param name="destinationLength">Length of destination buffer.</param>
+    /// <param name="terminateEarly">Callback to fire to determine if compression should be terminated early.</param>
+    /// <param name="defaultedToCopy">True if compression defaulted to copy due to poor compression ratio.</param>
+    /// <returns>
+    ///     The number of bytes written to the destination.
+    ///     Otherwise user provided value if terminateEarly return a value smaller than 0.
+    /// </returns>
+    internal static unsafe int CompressStreamed(CompressionPreference method, int level, byte* source, int sourceLength, byte* destination,
+        int destinationLength, Func<int> terminateEarly, out bool defaultedToCopy)
+    {
+        defaultedToCopy = false;
+
+        switch (method)
+        {
+            case CompressionPreference.Copy:
+                defaultedToCopy = true;
+                Unsafe.CopyBlockUnaligned(destination, source, (uint)sourceLength);
+                return sourceLength;
+
+            case CompressionPreference.ZStandard:
+            {
+                defaultedToCopy = false;
+                var cStream = ZSTD_createCStream();
+                try
+                {
+                    var initResult = ZSTD_initCStream(cStream, level);
+                    if (ZSTD_isError(initResult) != 0)
+                        ThrowZstdError(initResult);
+
+                    var inBufferSize = ZSTD_CStreamInSize();
+                    nuint totalRead = 0;
+
+                    var output = new ZSTD_outBuffer { dst = destination, size = (nuint)destinationLength, pos = 0 };
+                    while (totalRead < (nuint)sourceLength)
+                    {
+                        var toRead = Math.Min(inBufferSize, (nuint)sourceLength - totalRead);
+                        var lastChunk = toRead < inBufferSize;
+                        var mode = lastChunk ? ZSTD_EndDirective.ZSTD_e_end : ZSTD_EndDirective.ZSTD_e_continue;
+
+                        var input = new ZSTD_inBuffer { src = source + totalRead, size = (nuint)toRead, pos = 0 };
+                        bool finished;
+                        do
+                        {
+                            var result = ZSTD_compressStream2(cStream, &output, &input, mode);
+                            // -70 means destination buffer is too small, in other words, we failed to compress this data.
+                            if ((int)result > sourceLength || (int)result == -70)
+                                goto case CompressionPreference.Copy;
+
+                            // Terminate early if requested.
+                            if (terminateEarly != null)
+                            {
+                                var terminateEarlyResult = terminateEarly();
+                                if (terminateEarlyResult < 0)
+                                    return terminateEarlyResult;
+                            }
+
+                            // If we're on the last chunk we're finished when zstd returns 0,
+                            // which means its consumed all the input AND finished the frame.
+                            // Otherwise, we're finished when we've consumed all the input.
+                            finished = lastChunk ? result == 0 : input.pos == input.size;
+                        } while (!finished);
+
+                        Debug.Assert(input.pos == input.size, "Impossible: zstd only returns 0 when the input is completely consumed!");
+                        totalRead += input.pos;
+
+                        if (lastChunk)
+                            break;
+                    }
+
+                    return (int)output.pos;
+                }
+                finally
+                {
+                    ZSTD_freeCStream(cStream);
+                }
+            }
+
+            case CompressionPreference.Lz4:
+                // TODO: Support streaming LZ4 compression. It's not trivial.
+                var bytes = LZ4Codec.Encode(source, sourceLength, destination, destinationLength, (LZ4Level)level);
+                if (bytes > sourceLength || bytes < 0) // 'negative value if buffer is too small'
+                    goto case CompressionPreference.Copy;
+
+                return bytes;
+            default:
+                ThrowHelpers.ThrowUnsupportedCompressionMethod(method);
+                return 0;
+        }
+    }
+
+    private static unsafe void ThrowZstdError(nuint errorCode)
+    {
+        var errorName = Marshal.PtrToStringAnsi((nint)ZSTD_getErrorName(errorCode));
+        throw new InvalidOperationException($"ZSTD compression error: {errorName}");
+    }
 }

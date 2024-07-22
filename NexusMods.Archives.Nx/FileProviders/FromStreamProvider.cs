@@ -33,11 +33,14 @@ public sealed class FromStreamProvider : IFileDataProvider
     }
 
     /// <inheritdoc />
-    public IFileData GetFileData(long start, uint length)
+    public IFileData GetFileData(ulong start, ulong length)
     {
         lock (Stream)
         {
-            var newPos = StreamStart + start;
+            if (length > int.MaxValue)
+                ThrowFileTooBig();
+
+            var newPos = StreamStart + (long)start;
             Stream.Seek(newPos, SeekOrigin.Begin);
             var pooledData = new ArrayRental((int)length);
 
@@ -46,4 +49,6 @@ public sealed class FromStreamProvider : IFileDataProvider
             return new RentedArrayFileData(new ArrayRentalSlice(pooledData, numRead));
         }
     }
+
+    private static void ThrowFileTooBig() => throw new Exception("FromStreamProvider does not support reading more than int.MaxValue (2GiB) bytes at once.");
 }

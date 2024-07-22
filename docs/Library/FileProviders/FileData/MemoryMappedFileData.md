@@ -9,8 +9,8 @@
 
 ## Constructors
 
-- `MemoryMappedFileData(string filePath, long start, uint length)`: Creates file data backed by a memory mapped file from a given file path.
-- `MemoryMappedFileData(FileStream stream, long start, uint length)`: Creates file data backed by a memory mapped file from a given file stream.
+- `MemoryMappedFileData(string filePath, ulong start, ulong length)`: Creates file data backed by a memory mapped file from a given file path.
+- `MemoryMappedFileData(FileStream stream, ulong start, ulong length)`: Creates file data backed by a memory mapped file from a given file stream.
 
 ## Destructor
 
@@ -22,7 +22,7 @@
 
 ## Usage
 
-This class provides an efficient way to handle large data files. It uses memory-mapped files to access parts of a file 
+This class provides an efficient way to handle large data files. It uses memory-mapped files to access parts of a file
 as if they were in memory. Here's a brief example:
 
 ```csharp
@@ -31,5 +31,5 @@ using var fileData = new MemoryMappedFileData("path/to/file", 0, 100);
 // Do something with fileData...
 ```
 
-In this example, the `MemoryMappedFileData` maps the first 100 bytes of the file at the given path into memory. 
+In this example, the `MemoryMappedFileData` maps the first 100 bytes of the file at the given path into memory.
 The resulting `MemoryMappedFileData` object provides a pointer to the start of the data and the length of the data.
