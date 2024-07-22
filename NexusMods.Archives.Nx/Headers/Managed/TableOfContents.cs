@@ -14,6 +14,10 @@ namespace NexusMods.Archives.Nx.Headers.Managed;
 [PublicAPI]
 public class TableOfContents : IEquatable<TableOfContents>
 {
+    // Max values for V0 & V1 formats.
+    internal const int MaxBlockCountV0V1 = 262143; // 2^18 - 1
+    internal const int MaxFileCountV0V1 = 1048575; // 2^20 - 1
+
     // pointers & non-primitives
 
     /// <summary>
@@ -166,6 +170,12 @@ public class TableOfContents : IEquatable<TableOfContents>
     /// <remarks>To determine needed size of <paramref name="dataPtr" />, call <see cref="CalculateTableSize" />.</remarks>
     public unsafe int Serialize(byte* dataPtr, int tocSize, TableOfContentsVersion version, Span<byte> stringPoolData)
     {
+        if (Blocks.Length > MaxBlockCountV0V1)
+            ThrowHelpers.ThrowTooManyBlocksException(Blocks.Length);
+
+        if (Entries.Length > MaxFileCountV0V1)
+            ThrowHelpers.ThrowTooManyFilesException(Entries.Length);
+
         // Note: Avoiding bitstreams entirely; manual packing for max perf.
         var writer = new LittleEndianWriter(dataPtr);
         var header = new NativeTocHeader
