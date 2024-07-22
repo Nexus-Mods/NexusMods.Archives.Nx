@@ -441,11 +441,11 @@ NexusMods.Archives.Nx.Utilities.TooManyFilesException.TooManyFilesException(int 
 NexusMods.Archives.Nx.Utilities.UnsupportedArchiveVersionException
 NexusMods.Archives.Nx.Utilities.UnsupportedArchiveVersionException.UnsupportedArchiveVersionException(byte version) -> void
 NexusMods.Archives.Nx.Utilities.UnsupportedArchiveVersionException.Version.get -> byte
-NxDeduplicatingRepackerBuilder
-NxDeduplicatingRepackerBuilder.AddFileFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
-NxDeduplicatingRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Collections.Generic.IEnumerable<NexusMods.Archives.Nx.Headers.Managed.FileEntry>! entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
-NxDeduplicatingRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
-NxDeduplicatingRepackerBuilder.NxDeduplicatingRepackerBuilder() -> void
 static NexusMods.Archives.Nx.Headers.Managed.TableOfContents.Deserialize<T>(byte* dataPtr) -> T!
 static NexusMods.Archives.Nx.Headers.Native.NativeFileHeader.Init(NexusMods.Archives.Nx.Headers.Native.NativeFileHeader* header, int chunkSizeBytes, int headerPageCountBytes) -> void
 static NexusMods.Archives.Nx.Headers.Native.NativeTocHeader.FromRaw(ulong packedFields) -> NexusMods.Archives.Nx.Headers.Native.NativeTocHeader
+NexusMods.Archives.Nx.Packing.NxDeduplicatingRepackerBuilder
+NexusMods.Archives.Nx.Packing.NxDeduplicatingRepackerBuilder.AddFileFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, NexusMods.Archives.Nx.Headers.Managed.FileEntry entry) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
+NexusMods.Archives.Nx.Packing.NxDeduplicatingRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Collections.Generic.IEnumerable<NexusMods.Archives.Nx.Headers.Managed.FileEntry>! entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
+NexusMods.Archives.Nx.Packing.NxDeduplicatingRepackerBuilder.AddFilesFromNxArchive(NexusMods.Archives.Nx.Interfaces.IFileDataProvider! nxSource, NexusMods.Archives.Nx.Headers.Managed.ParsedHeader! header, System.Span<NexusMods.Archives.Nx.Headers.Managed.FileEntry> entries) -> NexusMods.Archives.Nx.Packing.NxRepackerBuilder!
+NexusMods.Archives.Nx.Packing.NxDeduplicatingRepackerBuilder.NxDeduplicatingRepackerBuilder() -> void

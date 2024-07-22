@@ -1,6 +1,7 @@
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
-using NexusMods.Archives.Nx.Packing;
+
+namespace NexusMods.Archives.Nx.Packing;
 
 /// <summary>
 ///     A specialized version of <see cref="NxRepackerBuilder"/> that deduplicates

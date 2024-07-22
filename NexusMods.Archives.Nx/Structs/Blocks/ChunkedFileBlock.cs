@@ -255,7 +255,7 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private unsafe bool IsDuplicate(ChunkedDeduplicationState duplState, ulong shortHash,
+    private bool IsDuplicate(ChunkedDeduplicationState duplState, ulong shortHash,
         ref ulong fullHash, out DeduplicatedChunkedFile deduplicatedChunkedFile)
     {
         deduplicatedChunkedFile = default;

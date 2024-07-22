@@ -1,8 +1,9 @@
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
+#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-using NexusMods.Archives.Nx.Structs;
+#endif
 
 namespace NexusMods.Archives.Nx.Packing.Pack.Steps;
 

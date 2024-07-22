@@ -2,6 +2,7 @@ using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Interfaces;
 using Moq;
 using FluentAssertions;
+using NexusMods.Archives.Nx.Packing;
 
 namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
 

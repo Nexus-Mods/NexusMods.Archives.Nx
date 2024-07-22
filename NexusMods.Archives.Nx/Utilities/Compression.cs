@@ -283,6 +283,7 @@ public static class Compression
                         var lastChunk = toRead < inBufferSize;
                         var mode = lastChunk ? ZSTD_EndDirective.ZSTD_e_end : ZSTD_EndDirective.ZSTD_e_continue;
 
+                        // ReSharper disable once RedundantCast
                         var input = new ZSTD_inBuffer { src = source + totalRead, size = (nuint)toRead, pos = 0 };
                         bool finished;
                         do

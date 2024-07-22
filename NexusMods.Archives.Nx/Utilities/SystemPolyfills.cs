@@ -1,6 +1,7 @@
 #if !NETCOREAPP2_0_OR_GREATER
 using System.Runtime.CompilerServices;
 
+// ReSharper disable once CheckNamespace
 namespace System.Numerics
 {
     internal static class BitOperations

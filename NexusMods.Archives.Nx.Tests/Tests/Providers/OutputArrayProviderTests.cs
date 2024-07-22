@@ -2,9 +2,9 @@ using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Utilities;
 
-namespace NexusMods.Archives.Nx.Tests.Tests.Packing;
+namespace NexusMods.Archives.Nx.Tests.Tests.Providers;
 
-public unsafe class OutputArrayProviderTests
+public class OutputArrayProviderTests
 {
     [Fact]
     public void OutputArrayProvider_WithFileTooBig_Throws()

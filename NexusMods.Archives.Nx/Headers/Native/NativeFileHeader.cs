@@ -1,7 +1,6 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using NexusMods.Archives.Nx.Headers.Enums;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 using static NexusMods.Archives.Nx.Headers.Native.NativeConstants;

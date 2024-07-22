@@ -141,7 +141,7 @@ public class SolidBlockDeduplicationTests
         // Act
         // Repack the archive with deduplication enabled
         var repackerBuilder = new NxRepackerBuilder();
-        repackerBuilder.WithSolidDeduplication(true);
+        repackerBuilder.WithSolidDeduplication();
         repackerBuilder.AddFilesFromNxArchive(streamProvider, header, header.Entries.AsSpan());
         repackerBuilder.WithMaxNumThreads(1); // debug only
 
@@ -253,7 +253,7 @@ public class SolidBlockDeduplicationTests
         // Act
         // Repack the archive with deduplication enabled
         var repackerBuilder = new NxRepackerBuilder();
-        repackerBuilder.WithSolidDeduplication(true);
+        repackerBuilder.WithSolidDeduplication();
         repackerBuilder.AddFilesFromNxArchive(streamProvider, header, header.Entries.AsSpan());
         repackerBuilder.WithMaxNumThreads(1); // For debugging
 
