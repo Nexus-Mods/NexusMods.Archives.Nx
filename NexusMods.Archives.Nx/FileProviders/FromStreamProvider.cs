@@ -50,5 +50,5 @@ public sealed class FromStreamProvider : IFileDataProvider
         }
     }
 
-    private static void ThrowFileTooBig() => throw new Exception("FromStreamProvider does not support reading more than int.MaxValue bytes at once.");
+    private static void ThrowFileTooBig() => throw new Exception("FromStreamProvider does not support reading more than int.MaxValue (2GiB) bytes at once.");
 }

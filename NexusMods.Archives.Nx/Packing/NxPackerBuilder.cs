@@ -75,7 +75,6 @@ public class NxPackerBuilder
     public NxPackerBuilder AddFile(Stream stream, AddFileParams options)
     {
         var length = stream.Length - stream.Position;
-        Debug.Assert(length <= int.MaxValue, "Streams larger than 2GiB are not currently supported. Please file a ticket if this is a requirement.");
 
         var file = new PackerFile
         {
@@ -104,8 +103,6 @@ public class NxPackerBuilder
     /// <returns>The builder.</returns>
     public NxPackerBuilder AddFile(Stream stream, long length, AddFileParams options)
     {
-        Debug.Assert(length <= int.MaxValue, "Streams larger than 2GiB are not currently supported. Please file a ticket if this is a requirement.");
-
         var file = new PackerFile
         {
             FileSize = length,
