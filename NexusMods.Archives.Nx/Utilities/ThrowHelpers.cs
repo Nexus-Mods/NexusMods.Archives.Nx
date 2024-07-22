@@ -55,6 +55,9 @@ internal static class ThrowHelpers
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowTooManyFilesException(int fileCount) =>
         throw new TooManyFilesException(fileCount);
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static void ThrowUnsupportedArchiveVersion(byte version) => throw new UnsupportedArchiveVersionException(version);
 }
 
 /// <summary>
@@ -184,4 +187,23 @@ public class TooManyFilesException : IOException
     ///     Gets the actual number of files that caused the exception.
     /// </summary>
     public int FileCount { get; }
+}
+
+/// <summary>
+///     Represents an error that occurs when an unsupported archive version is encountered.
+/// </summary>
+[PublicAPI]
+public class UnsupportedArchiveVersionException : NotSupportedException
+{
+    /// <summary>
+    ///     The unsupported archive version.
+    /// </summary>
+    public byte Version { get; }
+
+    /// <inheritdoc />
+    public UnsupportedArchiveVersionException(byte version)
+        : base($"Unsupported archive version {version}.\n" +
+               $"The most recent supported version is {NativeFileHeader.CurrentArchiveVersion}.\n" +
+               $"Please update your library.")
+        => Version = version;
 }

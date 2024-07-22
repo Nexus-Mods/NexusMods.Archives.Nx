@@ -21,6 +21,11 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     internal const int SizeBytes = 8;
 
     /// <summary>
+    ///     The current version of the Nexus Archive Format.
+    /// </summary>
+    internal const int CurrentArchiveVersion = 0;
+
+    /// <summary>
     ///     Minimum size of chunk blocks in the Nx archive.
     /// </summary>
     internal const int BaseChunkSize = 512;
@@ -57,7 +62,6 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
         get => (byte)((_headerData >> 25) & 0b1111111);
         set => _headerData = (_headerData & 0b00000001_11111111_11111111_11111111) | ((uint)value << 25);
     }
-
 
     /// <summary>
     ///     [u5] Gets or sets the chunk size in its encoded raw value.<br/>
@@ -120,12 +124,12 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// <remarks>
     ///     For initializing data in native memory. Will reverse endian.
     /// </remarks>
-    public static unsafe void Init(NativeFileHeader* header, TableOfContentsVersion version, int chunkSizeBytes, int headerPageCountBytes)
+    public static unsafe void Init(NativeFileHeader* header, int chunkSizeBytes, int headerPageCountBytes)
     {
         header->Magic = ExpectedMagic;
         header->_headerData = 0; // Zero out before assigning bits via packing.
 
-        header->Version = (byte)version;
+        header->Version = CurrentArchiveVersion;
         header->ChunkSizeBytes = chunkSizeBytes;
         header->HeaderPageBytes = headerPageCountBytes.RoundUp4096();
         header->ReverseEndianIfNeeded();
