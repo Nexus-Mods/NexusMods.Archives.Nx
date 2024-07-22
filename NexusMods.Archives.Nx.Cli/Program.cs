@@ -58,7 +58,7 @@ var mergeCommand = new Command("merge", "Merge multiple .nx archives into a sing
 {
     new Option<string[]>("--sources", "Source .nx archives to merge.") { IsRequired = true, AllowMultipleArgumentsPerToken = true },
     new Option<string>("--output", "Output path for the merged archive.") { IsRequired = true },
-    new Option<bool>("--deduplicate-chunked", () => false, "Enable CHUNKED block file deduplication during merging."),
+    new Option<bool>("--deduplicate-chunked", () => true, "Enable CHUNKED block file deduplication during merging."),
     new Option<bool>("--deduplicate-solid", () => true, "Enable SOLID block file deduplication during merging."),
     maxNumThreads
 };
