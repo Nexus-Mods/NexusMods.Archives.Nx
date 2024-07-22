@@ -106,12 +106,15 @@ public static class HeaderParser
                 return new HeaderParserResult { Header = null, HeaderSize = -1 };
             }
 
+            // Verify if the verison is supported.
+            if (header->Version > NativeFileHeader.CurrentArchiveVersion)
+                ThrowHelpers.ThrowUnsupportedArchiveVersion(header->Version);
+
             // Verify if length is sufficient.
             if (dataSize < (nuint)header->HeaderPageBytes)
                 return new HeaderParserResult { Header = null, HeaderSize = header->HeaderPageBytes };
 
             var parsedHeader = TableOfContents.Deserialize<ParsedHeader>(data + sizeof(NativeFileHeader));
-
             parsedHeader.Header = *header;
             parsedHeader.Init();
 
