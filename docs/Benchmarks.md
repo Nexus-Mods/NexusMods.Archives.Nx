@@ -397,7 +397,7 @@ Testing time was also a bit limited, this time around.
 
 !!! info "Skyrim's Most Popular Texture Pack"
 
-    651 textures, total 11.6GiB in size, 
+    651 textures, total 11.6GiB in size.
 
 | Scenario   | Throughput   | Throughput   | Throughput   | Size (MB) |
 |------------|--------------|--------------|--------------|-----------|
