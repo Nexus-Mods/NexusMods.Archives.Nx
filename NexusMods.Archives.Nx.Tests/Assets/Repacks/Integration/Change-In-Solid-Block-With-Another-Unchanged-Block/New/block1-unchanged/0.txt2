@@ -1,4 +1,0 @@
-This file represents another block.
-
-It uses `txt2` extension because Nx groups files by extension by default,
-so this makes it easier to test, as files don't have to be grouped manually.

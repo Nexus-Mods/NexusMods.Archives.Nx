@@ -1,2 +1,0 @@
-This is the second file in block 0.
-This file should not change between updates.
