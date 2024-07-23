@@ -69,6 +69,9 @@ internal class FromExistingNxBlock : IFileDataProvider
             throw new Exception("Repeated call to GetData. This is not allowed.");
 
         _hasCalledGetData = true;
+
+        if (start != 0 || length != FileSize)
+            throw new InvalidOperationException("This provider only supports reading the entire file.");
         #endif
 
         return new DecompressedNxBlockFileData(LazyRefCounterDecompressedNxBlock, DecompressedBlockOffset, FileSize);
@@ -200,16 +203,17 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
             return _data;
 
         // Not much contention expected so full lock is ok, no need for extra field and 'cmpxchg' here.
-        lock (this)
+        lock (_sourceNxDataProvider)
         {
             // Another thread might have already initialized in lock.
             if (_data != null)
                 return _data;
 
-            _data = AllocNativeMemory((nuint)_numBytesToDecompress);
+            var data = AllocNativeMemory((nuint)_numBytesToDecompress);
             using var rawBlockData = _sourceNxDataProvider.GetFileData(_blockOffset, _compressedBlockLength);
-            Compression.Decompress(_compression, rawBlockData.Data, (int)rawBlockData.DataLength, (byte*)_data, (int)_numBytesToDecompress);
-            return _data;
+            Compression.Decompress(_compression, rawBlockData.Data, (int)rawBlockData.DataLength, (byte*)data, (int)_numBytesToDecompress);
+            _data = data;
+            return data;
         }
     }
 
