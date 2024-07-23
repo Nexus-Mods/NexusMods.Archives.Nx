@@ -31,7 +31,7 @@ internal class FromExistingNxBlock : IFileDataProvider
     /// <summary>
     ///     Contains the decompressed chunk of data.
     /// </summary>
-    private LazyRefCounterDecompressedNxBlock LazyRefCounterDecompressedNxBlock { get; init; }
+    internal LazyRefCounterDecompressedNxBlock LazyRefCounterDecompressedNxBlock { get; init; }
 
     /// <summary>
     ///     Size of the file in the decompressed block.

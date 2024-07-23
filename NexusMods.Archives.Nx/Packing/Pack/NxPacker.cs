@@ -11,6 +11,10 @@ using NexusMods.Archives.Nx.Utilities;
 using System.Runtime.InteropServices;
 #endif
 
+#if DEBUG
+using NexusMods.Archives.Nx.FileProviders;
+#endif
+
 namespace NexusMods.Archives.Nx.Packing.Pack;
 
 /// <summary>
@@ -125,6 +129,8 @@ public static class NxPacker
                 // Implicit dispose of `sched` waits for all jobs to complete.
             }
 
+            DebugAssertPartialBlockRefCount(blocks);
+
             // Truncate stream.
             stream.SetLength(stream.Position);
 
@@ -169,6 +175,27 @@ public static class NxPacker
 
         // Compress that block!
         data.Block.ProcessBlock(tocBuilder, settings, data.BlockIndex, context.PackerPool);
+    }
+
+    private static void DebugAssertPartialBlockRefCount(List<IBlock<PackerFile>> blocks)
+    {
+#if DEBUG
+        foreach (var block in blocks)
+        {
+            if (block is not SolidBlock<PackerFile> solidBlock)
+                continue;
+
+            foreach (var item in solidBlock.Items)
+            {
+                if (item.FileDataProvider is not FromExistingNxBlock fromExisting)
+                    continue;
+
+                var refCount = fromExisting.LazyRefCounterDecompressedNxBlock.InternalGetRefCount();
+                if (refCount is < 0 or > 0)
+                    throw new Exception("Potential threading issue with partial block decompression.");
+            }
+        }
+#endif
     }
 }
 
