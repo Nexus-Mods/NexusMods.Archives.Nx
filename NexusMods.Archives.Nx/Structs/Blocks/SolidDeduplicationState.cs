@@ -21,12 +21,7 @@ public class SolidDeduplicationState
     /// <summary>
     ///     Ensures the internal dictionary has a specific capacity.
     /// </summary>
-    internal void EnsureCapacity(int numItems)
-    {
-        #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
-        _hashToSolidFileDetails.EnsureCapacity(numItems);
-        #endif
-    }
+    internal void EnsureCapacity(int numItems) => _hashToSolidFileDetails.EnsureCapacity(numItems);
 
     /// <summary>
     ///     Attempts to find a duplicate file based on its full hash.

@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <!-- net462 disabled due to ZStd dependency not supporting it right now -->
-        <TargetFrameworks>net7.0;netcoreapp3.1;net5.0</TargetFrameworks>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
@@ -11,7 +10,7 @@
         <XunitStartupAssembly>NexusMods.Archives.Nx.Tests</XunitStartupAssembly>
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.0" />
         <PackageReference Include="AutoFixture.Xunit2" Version="4.18.0" />

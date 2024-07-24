@@ -1,9 +1,7 @@
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
 
 namespace NexusMods.Archives.Nx.Packing.Pack.Steps;
 
@@ -109,17 +107,9 @@ internal static class MakeBlocks
         // Note(sewer): Chunked blocks cannot be reordered due to their nature of being
         // sequential. However we can sort the solid blocks to improve compression efficiency.
         // Append the solid blocks to the chunked blocks.
-#if NET5_0_OR_GREATER
         var sortedBlocksSpan = CollectionsMarshal.AsSpan(solidBlocks);
         for (var x = 0; x < sortedBlocksSpan.Length; x++)
-        {
             chunkedBlocks.Add(sortedBlocksSpan[x].block);
-#else
-        for (var x = 0; x < solidBlocks.Count; x++)
-        {
-            chunkedBlocks.Add(solidBlocks[x].block);
-#endif
-        }
 
         // Sort the final blocks by size, to improve compression efficiency.
         return chunkedBlocks;

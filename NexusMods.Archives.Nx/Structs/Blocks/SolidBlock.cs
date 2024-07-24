@@ -2,9 +2,7 @@ using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -22,11 +20,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
         long largestSize = 0;
 
         // Skips IEnumerator.
-#if NET5_0_OR_GREATER
         foreach (var item in CollectionsMarshal.AsSpan(Items))
-#else
-        foreach (var item in Items)
-#endif
         {
             if (item.FileSize > largestSize)
                 largestSize = item.FileSize;
@@ -60,16 +54,10 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
         fixed (byte* decompressedPtr = decompressedSpan)
         {
             var deduplicationState = settings.SolidDeduplicationState;
-#if NET5_0_OR_GREATER
             var itemSpan = CollectionsMarshal.AsSpan(Items);
             for (var x = 0; x < itemSpan.Length; x++)
             {
                 var item = itemSpan[x];
-#else
-            for (var x = 0; x < Items.Count; x++)
-            {
-                var item = Items[x];
-#endif
 
                 // Write file info
                 using var data = item.FileDataProvider.GetFileData(0, (uint)item.FileSize);

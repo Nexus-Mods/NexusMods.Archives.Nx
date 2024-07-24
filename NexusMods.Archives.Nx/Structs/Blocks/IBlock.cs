@@ -120,13 +120,7 @@ internal static class BlockHelpers
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
         while (builder.CurrentBlock != blockIndex)
-        {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
-        }
     }
 
     /// <summary>

@@ -4,6 +4,7 @@ using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Headers.Managed;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
+using NexusMods.Hashing.xxHash64;
 using static NexusMods.Archives.Nx.Structs.Blocks.ChunkedCommon;
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
@@ -398,13 +399,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
         while (_currentChunkIndex != chunkIndex)
-        {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
-        }
     }
 
     /// <summary>
@@ -422,13 +417,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
         while (_currentChunkIndex != chunkIndex && DuplicateState != DeduplicationCheckState.Duplicate)
-        {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
-        }
 
         return DuplicateState == DeduplicationCheckState.Duplicate;
     }

@@ -7,13 +7,8 @@ using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
 
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
-
-#if DEBUG
 using NexusMods.Archives.Nx.FileProviders;
-#endif
 
 namespace NexusMods.Archives.Nx.Packing.Pack;
 
@@ -62,11 +57,7 @@ public static class NxPacker
         }
 
         // Skips IEnumerator.
-#if NET5_0_OR_GREATER
         foreach (var block in CollectionsMarshal.AsSpan(copiedBlocks))
-#else
-        foreach (var block in copiedBlocks)
-#endif
             block.AppendFilesUnsafe(ref insertIdx, newFiles);
 
         // Note: We handle the copied blocks first, even though they take

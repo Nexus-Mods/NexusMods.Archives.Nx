@@ -1,10 +1,8 @@
 using System.IO.MemoryMappedFiles;
 using JetBrains.Annotations;
 using NexusMods.Archives.Nx.Interfaces;
-#if NET5_0_OR_GREATER
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-#endif
 
 // ReSharper disable IntroduceOptionalParameters.Global
 
@@ -85,7 +83,6 @@ public sealed class MemoryMappedFileData : IFileData
 
         // Provide some OS specific hints
         // POSIX compliant
-#if NET5_0_OR_GREATER
         if (OperatingSystem.IsLinux())
         {
             // Also tried MADV_SEQUENTIAL, but didn't yield a benefit (on Linux) strangely.
@@ -107,7 +104,6 @@ public sealed class MemoryMappedFileData : IFileData
             // ReSharper disable once RedundantCast
             PrefetchVirtualMemory(Process.GetCurrentProcess().Handle, (nuint)1, entries, 0);
         }
-#endif
     }
 
     private unsafe void InitEmpty()
@@ -123,7 +119,6 @@ public sealed class MemoryMappedFileData : IFileData
 
     #region Memory Access Hints for OSes
 
-#if NET5_0_OR_GREATER
     // POSIX Compatible
     [DllImport("libc.so.6", EntryPoint = "madvise")]
     private static extern unsafe int madvise(byte* addr, nuint length, int advice);
@@ -150,7 +145,6 @@ public sealed class MemoryMappedFileData : IFileData
         UIntPtr numberOfEntries,
         MemoryRangeEntry* memoryRanges,
         uint flags);
-#endif
 
     #endregion
 }

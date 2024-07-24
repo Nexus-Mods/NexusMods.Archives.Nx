@@ -7,7 +7,6 @@ using NexusMods.Archives.Nx.Packing.Pack;
 using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Tests.Utilities;
-using NexusMods.Archives.Nx.Utilities;
 using Polyfills = NexusMods.Archives.Nx.Utilities.Polyfills;
 // ReSharper disable MemberCanBePrivate.Global
 

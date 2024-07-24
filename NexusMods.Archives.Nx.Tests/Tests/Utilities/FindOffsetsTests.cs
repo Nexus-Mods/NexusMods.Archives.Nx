@@ -19,7 +19,6 @@ public class FindOffsetsTests
     ///     Determines if offsets for StringPool can be correctly found using various optimized approaches.
     /// </summary>
     [Theory]
-#if NETCOREAPP3_1_OR_GREATER
     [InlineData(65, new[] { 1, 4, 8 }, FindOffsetMethod.Avx2)] // above register
     [InlineData(64, new[] { 1, 4, 8 }, FindOffsetMethod.Avx2)] // on register
     [InlineData(64, new[] { 63 }, FindOffsetMethod.Avx2)] // last element
@@ -30,7 +29,6 @@ public class FindOffsetsTests
     [InlineData(32, new[] { 31 }, FindOffsetMethod.Sse2)] // last element
     [InlineData(32, new[] { 0, 31 }, FindOffsetMethod.Sse2)] // first element
     [InlineData(31, new[] { 1, 4, 8 }, FindOffsetMethod.Sse2)] // below register
-#endif
     [InlineData(8, new[] { 1, 4, 7 }, FindOffsetMethod.Fallback)] // above register
     [InlineData(8, new[] { 7 }, FindOffsetMethod.Fallback)] // last element
     [InlineData(8, new[] { 0, 7 }, FindOffsetMethod.Fallback)] // first element

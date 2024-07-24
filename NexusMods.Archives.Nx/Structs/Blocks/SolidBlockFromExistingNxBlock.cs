@@ -6,9 +6,7 @@ using NexusMods.Archives.Nx.Interfaces;
 using NexusMods.Archives.Nx.Packing.Unpack;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -171,16 +169,10 @@ internal record SolidBlockFromExistingNxBlock<T>(PathedFileEntry[] Items, IFileD
             // Write the new data to the recompressed buffer.
             var destinationOfs = toRecompressPtr;
             var destinationBytesLeft = numBytesToCompress;
-#if NET5_0_OR_GREATER
             var indexSpan = CollectionsMarshal.AsSpan(recompressIndices);
             for (var x = 0; x < indexSpan.Length; x++)
             {
                 var idx = indexSpan[x];
-#else
-            for (var x = 0; x < recompressIndices.Count; x++)
-            {
-                var idx = recompressIndices[x];
-#endif
 
                 var item = Items.DangerousGetReferenceAt(idx);
                 var itemOfs = item.Entry.DecompressedBlockOffset;

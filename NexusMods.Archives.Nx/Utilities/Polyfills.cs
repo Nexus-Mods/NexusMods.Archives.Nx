@@ -1,15 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-#if !NET7_0_OR_GREATER
-using System.Runtime.InteropServices;
-#endif
-#if NET7_0_OR_GREATER
 using System.Numerics;
 using System.Runtime.InteropServices;
-#endif
-#if NETSTANDARD2_0
-using System.Buffers;
-#endif
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -25,11 +17,7 @@ internal static class Polyfills
     /// <returns></returns>
     public static T[] AllocateUninitializedArray<T>(int size, bool pinned = false)
     {
-#if NET5_0_OR_GREATER
         return GC.AllocateUninitializedArray<T>(size, pinned);
-#else
-        return new T[size];
-#endif
     }
 
     /// <summary>
@@ -37,13 +25,9 @@ internal static class Polyfills
     /// </summary>
     public static T[] AllocatePinnedArray<T>(int size)
     {
-#if NET5_0_OR_GREATER
         var result = GC.AllocateUninitializedArray<T>(size, true);
         Array.Fill(result, default);
         return result;
-#else
-        return new T[size];
-#endif
     }
 
     /// <summary>
@@ -58,18 +42,7 @@ internal static class Polyfills
         if (value > int.MaxValue >> 1)
             return int.MaxValue;
 
-#if NET7_0_OR_GREATER
         return (int)BitOperations.RoundUpToPowerOf2((uint)value);
-#else
-        // Based on https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-        --value;
-        value |= value >> 1;
-        value |= value >> 2;
-        value |= value >> 4;
-        value |= value >> 8;
-        value |= value >> 16;
-        return value + 1;
-#endif
     }
 
     /// <summary>
@@ -125,27 +98,7 @@ internal static class Polyfills
     /// </remarks>
     public static int ReadAtLeast(Stream stream, byte[] buffer, int minimumBytes, bool throwOnEndOfStream = true)
     {
-#if NET7_0_OR_GREATER
         return stream.ReadAtLeast(buffer.AsSpan(0, minimumBytes), minimumBytes, throwOnEndOfStream);
-#else
-        // Taken from Runtime.
-        var totalRead = 0;
-        while (totalRead < minimumBytes)
-        {
-            var read = stream.Read(buffer, totalRead, minimumBytes - totalRead);
-            if (read == 0)
-            {
-                if (throwOnEndOfStream)
-                    ThrowHelpers.ThrowEndOfFileException();
-
-                return totalRead;
-            }
-
-            totalRead += read;
-        }
-
-        return totalRead;
-#endif
     }
 
     /// <summary>
@@ -156,30 +109,13 @@ internal static class Polyfills
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsWindows()
     {
-#if NET5_0_OR_GREATER
         return OperatingSystem.IsWindows();
-#else
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteSpan(this Stream stream, ReadOnlySpan<byte> buffer)
     {
-#if NETSTANDARD2_0
-        var numArray = ArrayPool<byte>.Shared.Rent(buffer.Length);
-        try
-        {
-            buffer.CopyTo((Span<byte>) numArray);
-            stream.Write(numArray, 0, buffer.Length);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(numArray);
-        }
-#else
         stream.Write(buffer);
-#endif
     }
 
     /// <summary>
@@ -189,11 +125,7 @@ internal static class Polyfills
     /// <returns>The block of memory.</returns>
     public static unsafe void* AllocNativeMemory(nuint size)
     {
-#if NET7_0_OR_GREATER
         return NativeMemory.Alloc(size);
-#else
-        return (void*)Marshal.AllocHGlobal((nint)size);
-#endif
     }
 
     /// <summary>
@@ -203,10 +135,6 @@ internal static class Polyfills
     /// <returns>The block of memory.</returns>
     public static unsafe void FreeNativeMemory(void* addr)
     {
-#if NET7_0_OR_GREATER
         NativeMemory.Free(addr);
-#else
-        Marshal.FreeHGlobal((IntPtr)addr);
-#endif
     }
 }

@@ -168,13 +168,6 @@ internal static class StringPoolExtensions
 {
     public static void SortLexicographically<T>(this Span<T> items) where T : IHasRelativePath
     {
-#if NET5_0_OR_GREATER
         items.Sort((a, b) => string.Compare(a.RelativePath, b.RelativePath, StringComparison.Ordinal));
-#else
-        // No way to sort a span on older frameworks; this is going to suck, but I guess we have to.
-        var copy = items.ToArray();
-        Array.Sort(copy, (a, b) => string.Compare(a.RelativePath, b.RelativePath, StringComparison.Ordinal));
-        copy.CopyTo(items);
-#endif
     }
 }

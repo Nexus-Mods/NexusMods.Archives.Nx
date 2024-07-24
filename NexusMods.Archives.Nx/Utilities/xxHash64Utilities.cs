@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using NexusMods.Hashing.xxHash64;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
