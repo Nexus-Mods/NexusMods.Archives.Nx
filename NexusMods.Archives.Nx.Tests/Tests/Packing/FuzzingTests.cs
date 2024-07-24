@@ -349,7 +349,7 @@ public class FuzzingTests(ITestOutputHelper testOutputHelper)
         var originalFiles = new Dictionary<string, byte[]>();
         foreach (var filePath in Directory.GetFiles(basePath, "*", SearchOption.AllDirectories))
         {
-            var relativePath = Path.GetRelativePath(basePath, filePath);
+            var relativePath = Path.GetRelativePath(basePath, filePath).Replace('\\', '/');
             originalFiles[relativePath] = File.ReadAllBytes(filePath);
         }
         return originalFiles;
