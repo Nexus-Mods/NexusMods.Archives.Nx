@@ -33,7 +33,7 @@ public class OutputFileProviderTests : IDisposable
         // Act
         using (var provider = new OutputFileProvider(_tempDirectory, relativePath, entry))
         {
-            var fileData = provider.GetFileData(0, (ulong)fileSize);
+            using var fileData = provider.GetFileData(0, (ulong)fileSize);
 
             // Write some data at the beginning
             unsafe
