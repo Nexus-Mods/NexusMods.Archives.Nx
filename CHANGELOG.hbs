@@ -1,0 +1,367 @@
+Today I am thrilled to announce the release of NexusMods.Archives.Nx 0.5.0,
+now with a stable file format!
+
+# Major Features and Changes
+
+## Archive Repacking ⚡
+
+This release introduces a powerful new capability: ***'Repacking'***.
+
+This feature allows users to create new derivative archives, ***using the data of existing archives
+as base***. This works by copying data from existing SOLID Blocks, Chunked Files and partial chunks of
+SOLID blocks.
+
+In simpler terms, this works by copying already compressed data from existing archives, and
+only compressing new data whenever necessary.
+
+### Practical Use: File Deletion
+
+It is now possible to ***delete*** files from an archive in a very efficient manner.
+
+Moreover, this can be efficiently done ***without the risks*** of corruption should the archive be
+modified in-place and the system were to lose power, the process be or the application were to crash.
+
+This feature in particular enables a feature called ***'Garbage Collection'*** within the
+[Nexus Mods app](https://nexus-mods.github.io/NexusMods.App/), which allows us to reclaim unused
+space from files that are no longer needed.
+
+### Practical Use: Archive Merging
+
+This feature can also be used to ***merge multiple*** archives in an extremely efficient manner.
+
+This feature was used to benchmark the performance of the repacking feature during development 
+and is ***available via the CLI***.
+
+Merging enables the following practical potential use cases in the [Nexus Mods app](https://nexus-mods.github.io/NexusMods.App/):
+
+***Quickly sharing a work-in-progress mod to your friend***:
+
+In the Nexus Mods app, each archive stores a set of *unique* files. These archives can now be 
+***merged*** to output a single archive that another user can then install a mod from.
+Don't waste ***4 minutes*** of your life, compressing your 2GB texture mod. ***Get a working,
+shareable Nx archive in 0.5 seconds instead.***
+
+***'Compacting' data during 'Garbage Collection'***:
+
+The introduction of 'Garbage Collection' will eventually lead to *'Fragmentation'* of archives in the
+[Nexus Mods app](https://nexus-mods.github.io/NexusMods.App/).
+
+Deleting older versions of mods and performing 'Garbage Collection' risks leaving tiny small archives
+that will all need to be read, parsed and processed independently in order to apply a single mod
+from a loadout.
+
+With the new merging feature, now it will be possible to merge multiple archives belonging to a single
+mod as part of the 'Garbage Collection' process. This will improve the efficiency of the `Apply` operation
+used to switch to a loadout.
+
+### Practical Use: Accelerated Archive Packing
+
+Since the repacking feature copies data from existing archives, it can also be used to create ***entirely new***
+archives faster, if you know the location of some data you want to pack again.
+
+To provide a ***practical*** example, suppose you have `Mod 0.1.0`, and you want to release an update, 
+`Mod 0.2.0`. This update is mostly the same, but with a few new files.
+
+Now it is ***possible to use the repacking feature*** to copy the compressed data from `Mod 0.1.0`
+and only compress the new files for `Mod 0.2.0`.
+
+### Using the Repacking Functionality from Code
+
+This is very easy!!
+
+Use the `NxRepackerBuilder` in place of the `NxPackerBuilder` API in your code.
+
+```csharp
+// Use any IFileDataProvider to provide the existing archive.
+// Ideally memory mapped provider, i.e. FromFilePathProvider
+// if file is on disk.
+var provider = new FromFilePathProvider() {
+    FilePath = "existing.nx"  
+};
+var header = HeaderParser.ParseHeader(provider);
+
+var repackerBuilder = new NxRepackerBuilder();
+
+// Add files from existing archive
+repackerBuilder.AddFilesFromNxArchive(nxSource, header, header.Entries.AsSpan());
+
+// Configure output
+repackerBuilder.WithOutput(new FileStream("repacked.nx", FileMode.Create));
+
+// Build the repacked archive
+using var outputStream = repackerBuilder.Build();
+```
+
+If you want to merge archives, use the `NxDeduplicatingRepackerBuilder` instead,
+this will automatically deduplicate files as they are added.
+
+### Performance Preview (How fast is Repacking?)
+
+We will use the `merge` feature from the CLI.
+
+Merging `Skyrim 202X 10.0.1 (Architecture)` and `Skyrim 202X 9.0 (Architecture)`:
+
+```
+// NexusMods.Archives.Nx.Cli merge --output "Skyrim202X-merged.nx" --sources "Skyrim202X 9.0.nx" "Skyrim202X 10.0.1.nx" --deduplicate-chunked false --deduplicate-solid false
+
+Merged in 6439ms
+Input Size: 19432.68 MiB
+Output Size: 11972.45 MiB
+Compression Ratio: 61.61 %
+Throughput 3955.06MiB/s
+```
+
+*Repacking also works with the new [deduplication feature](#deduplication), which is enabled by default
+for merging.*
+
+```
+// NexusMods.Archives.Nx.Cli merge --output "Skyrim202X-merged.nx" --sources "Skyrim202X 9.0.nx" "Skyrim202X 10.0.1.nx"
+
+Merged in 5471ms
+Input Size: 19432.68 MiB
+Output Size: 11290.83 MiB
+Compression Ratio: 58.10 %
+Throughput 4654.84MiB/s
+```
+
+***The new repacking functionality runs as fast as the write speed of my NVMe drive.***
+
+## Deduplication
+
+This release of NexusMods.Archives.Nx adds the ability to deduplicate files in real time on the fly.
+That is, detect duplicates and only store them once in the archive under multiple names.
+
+This feature is particularly useful when exporting mods to be shared with other people, for example:
+
+- Sharing a work-in-progress mod to your friend.
+    - For example, a mod you made with the [Nexus Mods app](https://nexus-mods.github.io/NexusMods.App/).
+- Uploading a mod in the Nx format to the web.
+
+Deduplication works in real time, with deduplication of SOLID blocks being free (<0.2% overhead).
+For chunked files, the overhead is (at worst) 5% in practice if no duplicates are found.  
+
+Below tests use a 1MiB chunk size and Block Size. The default for the [Nexus Mods app](https://github.com/Nexus-Mods/NexusMods.App).
+
+### Example: Skyrim 202X 9.0 - Architecture
+
+Part of Skyrim's Most Popular Texture Pack.
+
+- 651 textures, total 11.6GiB in size.
+
+| Scenario   | Throughput   | Throughput   | Throughput   | Size (MiB) |
+|------------|--------------|--------------|--------------|------------|
+| Solid Only | 302.97 MiB/s | 307.27 MiB/s | 309.29 MiB/s | 9,264.76   |
+| Dedupe All | 309.06 MiB/s | 304.67 MiB/s | 310.13 MiB/s | 8,749.81   |
+
+### Example: 'Adachi Over Everyone'
+
+This is an (unreleased) test/meme mod (by Mudkip) that I often use to test
+duplicate file handling in various archive formats. All models in a game
+are replaced with slightly tweaked variations of a single character model.
+
+- 5,657 items, contains 57 duplicated files (several MB each), which are `15.8GiB` total.
+- Remaining ~400MB are unique files.
+
+| Scenario   | Time (ms) | Throughput    | Size (MiB) |
+|------------|-----------|---------------|------------|
+| Solid Only | 43,572    | 394.93 MiB/s  | 5,349.69   |
+| Dedupe All | 8,005     | 2135.97 MiB/s | 277.67     |
+
+My NVMe has a throughput of around 3000MiB/s.
+
+Taking into account the ~400MB of unique data, deduplication can be said
+to work with nearly no overhead.
+
+### Enabling Deduplication
+
+Deduplication can be enabled via the `NxPackerBuilder` API.
+
+```csharp
+var builder = new NxPackerBuilder();
+builder.WithChunkedDeduplication(deduplicateChunked);
+builder.WithSolidDeduplication(deduplicateSolid);
+```
+
+Or if you are more low level.
+You can set `PackerSettings.ChunkedDeduplicationState` and `PackerSettings.SolidDeduplicationState`
+to non-null.
+
+### Final Notes on Deduplication
+
+This was developed during my own free time, and I hope it will eventually be useful to the community.
+
+Deduplication is available for use today. It has been extensively tested, and brute forced with
+a variety of mods. Several TiB of data has been packed in testing, and the results have been
+consistent.
+
+Currently, deduplication of SOLID blocks is enabled by default, as it is free.
+
+While ded uplication of chunked blocks is opt-in.
+For [merging archives via archive repacking](#performance-preview-how-fast-is-repacking),
+deduplication is automatically enabled.
+
+## Stabilized Archive Format
+
+The format of `Nx` archives has now been formally stabilized as `1.0.0`.
+
+Various parts of the specification have been cleared up, a new 'terminology' section has been added,
+and there is now a changelog to track changes to the format.
+
+The [format changes for this version are documented below](#file-format-changes).
+
+### Feature: Runtime Detection for Unsupported Libraries
+
+With the new stabilized format, there is now proper error handling to detect incompatible versions.
+
+Opening an archive that's too recent, should display an error message that looks like:
+
+```
+Unsupported archive version 1.
+The most recent supported version is 0.
+Please update your library.
+```
+
+In practical terms, suppose a user needed to downgrade the [Nexus Mods app](https://nexus-mods.github.io/NexusMods.App/),
+due to an unexpected breaking change.
+
+If the App encounters an archive that's too new, it will now display a helpful error message;
+rather than potentially trying to read the archive, and either crashing or potentially performing
+invalid operations.
+
+## Slightly Improved Packing Performance
+
+Performance of Packing archives in a multithreaded scneario has been improved by an approximate 1%,
+through the introduction of improved block sorting in the packer. (Descending by time needed to compress.)
+
+This means that overall thread utilization is improved, with less time spent waiting on other threads.
+
+## Bug Fixes
+
+### Zero Sized Memory Mapped Files
+
+NexusMods.Archives.Nx now correctly writes zero-sized files when using memory mapped files to
+extract files.
+
+This fixes https://github.com/Nexus-Mods/NexusMods.App/issues/1783
+
+## Miscellaneous
+
+- Updated the 010editor template to reflect the new format changes.
+- Added benchmarks for the new functionalities.
+- Added various sanity checks that run in debug builds in order to catch potential issues early.
+- Added .NET 9 support to the CLI.
+- Reduced lock lock times during repacking by putting hashing in a separate lock, for a neglibly small but existing performance improvement. 
+- Updated ZStandard to 1.5.6 (from 1.5.5).
+
+## Futures / Previews
+
+These are things that will ship at some point in the future.
+
+Development will be driven in my (Sewer's) spare time, so expect no ETA.
+It'll be done when I need it.
+
+### User Data Section
+
+The 1.0.0 specification of NexusMods.Archives.Nx introduces a preview of a new feature called
+'[User Data](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/User-Data)'.
+
+This feature is designed to allow for additional user-specified data to be stored in the archive
+header, after the Table of Contents.
+
+### Key Points
+
+- The User Data section is part of the archive header, which is fetched and parsed first when
+  accessing an Nx archive.
+
+- The main Nx header (including User Data) is designed to fit within a small number of 4K pages,
+  often just a single page, allowing for rapid retrieval.
+    - ***This means a single sector read from disk!!***
+
+- The feature aims to provide flexibility for various use cases.
+- The User Data feature is currently in preview and subject to change.
+- ***It's not yet implemented in the library (reference implementation)***.
+
+### Example Use Cases:
+
+1. [Extended File Attributes (XFA)](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/User-Data/#example-extension-storing-extended-file-attributes):
+   - Storing metadata such as creation time, last access time, and last write time for each file.
+
+2. [HashTable of File Paths (HSHT)](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/User-Data/#example-extension-hashtable-of-file-paths):
+   - Implementing a quick lookup system to verify whether a file exists by path in the archive.
+
+3. Storing Package Metadata:
+   - For example, [Package Metadata for Reloaded3 Mods](https://reloaded-project.github.io/Reloaded-III/Server/Packaging/Package-Metadata.html).
+   - This would allow for efficient fetching of information not available via the Nexus Mods API. (& Others)
+
+### Versioning Disclaimer
+
+The structure of the User Data section can technically change by the time it is implemented in the library.
+
+However, it is not expected to change.
+
+## File Format Changes
+
+This release removes the `Block Size` (u4) field from the header, as this can vary
+per block and with the use of features such as deduplication and archive merging.
+It was also not used in the reference implementation anywhere.
+
+Instead, the `Chunk Size` field is extended to 5 bits and the header page count to
+15 bits. This allows the [chunk size](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/File-Header#chunk-size) to be in range
+of `512 bytes` to `1 TiB`. (Previous range `32K` - `1GiB`)
+
+The version field is repurposed. In the previous version, it was used to indicate
+the version of the table of contents. Now that is moved to the actual table
+of contents itself. The version field is now used to indicate incompatible changes
+in the format itself. This field is `u7`. The previous field, was moved to the actual
+[Table of Contents](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/Table-Of-Contents#version) itself.
+
+The `Header Page Count` field is extended to 16 bits, allowing for a max size of 
+256MiB. This allows for storage of [arbitrary user data](./User-Data.md)
+as part of the Nx header. A reserved, but not yet implemented section for
+[User Data](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/User-Data) was also added to the header.
+
+The [Table of Contents](https://nexus-mods.github.io/NexusMods.Archives.Nx/Specification/Table-Of-Contents) has also received its own proper
+'size' field. Which led to some fields being slightly re-organised.
+
+------------------------------------
+
+## Complete Changes (Autogenerated)
+
+{{#each releases}}
+  {{#if href}}
+    ## [{{title}}]({{href}}){{#if tag}} - {{isoDate}}{{/if}}
+  {{else}}
+    ## {{title}}{{#if tag}} - {{isoDate}}{{/if}}
+  {{/if}}
+
+  {{#if summary}}
+    {{summary}}
+  {{/if}}
+
+  {{#if merges}}
+    ### Merged
+
+    {{#each merges}}
+      - {{#if commit.breaking}}**Breaking change:** {{/if}}{{message}} {{#if href}}[`#{{id}}`]({{href}}){{/if}}
+    {{/each}}
+  {{/if}}
+
+  {{#if fixes}}
+    ### Fixed
+
+    {{#each fixes}}
+      - {{#if commit.breaking}}**Breaking change:** {{/if}}{{commit.subject}}{{#each fixes}} {{#if href}}[`#{{id}}`]({{href}}){{/if}}{{/each}}
+    {{/each}}
+  {{/if}}
+
+  {{#commit-list commits heading='### Commits'}}
+    - {{#if breaking}}**Breaking change:** {{/if}}{{subject}} {{#if href}}[`{{shorthash}}`]({{href}}){{/if}}
+  {{/commit-list}}
+
+{{/each}}
+
+====
+
+{{#unless options.hideCredit}}
+  Reloaded changelogs are generated by [`auto-changelog`](https://github.com/CookPete/auto-changelog) 😇.
+{{/unless}}
