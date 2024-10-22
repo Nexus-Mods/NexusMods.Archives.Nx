@@ -22,7 +22,7 @@ public struct NativeFileHeader : ICanConvertToLittleEndian
     /// <summary>
     ///     The current version of the Nexus Archive Format.
     /// </summary>
-    internal const int CurrentArchiveVersion = 0;
+    internal const int CurrentArchiveVersion = 1;
 
     /// <summary>
     ///     Minimum size of chunk blocks in the Nx archive.

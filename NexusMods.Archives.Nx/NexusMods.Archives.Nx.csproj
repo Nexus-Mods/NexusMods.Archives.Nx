@@ -4,11 +4,10 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('NuGet.Build.props', '$(MSBuildThisFileDirectory)../'))"/>
 
     <PropertyGroup>
-        <Version>0.6.1</Version>
+        <Version>0.6.2</Version>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <TargetFramework>net8.0</TargetFramework>
-        <TargetFrameworks />
     </PropertyGroup>
 
     <ItemGroup>
