@@ -6,10 +6,7 @@ using NexusMods.Archives.Nx.Structs;
 using NexusMods.Archives.Nx.Structs.Blocks;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
 
 #if DEBUG
 using NexusMods.Archives.Nx.FileProviders;
@@ -53,7 +50,7 @@ public static class NxPacker
         foreach (var block in copiedBlocks)
             newFileCount += block.FileCount();
 
-        var newFiles = Polyfills.AllocateUninitializedArray<HasRelativePathWrapper>(newFileCount);
+        var newFiles = GC.AllocateUninitializedArray<HasRelativePathWrapper>(newFileCount, false);
         var insertIdx = 0;
         for (; insertIdx < files.Length; insertIdx++)
         {
@@ -62,11 +59,7 @@ public static class NxPacker
         }
 
         // Skips IEnumerator.
-#if NET5_0_OR_GREATER
         foreach (var block in CollectionsMarshal.AsSpan(copiedBlocks))
-#else
-        foreach (var block in copiedBlocks)
-#endif
             block.AppendFilesUnsafe(ref insertIdx, newFiles);
 
         // Note: We handle the copied blocks first, even though they take

@@ -1,3 +1,4 @@
+using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
@@ -70,11 +71,18 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             State.WaitForChunkIndexTurn(ChunkIndex);
             if (!isLastChunk)
             {
-                State.Hash.AppendHash(data.Data, data.DataLength);
+                State.Hash.Append(data.Data, data.DataLength);
             }
             else
             {
-                var finalHash = State.FinalHash == 0 ? State.Hash.GetFinalHash(data.Data, data.DataLength) : State.FinalHash;
+                ulong finalHash;
+                if (State.FinalHash == 0)
+                {
+                    State.Hash.Append(data.Data, data.DataLength);
+                    finalHash = State.Hash.GetCurrentHashAsUInt64();
+                }
+                else
+                    finalHash = State.FinalHash;
                 State.AddFileEntryToTocAtomic(tocBuilder, FirstBlockIndex(blockIndex, numChunks), finalHash);
             }
             State.EndProcessingChunk();
@@ -118,10 +126,11 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
 
             if (State.FinalHash == 0)
             {
-                if (!isLastChunk)
-                    State.Hash.AppendHash(data.Data, data.DataLength);
-                else
-                    State.FinalHash = State.Hash.GetFinalHash(data.Data, data.DataLength);
+                State.Hash.Append(data.Data, data.DataLength);
+                if (isLastChunk)
+                {
+                    State.FinalHash = State.Hash.GetCurrentHashAsUInt64();
+                }
             }
 
             State.EndProcessingChunk();
@@ -196,10 +205,9 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
             var numChunks = State.NumChunks;
             var isLastChunk = IsLastChunk(numChunks, ChunkIndex);
             State.WaitForChunkIndexTurn(ChunkIndex);
-            if (!isLastChunk)
-                State.Hash.AppendHash(data.Data, data.DataLength);
-            else
-                State.FinalHash = State.Hash.GetFinalHash(data.Data, data.DataLength);
+            State.Hash.Append(dataPtr, dataLen);
+            if (isLastChunk)
+                State.FinalHash = State.Hash.GetCurrentHashAsUInt64();
             State.EndProcessingChunk();
 
             // Proceed with normal block processing
@@ -295,14 +303,14 @@ internal record ChunkedFileBlock<T>(ulong StartOffset, int ChunkSize, int ChunkI
     private static unsafe ulong CalculateShortHash(ulong dataLen, byte* dataPtr)
     {
         var shortLen = Math.Min(ShortHashLength, dataLen);
-        return XxHash64Algorithm.HashBytes(dataPtr, shortLen);
+        return HashUtilities.HashToUInt64(dataPtr, shortLen);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private unsafe ulong CalculateFullFileHash()
     {
         using var data = State.File.FileDataProvider.GetFileData(StartOffset, (ulong)State.File.FileSize);
-        var fullHash = XxHash64Algorithm.HashBytes(data.Data, data.DataLength);
+        var fullHash = HashUtilities.HashToUInt64(data.Data, data.DataLength);
         return fullHash;
     }
 
@@ -350,7 +358,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
     /// <summary>
     ///     Instance of the Nexus xxHash64 hasher.
     /// </summary>
-    internal XxHash64Algorithm Hash = new(0);
+    internal XxHash3 Hash = new(0);
 
     /// <summary>
     ///     The final hash of the file.
@@ -399,11 +407,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         var spinWait = new SpinWait();
         while (_currentChunkIndex != chunkIndex)
         {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
         }
     }
 
@@ -423,11 +427,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         var spinWait = new SpinWait();
         while (_currentChunkIndex != chunkIndex && DuplicateState != DeduplicationCheckState.Duplicate)
         {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
         }
 
         return DuplicateState == DeduplicationCheckState.Duplicate;

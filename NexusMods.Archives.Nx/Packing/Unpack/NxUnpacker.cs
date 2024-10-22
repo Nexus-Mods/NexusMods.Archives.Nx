@@ -52,7 +52,7 @@ public class NxUnpacker
     /// <returns>All file entries and their corresponding file names from inside the archive.</returns>
     public PathedFileEntry[] GetPathedFileEntries()
     {
-        var results = Polyfills.AllocateUninitializedArray<PathedFileEntry>(_nxHeader.Entries.Length);
+        var results = GC.AllocateUninitializedArray<PathedFileEntry>(_nxHeader.Entries.Length, false);
         for (var x = 0; x < results.Length; x++)
         {
             ref var entry = ref _nxHeader.Entries.DangerousGetReferenceAt(x);
@@ -80,7 +80,7 @@ public class NxUnpacker
     public OutputArrayProvider[] MakeArrayOutputProviders(Span<FileEntry> files)
     {
         // Wrap entries into arrays.
-        var results = Polyfills.AllocateUninitializedArray<OutputArrayProvider>(files.Length);
+        var results = GC.AllocateUninitializedArray<OutputArrayProvider>(files.Length, false);
         for (var x = 0; x < files.Length; x++)
         {
             var entry = files[x];
@@ -99,7 +99,7 @@ public class NxUnpacker
     public OutputFileProvider[] MakeDiskOutputProviders(Span<FileEntry> files, string outputFolder)
     {
         // Wrap entries into arrays.
-        var results = Polyfills.AllocateUninitializedArray<OutputFileProvider>(files.Length);
+        var results = GC.AllocateUninitializedArray<OutputFileProvider>(files.Length, false);
         var filesCopy = files.ToArray();
 
         Parallel.ForEach(filesCopy, (entry, _, x) =>

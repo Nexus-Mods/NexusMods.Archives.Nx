@@ -60,9 +60,7 @@ internal interface IBlock<T> where T : IHasFileSize, ICanProvideFileData, IHasRe
 /// </summary>
 internal static class BlockHelpers
 {
-#if DEBUG
-    private static readonly ThreadLocal<bool> _curThreadIsWaitingForTurn = new(() => false);
-#endif
+    private static readonly ThreadLocal<bool> CurThreadIsWaitingForTurn = new(() => false);
 
     internal static unsafe int Compress(CompressionPreference compression, int compressionLevel, IFileData data, byte* destinationPtr,
         int destinationLength, out bool asCopy) => Compression.Compress(compression, compressionLevel, data.Data, (int)data.DataLength,
@@ -89,7 +87,7 @@ internal static class BlockHelpers
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteToOutput(Stream output, Span<byte> compressedBlock)
     {
-        output.WriteSpan(compressedBlock);
+        output.Write(compressedBlock);
         AddPaddingAfterBlockWrite(output);
     }
 
@@ -111,21 +109,17 @@ internal static class BlockHelpers
     internal static void WaitForBlockTurn<T>(TableOfContentsBuilder<T> builder, int blockIndex) where T : IHasRelativePath, IHasFileSize, ICanProvideFileData
     {
 #if DEBUG
-        if (_curThreadIsWaitingForTurn.Value)
+        if (CurThreadIsWaitingForTurn.Value)
             throw new InvalidOperationException("WaitForBlockTurn called without a corresponding EndProcessingBlock");
 
-        _curThreadIsWaitingForTurn.Value = true;
+        CurThreadIsWaitingForTurn.Value = true;
 #endif
 
         // Wait until it's our turn to write.
         var spinWait = new SpinWait();
         while (builder.CurrentBlock != blockIndex)
         {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
         }
     }
 
@@ -139,7 +133,7 @@ internal static class BlockHelpers
 #if DEBUG
         try
         {
-            if (_curThreadIsWaitingForTurn.Value == false)
+            if (CurThreadIsWaitingForTurn.Value == false)
                 throw new InvalidOperationException("EndProcessingBlock called without a corresponding WaitForBlockTurn");
 #endif
             // Advance to next block.
@@ -151,7 +145,7 @@ internal static class BlockHelpers
         }
         finally
         {
-            _curThreadIsWaitingForTurn.Value = false;
+            CurThreadIsWaitingForTurn.Value = false;
         }
 #endif
     }

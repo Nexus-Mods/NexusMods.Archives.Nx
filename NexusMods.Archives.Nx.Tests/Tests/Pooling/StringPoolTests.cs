@@ -22,7 +22,7 @@ public class StringPoolTests
         };
 
         using var createPool = StringPool.Pack(items.AsSpan());
-        var strings = Polyfills.ToHashSet(StringPool.Unpack(createPool.Span));
+        var strings = StringPool.Unpack(createPool.Span).ToHashSet();
 
         foreach (var item in items)
             strings.Should().Contain(item.RelativePath);
@@ -40,7 +40,7 @@ public class StringPoolTests
         };
 
         using var createPool = StringPool.Pack(items.AsSpan());
-        var strings = Polyfills.ToHashSet(StringPool.Unpack(createPool.Span));
+        var strings = StringPool.Unpack(createPool.Span).ToHashSet();
 
         foreach (var item in items)
             strings.Should().Contain(item.RelativePath);

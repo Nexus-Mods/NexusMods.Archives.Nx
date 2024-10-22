@@ -1,3 +1,4 @@
+using System.IO.Hashing;
 using System.Runtime.CompilerServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
@@ -144,7 +145,7 @@ internal record ChunkedFileFromExistingNxBlock<T>
         var length = Math.Min(ShortHashLength, State.FileLength);
         var bytes = stackalloc byte[ShortHashLength];
         Utilities.Compression.Decompress(Compression, compressedPtr, (int)compressedLength, bytes, (int)length);
-        return XxHash64Algorithm.HashBytes(bytes, length);
+        return XxHash3.HashToUInt64(new Span<byte>(bytes, (int)length));
     }
 
     private unsafe void ProcessBlockWithoutDeduplication(TableOfContentsBuilder<T> tocBuilder, PackerSettings settings, int blockIndex)

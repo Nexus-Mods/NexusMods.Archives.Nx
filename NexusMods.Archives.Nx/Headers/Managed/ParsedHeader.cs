@@ -26,7 +26,7 @@ public class ParsedHeader : TableOfContents
     {
         var currentOffset = (ulong)Header.HeaderPageBytes;
         var numBlocks = Blocks.Length;
-        BlockOffsets = Polyfills.AllocateUninitializedArray<ulong>(numBlocks);
+        BlockOffsets = GC.AllocateUninitializedArray<ulong>(numBlocks, false);
         if (numBlocks <= 0)
             return;
 

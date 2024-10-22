@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -24,6 +23,7 @@
         <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
         <InvariantGlobalization>true</InvariantGlobalization>
         <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>

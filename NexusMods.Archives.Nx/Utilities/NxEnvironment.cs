@@ -14,13 +14,8 @@ internal class NxEnvironment
     /// </summary>
     private static unsafe int GetPhysicalCoreCount()
     {
-        #if NET5_0_OR_GREATER
         var isLinux = OperatingSystem.IsLinux(); // intrinsic/constant
         var isWindows = OperatingSystem.IsWindows(); // intrinsic/constant
-        #else
-        var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        #endif
 
         if (isLinux)
         {

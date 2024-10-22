@@ -16,24 +16,13 @@ jobs:
           - windows-latest
           - ubuntu-latest
           - macos-13 # macos-latest (macos-12) currently has issues with failing to run some AVX2 instructions.
+          - macos-latest
         targetFramework:
-          - net7.0
-          - net5.0
-          - netcoreapp3.1
+          - net8.0
         platform:
           - x64
           # I'd like to add arm64 here, but GitHub runners don't support it. The native port of Zstandard does support it though.
           # Modern Linux and OSX environments also don't support x86 backcompat; and we don't have runners for them either.
-        include:
-          - os: windows-latest
-            targetFramework: net7.0
-            platform: x86
-          - os: windows-latest
-            targetFramework: net5.0
-            platform: x86
-          - os: windows-latest
-            targetFramework: netcoreapp3.1
-            platform: x86
     
     runs-on: ${{ matrix.os }}
     steps:
@@ -47,11 +36,6 @@ jobs:
         run: dotnet build -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj
       - name: Run Tests
         run: dotnet test -c Release -f ${{ matrix.targetFramework }} ./NexusMods.Archives.Nx.Tests/NexusMods.Archives.Nx.Tests.csproj --collect:"XPlat Code Coverage;Format=cobertura;" --results-directory "Coverage" --no-build 
-      - name: "Upload Coverage"
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-${{ matrix.os }}-${{ matrix.targetFramework }}
-          path: Coverage/*/coverage.cobertura.xml
   upload:
     needs: build
     runs-on: ubuntu-latest

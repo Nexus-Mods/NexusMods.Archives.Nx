@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.FileProviders.FileData;
 using NexusMods.Archives.Nx.Headers.Managed;
@@ -209,7 +210,7 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
             if (_data != null)
                 return _data;
 
-            var data = AllocNativeMemory((nuint)_numBytesToDecompress);
+            var data = NativeMemory.Alloc((nuint)_numBytesToDecompress);
             using var rawBlockData = _sourceNxDataProvider.GetFileData(_blockOffset, _compressedBlockLength);
             Compression.Decompress(_compression, rawBlockData.Data, (int)rawBlockData.DataLength, (byte*)data, (int)_numBytesToDecompress);
             _data = data;
@@ -237,7 +238,7 @@ internal unsafe class LazyRefCounterDecompressedNxBlock : IDisposable
             throw new InvalidOperationException("Memory is being released while there are still references to it.");
 #endif
 
-        FreeNativeMemory(_data);
+        NativeMemory.Free(_data);
         _data = null;
     }
 }

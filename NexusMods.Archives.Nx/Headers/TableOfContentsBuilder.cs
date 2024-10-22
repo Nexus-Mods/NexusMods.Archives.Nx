@@ -103,7 +103,7 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
             Version = TableOfContentsVersion.V1;
 
         // Populate file name dictionary and names.
-        var poolPaths = Polyfills.AllocateUninitializedArray<string>(relativeFilePaths.Length);
+        var poolPaths = GC.AllocateUninitializedArray<string>(relativeFilePaths.Length, false);
         FileNameToIndexDictionary = new Dictionary<string, int>(relativeFilePaths.Length);
         for (var x = 0; x < relativeFilePaths.Length; x++)
         {
@@ -117,9 +117,9 @@ internal class TableOfContentsBuilder<T> : IDisposable where T : IHasRelativePat
         Toc = new TableOfContents
         {
             PoolSize = poolSize,
-            BlockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(blocks.Count),
-            Blocks = Polyfills.AllocateUninitializedArray<BlockSize>(blocks.Count),
-            Entries = Polyfills.AllocateUninitializedArray<FileEntry>(relativeFilePaths.Length),
+            BlockCompressions = GC.AllocateUninitializedArray<CompressionPreference>(blocks.Count, false),
+            Blocks = GC.AllocateUninitializedArray<BlockSize>(blocks.Count, false),
+            Entries = GC.AllocateUninitializedArray<FileEntry>(relativeFilePaths.Length, false),
             Pool = poolPaths
         };
     }

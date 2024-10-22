@@ -195,7 +195,7 @@ public class NxRepackerBuilder : NxPackerBuilder
 
                 if (isFullBlockCopy)
                 {
-                    var items = Polyfills.AllocateUninitializedArray<PathedFileEntry>(block.Count);
+                    var items = GC.AllocateUninitializedArray<PathedFileEntry>(block.Count, false);
                     var span = block.AsSpan();
                     for (var x = 0; x < span.Length; x++)
                     {

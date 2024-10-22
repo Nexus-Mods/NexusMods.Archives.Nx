@@ -1,7 +1,5 @@
 using System.Runtime.CompilerServices;
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -24,11 +22,7 @@ internal static class ArrayExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ref T DangerousGetReferenceAt<T>(this T[] array, int i)
     {
-#if NET5_0_OR_GREATER
         ref var r0 = ref MemoryMarshal.GetArrayDataReference(array);
         return ref Unsafe.Add(ref r0, (nint)(uint)i);
-#else
-        return ref Unsafe.Add(ref array[0], (nint)(uint)i);
-#endif
     }
 }

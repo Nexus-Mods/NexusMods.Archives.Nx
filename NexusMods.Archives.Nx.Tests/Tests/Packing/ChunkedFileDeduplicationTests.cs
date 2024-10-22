@@ -1,3 +1,4 @@
+using System.IO.Hashing;
 using FluentAssertions;
 using NexusMods.Archives.Nx.FileProviders;
 using NexusMods.Archives.Nx.Packing;
@@ -11,6 +12,8 @@ public class ChunkedFileDeduplicationTests
     {
         // Arrange
         var fileContent = PackingTests.MakeDummyFile(2 * 1024 * 1024); // 2 MB file
+        var fileHash = XxHash3.HashToUInt64(fileContent);
+
 
         var packerBuilder = new NxPackerBuilder();
         packerBuilder.WithChunkSize(1024 * 1024); // 1 MB chunks
@@ -34,6 +37,7 @@ public class ChunkedFileDeduplicationTests
         fileEntries[1].Entry.FirstBlockIndex.Should().Be(fileEntries[0].Entry.FirstBlockIndex);
         fileEntries[0].Entry.DecompressedSize.Should().Be(2 * 1024 * 1024);
         fileEntries[1].Entry.DecompressedSize.Should().Be(2 * 1024 * 1024);
+        fileEntries[0].Entry.Hash.Should().Be(fileHash);
 
         // Extract and verify content
         unpackerBuilder.AddFilesWithArrayOutput(fileEntries, out var extractedFiles);

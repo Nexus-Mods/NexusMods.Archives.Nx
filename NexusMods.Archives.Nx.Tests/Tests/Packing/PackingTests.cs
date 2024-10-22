@@ -1,3 +1,4 @@
+using System.IO.Hashing;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using FluentAssertions;
@@ -254,7 +255,7 @@ public class PackingTests
 
     internal static byte[] MakeDummyFile(int length)
     {
-        var result = Polyfills.AllocateUninitializedArray<byte>(length);
+        var result = GC.AllocateUninitializedArray<byte>(length, false);
         for (var x = 0; x < length; x++)
             result[x] = (byte)(x % 255);
 
@@ -300,5 +301,5 @@ public static class SpanExtensions
     /// </summary>
     /// <param name="data">The data to hash.</param>
     /// <returns>Hash for the given data.</returns>
-    public static ulong XxHash64(this ReadOnlySpan<byte> data) => XxHash64Algorithm.HashBytes(data);
+    public static ulong XxHash64(this ReadOnlySpan<byte> data) => XxHash3.HashToUInt64(data);
 }

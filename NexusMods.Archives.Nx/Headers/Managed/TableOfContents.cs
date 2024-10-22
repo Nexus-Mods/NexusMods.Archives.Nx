@@ -62,9 +62,9 @@ public class TableOfContents : IEquatable<TableOfContents>
         var reader = new LittleEndianReader(dataPtr);
         var tocHeader = NativeTocHeader.FromRaw(reader.ReadULong());
 
-        var entries = Polyfills.AllocateUninitializedArray<FileEntry>(tocHeader.FileCount);
-        var blocks = Polyfills.AllocateUninitializedArray<BlockSize>(tocHeader.BlockCount);
-        var blockCompressions = Polyfills.AllocateUninitializedArray<CompressionPreference>(tocHeader.BlockCount);
+        var entries = GC.AllocateUninitializedArray<FileEntry>(tocHeader.FileCount, false);
+        var blocks = GC.AllocateUninitializedArray<BlockSize>(tocHeader.BlockCount, false);
+        var blockCompressions = GC.AllocateUninitializedArray<CompressionPreference>(tocHeader.BlockCount, false);
 
         // Unavoidable bounds check in DangerousGetReferenceAt on older frameworks, when 0 blocks.
         // So despite the code handling 0 blocks properly, code still throws there; so we have to add this

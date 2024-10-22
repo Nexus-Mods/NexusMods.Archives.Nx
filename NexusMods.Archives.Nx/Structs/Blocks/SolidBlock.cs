@@ -1,10 +1,9 @@
+using System.IO.Hashing;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
 using NexusMods.Archives.Nx.Utilities;
-#if NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
 
 namespace NexusMods.Archives.Nx.Structs.Blocks;
 
@@ -22,11 +21,7 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
         long largestSize = 0;
 
         // Skips IEnumerator.
-#if NET5_0_OR_GREATER
         foreach (var item in CollectionsMarshal.AsSpan(Items))
-#else
-        foreach (var item in Items)
-#endif
         {
             if (item.FileSize > largestSize)
                 largestSize = item.FileSize;
@@ -60,23 +55,20 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
         fixed (byte* decompressedPtr = decompressedSpan)
         {
             var deduplicationState = settings.SolidDeduplicationState;
-#if NET5_0_OR_GREATER
             var itemSpan = CollectionsMarshal.AsSpan(Items);
             for (var x = 0; x < itemSpan.Length; x++)
             {
                 var item = itemSpan[x];
-#else
-            for (var x = 0; x < Items.Count; x++)
-            {
-                var item = Items[x];
-#endif
 
                 // Write file info
                 using var data = item.FileDataProvider.GetFileData(0, (uint)item.FileSize);
                 ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
                 file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[item.RelativePath];
                 file.DecompressedSize = data.DataLength;
-                file.Hash = XxHash64Algorithm.HashBytes(data.Data, data.DataLength);
+
+                var voidptr = (void*)data.Data;
+                file.Hash = XxHash3.HashToUInt64(new Span<byte>(voidptr, (int)data.DataLength));
+
 
                 // Check for deduplication
                 if (deduplicationState != null)
@@ -160,5 +152,4 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
             }
         }
-    }
-}
+    } }
