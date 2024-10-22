@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 using FluentAssertions;
 using NexusMods.Archives.Nx.Utilities;
 
@@ -19,7 +21,6 @@ public class FindOffsetsTests
     ///     Determines if offsets for StringPool can be correctly found using various optimized approaches.
     /// </summary>
     [Theory]
-    #if !MACOS
     [InlineData(65, new[] { 1, 4, 8 }, FindOffsetMethod.Avx2)] // above register
     [InlineData(64, new[] { 1, 4, 8 }, FindOffsetMethod.Avx2)] // on register
     [InlineData(64, new[] { 63 }, FindOffsetMethod.Avx2)] // last element
@@ -30,12 +31,18 @@ public class FindOffsetsTests
     [InlineData(32, new[] { 31 }, FindOffsetMethod.Sse2)] // last element
     [InlineData(32, new[] { 0, 31 }, FindOffsetMethod.Sse2)] // first element
     [InlineData(31, new[] { 1, 4, 8 }, FindOffsetMethod.Sse2)] // below register
-    #endif
     [InlineData(8, new[] { 1, 4, 7 }, FindOffsetMethod.Fallback)] // above register
     [InlineData(8, new[] { 7 }, FindOffsetMethod.Fallback)] // last element
     [InlineData(8, new[] { 0, 7 }, FindOffsetMethod.Fallback)] // first element
     public void FindOffset(int numBytes, int[] expectedOffsets, FindOffsetMethod findOffsetMethod)
     {
+        switch (findOffsetMethod)
+        {
+            case FindOffsetMethod.Sse2 when !Sse2.IsSupported:
+            case FindOffsetMethod.Avx2 when !Avx2.IsSupported:
+                return;
+        }
+
         var bytes = GenerateRandomBytes(numBytes, expectedOffsets);
         var offsets = FindOffsetWithMethod(bytes, findOffsetMethod);
 
