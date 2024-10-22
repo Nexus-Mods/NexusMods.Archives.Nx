@@ -1,3 +1,4 @@
+using System.IO.Hashing;
 using NexusMods.Archives.Nx.Enums;
 using NexusMods.Archives.Nx.Headers;
 using NexusMods.Archives.Nx.Traits;
@@ -76,7 +77,10 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 ref var file = ref tocBuilder.GetAndIncrementFileAtomic();
                 file.FilePathIndex = tocBuilder.FileNameToIndexDictionary[item.RelativePath];
                 file.DecompressedSize = data.DataLength;
-                file.Hash = XxHash64Algorithm.HashBytes(data.Data, data.DataLength);
+
+                var voidptr = (void*)data.Data;
+                file.Hash = XxHash3.HashToUInt64(new Span<byte>(voidptr, (int)data.DataLength));
+
 
                 // Check for deduplication
                 if (deduplicationState != null)
@@ -160,5 +164,4 @@ internal record SolidBlock<T>(List<T> Items, CompressionPreference Compression) 
                 BlockHelpers.EndProcessingBlock(tocBuilder, settings.Progress);
             }
         }
-    }
-}
+    } }

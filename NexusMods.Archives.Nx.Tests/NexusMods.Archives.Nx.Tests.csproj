@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <!-- net462 disabled due to ZStd dependency not supporting it right now -->
-        <TargetFrameworks>net7.0;netcoreapp3.1;net5.0</TargetFrameworks>
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
@@ -10,6 +9,7 @@
         <LangVersion>preview</LangVersion>
         <XunitStartupAssembly>NexusMods.Archives.Nx.Tests</XunitStartupAssembly>
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
     
     <ItemGroup>
