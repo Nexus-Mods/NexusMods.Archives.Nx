@@ -23,9 +23,7 @@ public class SolidDeduplicationState
     /// </summary>
     internal void EnsureCapacity(int numItems)
     {
-        #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
         _hashToSolidFileDetails.EnsureCapacity(numItems);
-        #endif
     }
 
     /// <summary>

@@ -145,7 +145,7 @@ public class NxUnpackerBuilder
 
     private Span<FileEntry> ToSpan(PathedFileEntry[] files)
     {
-        var result = Polyfills.AllocateUninitializedArray<FileEntry>(files.Length);
+        var result = GC.AllocateUninitializedArray<FileEntry>(files.Length, false);
         for (var x = 0; x < result.Length; x++)
             result[x] = files.DangerousGetReferenceAt(x).Entry;
 

@@ -2,10 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-#if NETCOREAPP2_1_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-#endif
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -23,43 +21,7 @@ internal static class SpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Span<TTo> CastFast<TFrom, TTo>(this Span<TFrom> data) where TFrom : struct where TTo : struct
     {
-#if NETSTANDARD2_0
         return MemoryMarshal.Cast<TFrom, TTo>(data);
-#else
-        // Taken from the runtime.
-        // Use unsigned integers - unsigned division by constant (especially by power of 2)
-        // and checked casts are faster and smaller.
-        var fromSize = (uint)Unsafe.SizeOf<TFrom>();
-        var toSize = (uint)Unsafe.SizeOf<TTo>();
-        var fromLength = (uint)data.Length;
-        int toLength;
-        if (fromSize == toSize)
-        {
-            // Special case for same size types - `(ulong)fromLength * (ulong)fromSize / (ulong)toSize`
-            // should be optimized to just `length` but the JIT doesn't do that today.
-            toLength = (int)fromLength;
-        }
-        else if (fromSize == 1)
-        {
-            // Special case for byte sized TFrom - `(ulong)fromLength * (ulong)fromSize / (ulong)toSize`
-            // becomes `(ulong)fromLength / (ulong)toSize` but the JIT can't narrow it down to `int`
-            // and can't eliminate the checked cast. This also avoids a 32 bit specific issue,
-            // the JIT can't eliminate long multiply by 1.
-            toLength = (int)(fromLength / toSize);
-        }
-        else
-        {
-            // Ensure that casts are done in such a way that the JIT is able to "see"
-            // the uint->ulong casts and the multiply together so that on 32 bit targets
-            // 32x32to64 multiplication is used.
-            var toLengthUInt64 = fromLength * (ulong)fromSize / toSize;
-            toLength = (int)toLengthUInt64;
-        }
-
-        return MemoryMarshal.CreateSpan(
-            ref Unsafe.As<TFrom, TTo>(ref MemoryMarshal.GetReference(data)),
-            toLength);
-#endif
     }
 
     /// <summary>
@@ -68,11 +30,7 @@ internal static class SpanExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Span<T> SliceFast<T>(this Span<T> data, int start, int length)
     {
-#if NETSTANDARD2_0
-        return data.Slice(start, length);
-#else
         return MemoryMarshal.CreateSpan(ref Unsafe.Add(ref MemoryMarshal.GetReference(data), start), length);
-#endif
     }
 
     /// <summary>
@@ -143,7 +101,7 @@ internal static class SpanExtensions
                 } while (x < lengthToExamine);
             }
 
-            // There are between 0 to Vector<T>.Count elements remaining now.  
+            // There are between 0 to Vector<T>.Count elements remaining now.
 
             // Since our operation can be applied multiple times without changing the result
             // [applying the replacement twice is non destructive]. We can avoid non-vectorised code
@@ -186,7 +144,6 @@ internal static class SpanExtensions
         var offsets = new List<int>(offsetCountHint);
         fixed (byte* dataPtr = data)
         {
-#if NETCOREAPP3_1_OR_GREATER
             if (Avx2.IsSupported)
             {
                 FindAllOffsetsOfByteAvx2(dataPtr, data.Length, value, offsets);
@@ -198,7 +155,6 @@ internal static class SpanExtensions
                 FindAllOffsetsOfByteSse2(dataPtr, data.Length, value, offsets);
                 return offsets;
             }
-#endif
 
             // Otherwise probably not a x64 CPU.
             FindAllOffsetsOfByteFallback(dataPtr, data.Length, value, 0, offsets);
@@ -221,7 +177,6 @@ internal static class SpanExtensions
         }
     }
 
-#if NETCOREAPP3_1_OR_GREATER
     internal static unsafe void FindAllOffsetsOfByteAvx2(byte* data, int length, byte value, List<int> results)
     {
         const int avxRegisterLength = 32;
@@ -289,5 +244,4 @@ internal static class SpanExtensions
         var position = (int)(dataPtr - data);
         FindAllOffsetsOfByteFallback(data + position, length - position, value, position, results);
     }
-#endif
 }

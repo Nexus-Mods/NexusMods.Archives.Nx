@@ -13,11 +13,6 @@ namespace NexusMods.Archives.Nx.Utilities;
 /// </summary>
 internal static class ThrowHelpers
 {
-#if !NET7_0_OR_GREATER
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void ThrowEndOfFileException() => throw new EndOfStreamException();
-#endif
-
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void ThrowTocVersionNotSupported(TableOfContentsVersion version) => throw new TocVersionNotSupportedException(version);
 

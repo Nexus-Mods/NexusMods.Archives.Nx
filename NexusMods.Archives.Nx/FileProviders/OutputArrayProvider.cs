@@ -33,7 +33,7 @@ public sealed class OutputArrayProvider : IOutputDataProvider
 
         RelativePath = relativePath;
         Entry = entry;
-        Data = Polyfills.AllocateUninitializedArray<byte>((int)Entry.DecompressedSize);
+        Data = GC.AllocateUninitializedArray<byte>((int)Entry.DecompressedSize, false);
     }
 
     /// <inheritdoc />

@@ -18,11 +18,7 @@ internal static class VectorExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static Vector<T> LoadUnsafe<T>(ref T source, nuint elementOffset) where T : struct
     {
-#if NET7_0_OR_GREATER
         source = ref Unsafe.Add(ref source, elementOffset);
-#else
-        source = ref Unsafe.Add(ref source, (int)elementOffset);
-#endif
         return Unsafe.ReadUnaligned<Vector<T>>(ref Unsafe.As<T, byte>(ref source));
     }
 
@@ -35,11 +31,7 @@ internal static class VectorExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void StoreUnsafe<T>(this Vector<T> source, ref T destination, nuint elementOffset) where T : struct
     {
-#if NET7_0_OR_GREATER
         destination = ref Unsafe.Add(ref destination, elementOffset);
-#else
-        destination = ref Unsafe.Add(ref destination, (int)elementOffset);
-#endif
         Unsafe.WriteUnaligned(ref Unsafe.As<T, byte>(ref destination), source);
     }
 }

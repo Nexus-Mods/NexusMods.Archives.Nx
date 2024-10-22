@@ -72,7 +72,7 @@ internal class PackerArrayPool : IDisposable
         _arrays = new byte[concurrentWorkers][];
         _arraysTaken = new int[concurrentWorkers];
         for (var x = 0; x < concurrentWorkers; x++)
-            _arrays[x] = Polyfills.AllocateUninitializedArray<byte>(maxSize, true);
+            _arrays[x] = GC.AllocateUninitializedArray<byte>(maxSize, true);
     }
 
     public PackerPoolRental Rent(int numBytes)

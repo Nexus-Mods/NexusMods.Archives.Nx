@@ -84,7 +84,7 @@ public sealed class MemoryMappedOutputFileData : IFileData
         // On Windows, flushing the view leads to somewhat asynchronous write in any case.
         // But .NET Runtime does it synchronously on Linux.
         // This actually brings our platforms closer to parity.
-        if (Polyfills.IsWindows())
+        if (OperatingSystem.IsWindows())
         {
             // On Windows flushing acts as a hint of 'start writing asynchronously now'.
             // so it's desirable to keep the full flush.

@@ -31,10 +31,8 @@ public class ChunkedDeduplicationState
     /// </summary>
     internal void EnsureCapacity(int numItems)
     {
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_0_OR_GREATER
         _shortHashSet = new ConcurrentDictionary<ulong, bool>(2, numItems);
         _hashToChunkedFileDetails = new ConcurrentDictionary<ulong, DeduplicatedChunkedFile>(2, numItems);
-#endif
     }
 
     /// <summary>

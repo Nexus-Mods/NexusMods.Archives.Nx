@@ -2,6 +2,7 @@
 using System.Diagnostics;
 #endif
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace NexusMods.Archives.Nx.Utilities;
 
@@ -31,7 +32,7 @@ internal unsafe struct BlockList<T> : IDisposable where T : unmanaged
         // Calculate total memory needed
         var blockSectionSize = sizeof(FixedSizeList<T>) * blockCount;
         var itemSectionSize = sizeof(T) * maxNumItems;
-        _data = Polyfills.AllocNativeMemory((UIntPtr)(blockSectionSize + itemSectionSize));
+        _data = NativeMemory.Alloc((UIntPtr)(blockSectionSize + itemSectionSize));
         _currentItem = (T*)((byte*)_data + blockSectionSize);
         _blockCount = blockCount;
 
@@ -80,7 +81,7 @@ internal unsafe struct BlockList<T> : IDisposable where T : unmanaged
     public Span<FixedSizeList<T>> GetAllBlocks() => new(Blocks, _blockCount);
 
     /// <inheritdoc />
-    public void Dispose() => Polyfills.FreeNativeMemory(_data);
+    public void Dispose() => NativeMemory.Free(_data);
 }
 
 /// <summary>

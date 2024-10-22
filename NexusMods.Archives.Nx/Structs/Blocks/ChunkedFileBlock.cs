@@ -407,11 +407,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         var spinWait = new SpinWait();
         while (_currentChunkIndex != chunkIndex)
         {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
         }
     }
 
@@ -431,11 +427,7 @@ internal class ChunkedBlockState<T> where T : IHasFileSize, ICanProvideFileData,
         var spinWait = new SpinWait();
         while (_currentChunkIndex != chunkIndex && DuplicateState != DeduplicationCheckState.Duplicate)
         {
-#if NETCOREAPP3_0_OR_GREATER
             spinWait.SpinOnce(-1);
-#else
-            spinWait.SpinOnce();
-#endif
         }
 
         return DuplicateState == DeduplicationCheckState.Duplicate;
