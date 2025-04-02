@@ -1,6 +1,5 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>net8.0</TargetFrameworks>
         <WarningsAsErrors>Nullable</WarningsAsErrors>
         <NoWarn>NU5104</NoWarn>
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>

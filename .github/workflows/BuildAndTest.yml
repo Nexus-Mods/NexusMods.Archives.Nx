@@ -50,12 +50,14 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
+      - name: Setup AutoChangelog
+        run: npm install -g auto-changelog
       - name: Build Library
         run: dotnet build -c Release ./NexusMods.Archives.Nx/NexusMods.Archives.Nx.csproj
       - name: "Install ReportGenerator"
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
       - name: "Download Coverage Artifacts"
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: "Merge Coverage Files"

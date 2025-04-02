@@ -53,7 +53,7 @@ runs:
         echo "release-tag: ${{ inputs.release-tag }}"
 
     - name: "Upload Merged Coverage"
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Merged Coverage
         path: ${{ inputs.code-coverage-path }}
@@ -77,7 +77,7 @@ runs:
         }
 
     - name: Upload NuGet Package Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         # Artifact name
         name: NuGet Packages
@@ -87,7 +87,7 @@ runs:
           **/${{ inputs.snupkg-glob }}
 
     - name: Upload Changelog Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         # Artifact name
         name: Changelog
