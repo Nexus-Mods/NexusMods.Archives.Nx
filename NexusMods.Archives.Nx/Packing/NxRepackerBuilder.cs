@@ -153,50 +153,50 @@ public class NxRepackerBuilder : NxPackerBuilder
         var blockCount = sourceData.Header.Blocks.Length;
         var origArchiveBlockFileCounts = new int[blockCount];
 
-        foreach (var entry in sourceData.Header.Entries)
-            origArchiveBlockFileCounts.DangerousGetReferenceAt(entry.FirstBlockIndex)++;
+        foreach (var origEntry in sourceData.Header.Entries)
+            origArchiveBlockFileCounts.DangerousGetReferenceAt(origEntry.FirstBlockIndex)++;
 
         // Now we group all the file entries by their block index.
         // Later down the road, if the file count per block matches the old file,
         // the blocks may be copied verbatim.
-
-        using var blockList = new BlockList<FileEntry>(blockCount, sourceData.Header.Entries.Length);
-        foreach (var entry in sourceData.Entries)
+        using var newBlocksList = new BlockList<FileEntry>(blockCount, sourceData.Header.Entries.Length);
+        foreach (var newBlockFileEntry in sourceData.Entries)
         {
-            var blockIndex = entry.FirstBlockIndex;
-            var itemCount = origArchiveBlockFileCounts.DangerousGetReferenceAt(entry.FirstBlockIndex);
-            var list = blockList.GetOrCreateList(blockIndex, itemCount);
-            list->Push(entry);
+            var blockIndex = newBlockFileEntry.FirstBlockIndex;
+            var origItemCount = origArchiveBlockFileCounts.DangerousGetReferenceAt(newBlockFileEntry.FirstBlockIndex);
+            var list = newBlocksList.GetOrCreateList(blockIndex, origItemCount);
+            list->Push(newBlockFileEntry);
         }
 
         // Now create the blocks for the new archive.
-        foreach (var block in blockList.GetAllBlocks())
+        foreach (var newBlock in newBlocksList.GetAllBlocks())
         {
-            if (!block.IsValid || block.Count <= 0)
+            if (!newBlock.IsValid || newBlock.Count <= 0)
                 continue;
 
-            var isChunkedFile = IsChunkedFile(block);
-            if (isChunkedFile)
+            var isChunkedBlock = IsChunkedBlock(newBlock, sourceData.Header.Header.ChunkSizeBytes);
+            if (isChunkedBlock)
             {
-                var blockSpan = block.AsSpan();
+                var blockSpan = newBlock.AsSpan();
                 foreach (var entry in blockSpan)
                     PackerBuilderHelpers.CreateChunkedFileFromExistingNxBlock(nxSource, sourceData.Header, entry, blocks);
             }
             else
             {
                 // Determine if the file belongs to a full SOLID block that requires copying verbatim.
-                var firstFile = block.AsSpan()[0];
+                var firstFile = newBlock.AsSpan()[0];
                 var blockIndex = firstFile.FirstBlockIndex;
-                var isFullBlockCopy = origArchiveBlockFileCounts.DangerousGetReferenceAt(blockIndex) == block.Count;
+                var isFullBlockCopy = origArchiveBlockFileCounts.DangerousGetReferenceAt(blockIndex) == newBlock.Count;
 
                 var blockSize = sourceData.Header.Blocks[blockIndex]; // bounds check
                 var blockOffset = sourceData.Header.BlockOffsets.DangerousGetReferenceAt(blockIndex); // same length by definition
                 var compression = sourceData.Header.BlockCompressions.DangerousGetReferenceAt(blockIndex); // same length by definition
 
+                // Check if we can copy the block verbatim
                 if (isFullBlockCopy)
                 {
-                    var items = GC.AllocateUninitializedArray<PathedFileEntry>(block.Count, false);
-                    var span = block.AsSpan();
+                    var items = GC.AllocateUninitializedArray<PathedFileEntry>(newBlock.Count, false);
+                    var span = newBlock.AsSpan();
                     for (var x = 0; x < span.Length; x++)
                     {
                         ref var entry = ref span[x];
@@ -220,7 +220,7 @@ public class NxRepackerBuilder : NxPackerBuilder
                     var lazyBlock = new LazyRefCounterDecompressedNxBlock(nxSource, blockOffset, (ulong)blockSize.CompressedSize, compression);
 
                     // Add multiple files from the SOLID block
-                    foreach (var entry in block.AsSpan())
+                    foreach (var entry in newBlock.AsSpan())
                     {
                         var fromExistingNxBlock = new FromExistingNxBlock(lazyBlock, entry);
                         lazyBlock.ConsiderFile(entry);
@@ -236,34 +236,16 @@ public class NxRepackerBuilder : NxPackerBuilder
         }
     }
 
-    private static bool IsChunkedFile(FixedSizeList<FileEntry> block)
+    private static bool IsChunkedBlock(FixedSizeList<FileEntry> block, int chunkSizeBytes)
     {
-        // If the file is a chunked file, one of the following has to be true:
-        // - There is only one file in the block.
-        //   - This could also mean it's just a file with a single block.
-        // OR
-        // - All files in the block refer to same block index (int) and offset (0).
-        //   - This means files got deduplicated.
-        var isChunkedFile = true;
-        if (block.Count <= 1)
-            return isChunkedFile;
-
+        // Determine if we have a SOLID block of a chunked file block
+        // - If chunked:
+        //   - The first file size is greater than chunk size.
         var blockSpan = block.AsSpan();
-        var firstBlockIndex = blockSpan[0].FirstBlockIndex;
-        long decompressedBlockOffset = blockSpan[0].DecompressedBlockOffset;
-
-        for (var x = 1; x < blockSpan.Length; x++)
-        {
-            if (blockSpan[x].FirstBlockIndex == firstBlockIndex &&
-                blockSpan[x].DecompressedBlockOffset == decompressedBlockOffset)
-                continue;
-
-            isChunkedFile = false;
-            break;
-        }
-
-        return isChunkedFile;
+        var firstFile = blockSpan[0];
+        return firstFile.IsChunked(chunkSizeBytes);
     }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UpdateChunkSize(ParsedHeader header)
