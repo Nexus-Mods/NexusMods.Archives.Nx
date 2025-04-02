@@ -50,6 +50,8 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
+      - name: Setup AutoChangelog
+        run: npm install -g auto-changelog
       - name: Build Library
         run: dotnet build -c Release ./NexusMods.Archives.Nx/NexusMods.Archives.Nx.csproj
       - name: "Install ReportGenerator"
