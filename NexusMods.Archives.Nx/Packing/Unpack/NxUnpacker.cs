@@ -21,7 +21,8 @@ public class NxUnpacker
 
     // Current Decompression State
     private IProgress<double>? _progress;
-    private int _currentNumBlocks;
+    private int _numBlocksCompleted;
+    private int _totalNumBlocks;
     private PackerArrayPool _decompressPool = null!;
 
     /// <summary>
@@ -147,14 +148,15 @@ public class NxUnpacker
     {
         settings.Sanitize();
         _progress = settings.Progress;
+        _numBlocksCompleted = 0;
 
         var blocks = MakeExtractableBlocks.Do(outputs, _nxHeader.Header.ChunkSizeBytes);
         _decompressPool = new PackerArrayPool(settings.MaxNumThreads, _nxHeader.Header.ChunkSizeBytes);
-        _currentNumBlocks = blocks.Count;
+        _totalNumBlocks = blocks.Count;
         if (settings.MaxNumThreads > 1)
         {
             using var sched = new OrderedTaskScheduler(settings.MaxNumThreads);
-            for (var x = 0; x < _currentNumBlocks; x++)
+            for (var x = 0; x < _totalNumBlocks; x++)
                 Task.Factory.StartNew(ExtractBlock, blocks[x], CancellationToken.None, TaskCreationOptions.None, sched);
         }
         else
@@ -203,7 +205,7 @@ public class NxUnpacker
 
             using var outputData = output.GetFileData((ulong)start, (ulong)length);
             Compression.Decompress(method, compressedBlock.Data, blockSize, outputData.Data, (int)outputData.DataLength);
-            _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
+            _progress?.Report(Interlocked.Increment(ref _numBlocksCompleted) / (float)_totalNumBlocks);
             return;
         }
 
@@ -232,7 +234,7 @@ public class NxUnpacker
                 Buffer.MemoryCopy(extractedPtr + entry.DecompressedBlockOffset, outputData.Data, outputData.DataLength, outputData.DataLength);
             }
 
-            _progress?.Report(extractable.BlockIndex / (float)_currentNumBlocks);
+            _progress?.Report(Interlocked.Increment(ref _numBlocksCompleted) / (float)_totalNumBlocks);
         }
     }
 
